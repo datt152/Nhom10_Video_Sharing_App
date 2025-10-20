@@ -1,20 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.tsx
+/**
+ * Root App Component
+ * Entry point của ứng dụng
+ */
+
+import React from 'react';
+import { StatusBar } from 'react-native';
+import { COLORS } from './src/styles/theme';
+import { AppNavigator } from './src/services/navigation/AppNavigation';
+import { ErrorBoundary } from './src/component/common/ErrorBoundary';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your Hello</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ErrorBoundary>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.background}
+        translucent={false}
+      />
+      <AppNavigator />
+    </ErrorBoundary>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
