@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CreateUploadScreen from '../screens/CreateUploadScreen';
+import ExploreScreen from '../screens/ExploreScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -39,6 +40,14 @@ function BottomTabs() {
         component={CreateUploadScreen}
         options={{
           tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={34} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Explore"
+        component={ExploreScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Ionicons name="compass" color={color} size={size} />,
+          title: 'Khám phá',
         }}
       />
     </Tab.Navigator>
