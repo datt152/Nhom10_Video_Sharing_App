@@ -1,4 +1,3 @@
-
 export const COLORS = {
   // Primary Colors - Màu chủ đạo
   primary: '#FF0050',        // Đỏ hồng nổi bật (như TikTok)

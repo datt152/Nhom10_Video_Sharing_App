@@ -47,7 +47,7 @@ export const REGEX = {
   MENTION: /@[a-zA-Z0-9_]+/g,
 };
 
-// Error Messages (Tiếng Việt thân thiện)
+// Error Messages
 export const ERROR_MESSAGES = {
   // Auth Errors
   INVALID_EMAIL: 'Email không hợp lệ',
