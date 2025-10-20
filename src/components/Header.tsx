@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const Header = () => {
+    const navigation = useNavigation();
   return (
     <View style={styles.header}>
       <Text style={styles.logo}>VidShare</Text>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Notification" as never)}>
         <Ionicons name="notifications-outline" size={26} color="#FF4EB8" />
       </TouchableOpacity>
     </View>
