@@ -33,7 +33,7 @@ const SearchScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingTop: 50 },
+  container: { flex: 1, backgroundColor: '#fff'},
   searchBox: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#F8F8F8', margin: 20, borderRadius: 12, paddingHorizontal: 10
