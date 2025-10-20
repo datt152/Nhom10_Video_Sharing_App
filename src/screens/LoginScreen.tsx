@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import ErrorBox from '../components/ErrorBox';
 
 const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showError, setShowError] = useState(false); // trigger hiển thị ErrorBox
 
   const handleLogin = () => {
     if (email === 'test@gmail.com' && password === '123456') {
-      navigation.replace('Main'); // chuyển đến tab chính sau khi login
+      setErrorMessage('');
+      setShowError(false);
+      navigation.replace('Main');
     } else {
-      Alert.alert('Đăng nhập thất bại', 'Sai email hoặc mật khẩu');
+      setErrorMessage('Sai email hoặc mật khẩu. Vui lòng thử lại.');
+      setShowError(false); // reset trigger
+      setTimeout(() => setShowError(true), 0); // kích hoạt lại ErrorBox
     }
   };
 
@@ -17,18 +24,21 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.logo}>VidShare</Text>
 
+      {/* Hiển thị hộp lỗi khi showError=true */}
+      {showError && <ErrorBox message={errorMessage} onClose={() => setShowError(false)} />}
+
       <TextInput
         placeholder="Email"
         style={styles.input}
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => setEmail(text)}
       />
       <TextInput
         placeholder="Mật khẩu"
         style={styles.input}
         secureTextEntry
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(text) => setPassword(text)}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -68,6 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     alignItems: 'center',
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
