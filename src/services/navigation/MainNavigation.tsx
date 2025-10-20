@@ -1,9 +1,3 @@
-// src/navigation/MainNavigator.tsx
-/**
- * Main Tab Navigator
- * Bottom Tab Navigation cho các màn hình chính
- */
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, StyleSheet, View } from 'react-native';
