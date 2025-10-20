@@ -64,11 +64,10 @@ function BottomTabs() {
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={BottomTabs} />
         <Stack.Screen name='Notification' component={NotificationScreen} />
       </Stack.Navigator>
-    </NavigationContainer>
   );
 }
