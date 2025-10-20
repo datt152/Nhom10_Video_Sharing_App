@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
 
 const HomeScreen: React.FC = () => {
   return (
@@ -82,8 +81,7 @@ const HomeScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* BOTTOM NAVIGATION */}
-      <BottomNav />
+
     </View>
   );
 };

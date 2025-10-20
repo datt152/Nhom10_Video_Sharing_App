@@ -2,7 +2,6 @@ import React from 'react';
 import { View, TextInput, ScrollView, Text, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
 
 const SearchScreen: React.FC = () => {
   return (
@@ -29,7 +28,6 @@ const SearchScreen: React.FC = () => {
           </View>
         ))}
       </ScrollView>
-      <BottomNav />
     </View>
   );
 };

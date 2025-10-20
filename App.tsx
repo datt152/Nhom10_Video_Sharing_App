@@ -1,20 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import HomeScreen from './src/screens/HomeScreen';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-export default function App() {
-  return (
-    <SafeAreaProvider style={styles.container}>
-      <HomeScreen/>
-    </SafeAreaProvider>
-  );
-}
+import React from 'react';
+import AppNavigator from './src/navigation/AppNavigator';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      
+          <AppNavigator />
+        
+      </SafeAreaView>
+    </SafeAreaProvider>;
+}
