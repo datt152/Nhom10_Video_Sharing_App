@@ -1,9 +1,3 @@
-// src/screens/search/SearchScreen.tsx
-/**
- * Search Screen
- * Màn hình tìm kiếm
- */
-
 import React, { useState } from 'react';
 import {
   View,
