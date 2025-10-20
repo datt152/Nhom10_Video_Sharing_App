@@ -50,6 +50,14 @@ function BottomTabs() {
           title: 'Khám phá',
         }}
       />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
+          title: 'Cá nhân',
+        }}
+      />
     </Tab.Navigator>
   );
 }
