@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
+import CreateUploadScreen from '../screens/CreateUploadScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -33,7 +34,13 @@ function BottomTabs() {
           tabBarIcon: ({ color }) => <Ionicons name="search" size={24} color={color} />,
         }}
       />
-      
+      <Tab.Screen
+        name="Upload"
+        component={CreateUploadScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={34} color={color} />,
+        }}
+      />
     </Tab.Navigator>
   );
 }
