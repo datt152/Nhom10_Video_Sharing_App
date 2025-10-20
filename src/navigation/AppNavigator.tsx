@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CreateUploadScreen from '../screens/CreateUploadScreen';
 import ExploreScreen from '../screens/ExploreScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -18,7 +19,7 @@ function BottomTabs() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#FF4EB8',
-        tabBarStyle: { height: 60, paddingBottom: 8 },
+        tabBarStyle: { height: 60, paddingBottom: 5 },
       }}
     >
       <Tab.Screen
@@ -39,23 +40,21 @@ function BottomTabs() {
         name="Upload"
         component={CreateUploadScreen}
         options={{
-          tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={34} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={24} color={color} />,
         }}
       />
       <Tab.Screen
         name="Explore"
         component={ExploreScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="compass" color={color} size={size} />,
-          title: 'Khám phá',
+          tabBarIcon: ({ color, size }) => <Ionicons name="compass" color={color} size={24} />
         }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
-          title: 'Cá nhân',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={24} />
         }}
       />
     </Tab.Navigator>
