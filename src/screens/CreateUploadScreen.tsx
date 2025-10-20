@@ -16,7 +16,6 @@ const CreateUploadScreen: React.FC = () => (
         <Text style={[styles.btnText, { color: '#FF4EB8' }]}>Record New Video</Text>
       </TouchableOpacity>
     </View>
-    <BottomNav />
   </View>
 );
 
