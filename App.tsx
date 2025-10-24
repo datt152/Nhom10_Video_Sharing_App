@@ -10,7 +10,7 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       
          <NavigationContainer>
-           <AuthNavigator />
+           <AppNavigator />
          </NavigationContainer>
         
       </SafeAreaView>
