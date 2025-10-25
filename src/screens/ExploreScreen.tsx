@@ -28,14 +28,12 @@ export default function ExploreScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // ✅ Viewability config - Phát hiện nhanh hơn
   const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 51, // 51% là đủ
-    waitForInteraction: false, // Không chờ interaction
-    minimumViewTime: 0, // ✅ Không delay, phát hiện ngay lập tức
+    itemVisiblePercentThreshold: 51,
+    waitForInteraction: false,
+    minimumViewTime: 0,
   }).current;
 
-  // ✅ Callback cập nhật currentIndex NGAY LẬP TỨC
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       if (viewableItems.length > 0 && viewableItems[0].index !== null) {
@@ -52,7 +50,6 @@ export default function ExploreScreen() {
     setRefreshing(false);
   };
 
-  // ✅ Render item với memo
   const renderItem = useCallback(({ item, index }: any) => {
     return (
       <VideoCard
@@ -80,7 +77,7 @@ export default function ExploreScreen() {
         keyExtractor={keyExtractor}
         pagingEnabled
         showsVerticalScrollIndicator={false}
-        snapToInterval={SCREEN_HEIGHT}
+        snapToInterval={SCREEN_HEIGHT} // ✅ Dùng full screen height
         snapToAlignment="start"
         decelerationRate="fast"
         viewabilityConfig={viewabilityConfig}
@@ -92,14 +89,13 @@ export default function ExploreScreen() {
             tintColor="#fff"
           />
         }
-        // ✅ Tối ưu performance
         removeClippedSubviews={true}
-        maxToRenderPerBatch={1} // ✅ Chỉ render 1 video/lần
-        windowSize={3} // Giữ 3 video (trước, hiện tại, sau)
+        maxToRenderPerBatch={1}
+        windowSize={3}
         initialNumToRender={1}
-        updateCellsBatchingPeriod={50} // ✅ Update nhanh hơn
+        updateCellsBatchingPeriod={50}
         getItemLayout={(data, index) => ({
-          length: SCREEN_HEIGHT,
+          length: SCREEN_HEIGHT, // ✅ Dùng full screen height cố định
           offset: SCREEN_HEIGHT * index,
           index,
         })}

@@ -220,7 +220,7 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/splicing-transition-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3400,
+      "likeCount": 3401,
       "commentCount": 129,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -239,7 +239,8 @@
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -594,8 +595,10 @@
       "userId": "u1",
       "content": "lololo",
       "createdAt": "2025-10-25T11:36:59.215Z",
-      "likeCount": 0,
-      "likedBy": [],
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
       "replyCount": 0,
       "parentId": null
     },

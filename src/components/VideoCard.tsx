@@ -18,9 +18,10 @@ import { Video } from '../types/database.types';
 import CommentModal from './CommentModal';
 import { useComments } from '../hooks/useComment';
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const TAB_BAR_HEIGHT = 60; // ✅ Chiều cao của tab bar
 
 interface VideoCardProps {
   video: Video;
@@ -43,19 +44,23 @@ function VideoCard({
   onToggleLike,
   onToggleFollow,
 }: VideoCardProps) {
+  const insets = useSafeAreaInsets();
   const videoRef = useRef<ExpoVideo>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
-  const [isScreenFocused, setIsScreenFocused] = useState(true); // ✅ Track screen focus
+  const [isScreenFocused, setIsScreenFocused] = useState(true);
   
   const likeAnimation = useRef(new Animated.Value(0)).current;
   const playButtonOpacity = useRef(new Animated.Value(0)).current;
   const [showComments, setShowComments] = useState(false);
   const [localCommentCount, setLocalCommentCount] = useState(video.commentCount);
   const { comments, loading, fetchComments, addComment, deleteComment, likeComment } = useComments(video.id);
+
+  // ✅ Tính chiều cao video (trừ tab bar)
+  const VIDEO_HEIGHT = SCREEN_HEIGHT - TAB_BAR_HEIGHT;
 
   useEffect(() => {
     setLocalCommentCount(video.commentCount);
@@ -253,8 +258,9 @@ function VideoCard({
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.videoWrapper}>
+    <View style={styles.container}>
+      {/* ✅ Video wrapper với height động, căn giữa */}
+      <View style={[styles.videoWrapper, { height: VIDEO_HEIGHT }]}>
         <TouchableOpacity
           style={styles.videoContainer}
           activeOpacity={1}
@@ -377,7 +383,7 @@ function VideoCard({
         onDeleteComment={handleDeleteComment}
         onLikeComment={likeComment}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -393,25 +399,23 @@ export default memo(VideoCard, (prevProps, nextProps) => {
 const styles = StyleSheet.create({
   container: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.915,
+    height: SCREEN_HEIGHT,
     backgroundColor: '#000',
     position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   videoWrapper: {
+    // ✅ Height được set động trong component
     width: SCREEN_WIDTH,
-    aspectRatio: 16 / 9,
     backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', // ✅ Căn giữa theo chiều dọc
+    alignItems: 'center',     // ✅ Căn giữa theo chiều ngang
+    bottom: TAB_BAR_HEIGHT
   },
   videoContainer: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
   },
   video: {
     width: '100%',
@@ -424,6 +428,9 @@ const styles = StyleSheet.create({
   },
   centerPlayButton: {
     position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -50 }],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -445,20 +452,18 @@ const styles = StyleSheet.create({
   },
   bottomContent: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 180, 
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingBottom: 20,
     alignItems: 'flex-end',
   },
   leftContent: {
     flex: 1,
     paddingRight: 16,
     justifyContent: 'flex-end',
-    maxWidth: SCREEN_WIDTH - 100,
   },
   username: {
     color: '#fff',
@@ -494,8 +499,7 @@ const styles = StyleSheet.create({
   },
   rightContent: {
     alignItems: 'center',
-    gap: 24,
-    paddingBottom: 0,
+    gap: 20,
   },
   avatarContainer: {
     position: 'relative',
@@ -536,9 +540,10 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 140, 
     left: 16,
     right: 16,
+    zIndex: 100,
   },
   timeText: {
     color: '#fff',
