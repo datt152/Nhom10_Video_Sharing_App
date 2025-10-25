@@ -21,7 +21,7 @@ import { useComments } from '../hooks/useComment';
 import { useFocusEffect } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const BOTTOM_TABS = 120;
+const BOTTOM_TABS = 60;
 const VIDEO_HEIGHT = SCREEN_HEIGHT - BOTTOM_TABS;
 interface VideoCardProps {
   video: Video;

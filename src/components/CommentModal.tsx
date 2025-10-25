@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,14 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  KeyboardAvoidingView,
   Platform,
   Dimensions,
   ScrollView,
   Animated,
-  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -64,10 +65,7 @@ export default function CommentModal({
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-  const inputBottomAnim = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef<ScrollView>(null);
+  const slideAnim = React.useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
   useEffect(() => {
     console.log('🎬 CommentModal isVisible:', isVisible);
@@ -86,48 +84,11 @@ export default function CommentModal({
     }
   }, [isVisible]);
 
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        const keyboardHeight = e.endCoordinates.height;
-        setKeyboardHeight(keyboardHeight);
-        
-        // Animate input container lên trên bàn phím (không trừ 60 nữa)
-        Animated.timing(inputBottomAnim, {
-          toValue: keyboardHeight,
-          duration: Platform.OS === 'ios' ? 250 : 200,
-          useNativeDriver: false,
-        }).start();
-      }
-    );
-
-    const keyboardWillHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-        
-        // Animate input container về vị trí ban đầu
-        Animated.timing(inputBottomAnim, {
-          toValue: 0,
-          duration: Platform.OS === 'ios' ? 250 : 200,
-          useNativeDriver: false,
-        }).start();
-      }
-    );
-
-    return () => {
-      keyboardWillShowListener.remove();
-      keyboardWillHideListener.remove();
-    };
-  }, []);
-
   const handleSendComment = () => {
     if (commentText.trim()) {
       onAddComment(commentText.trim(), replyingTo?.id || null);
       setCommentText('');
       setReplyingTo(null);
-      Keyboard.dismiss();
     }
   };
 
@@ -266,13 +227,8 @@ export default function CommentModal({
   const currentUserComment = comments.find(c => c.userId === currentUserId);
   const currentUserAvatar = currentUserComment?.user?.avatar || 'https://randomuser.me/api/portraits/men/45.jpg';
 
-  // Tính chiều cao còn lại cho ScrollView khi bàn phím hiện
-  const scrollViewMaxHeight = keyboardHeight > 0 
-    ? SCREEN_HEIGHT * 0.75 - 140 - keyboardHeight
-    : SCREEN_HEIGHT * 0.75 - 140;
-
   return (
-    <View style={styles.fullScreen} pointerEvents="box-none">
+    <SafeAreaView style={styles.fullScreen}>
       <TouchableOpacity 
         style={styles.backdrop} 
         activeOpacity={1} 
@@ -281,11 +237,11 @@ export default function CommentModal({
       
       <Animated.View 
         style={[
-          styles.modalContainer,
+          styles.modalContent,
           { transform: [{ translateY: slideAnim }] }
         ]}
       >
-        <View style={styles.modalContent}>
+        <View style={styles.modalInner}>
           <View style={styles.handleContainer}>
             <View style={styles.handle} />
           </View>
@@ -300,12 +256,10 @@ export default function CommentModal({
           </View>
 
           <ScrollView
-            ref={scrollViewRef}
-            style={[styles.scrollView, { maxHeight: scrollViewMaxHeight }]}
+            style={styles.scrollView}
             contentContainerStyle={styles.commentsList}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
           >
             {comments.length === 0 ? (
               <View style={styles.emptyContainer}>
@@ -318,72 +272,65 @@ export default function CommentModal({
             )}
           </ScrollView>
 
-          {replyingTo && (
-            <Animated.View 
-              style={[
-                styles.replyingToBar,
-                { bottom: Animated.add(inputBottomAnim, 56) } // 56 là chiều cao của inputContainer
-              ]}
-            >
-              <Text style={styles.replyingToText}>
-                Replying to @{replyingTo.user?.username}
-              </Text>
-              <TouchableOpacity onPress={() => setReplyingTo(null)}>
-                <Ionicons name="close" size={moderateScale(18)} color="#666" />
-              </TouchableOpacity>
-            </Animated.View>
-          )}
-
-          <Animated.View 
-            style={[
-              styles.inputContainer,
-              { bottom: inputBottomAnim }
-            ]}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
-            <Image source={{ uri: currentUserAvatar }} style={styles.inputAvatar} />
-            <TextInput
-              style={styles.input}
-              placeholder={
-                replyingTo
-                  ? `Reply to @${replyingTo.user?.username}...`
-                  : 'Leave comment...'
-              }
-              placeholderTextColor="#999"
-              value={commentText}
-              onChangeText={setCommentText}
-              multiline
-              maxLength={500}
-            />
-            <TouchableOpacity
-              style={[styles.sendButton, !commentText.trim() && styles.sendButtonDisabled]}
-              onPress={handleSendComment}
-              disabled={!commentText.trim()}
-            >
-              <Ionicons
-                name="send"
-                size={moderateScale(20)}
-                color={commentText.trim() ? '#FF3B5C' : '#ccc'}
+            {replyingTo && (
+              <View style={styles.replyingToBar}>
+                <Text style={styles.replyingToText}>
+                  Replying to @{replyingTo.user?.username}
+                </Text>
+                <TouchableOpacity onPress={() => setReplyingTo(null)}>
+                  <Ionicons name="close" size={moderateScale(18)} color="#666" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <View style={styles.inputContainer}>
+              <Image source={{ uri: currentUserAvatar }} style={styles.inputAvatar} />
+              <TextInput
+                style={styles.input}
+                placeholder={
+                  replyingTo
+                    ? `Reply to @{replyingTo.user?.username}...`
+                    : 'Leave comment...'
+                }
+                placeholderTextColor="#999"
+                value={commentText}
+                onChangeText={setCommentText}
+                multiline
+                maxLength={500}
               />
-            </TouchableOpacity>
-          </Animated.View>
+              <TouchableOpacity
+                style={[styles.sendButton, !commentText.trim() && styles.sendButtonDisabled]}
+                onPress={handleSendComment}
+                disabled={!commentText.trim()}
+              >
+                <Ionicons
+                  name="send"
+                  size={moderateScale(20)}
+                  color={commentText.trim() ? '#FF3B5C' : '#ccc'}
+                />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Animated.View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-  },
-  modalContainer: {
-    width: '100%',
-    marginBottom: 60,
   },
   modalContent: {
     backgroundColor: '#fff',
@@ -402,12 +349,16 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  modalInner: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: moderateScale(20),
+    borderTopRightRadius: moderateScale(20),
+  },
   handleContainer: {
     alignItems: 'center',
     paddingVertical: moderateScale(8),
     backgroundColor: '#fff',
-    borderTopLeftRadius: moderateScale(20),
-    borderTopRightRadius: moderateScale(20),
   },
   handle: {
     width: scale(40),
@@ -434,12 +385,13 @@ const styles = StyleSheet.create({
     padding: moderateScale(4),
   },
   scrollView: {
+    flex: 1,
     backgroundColor: '#fff',
   },
   commentsList: {
     paddingHorizontal: scale(16),
     paddingTop: moderateScale(12),
-    paddingBottom: moderateScale(80), // Thêm padding để tránh che comment cuối
+    paddingBottom: moderateScale(20),
   },
   commentWrapper: {
     marginBottom: moderateScale(16),
@@ -541,30 +493,26 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(4),
   },
   replyingToBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: moderateScale(8),
     backgroundColor: '#f8f8f8',
-    borderTopWidth: 0, // Bỏ border để loại bỏ khoảng trắng
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
   },
   replyingToText: {
     fontSize: moderateScale(13),
     color: '#666',
   },
   inputContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: moderateScale(12),
-    borderTopWidth: 0, // Bỏ border để loại bỏ khoảng trắng
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
     backgroundColor: '#fff',
   },
   inputAvatar: {
