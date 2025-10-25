@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,11 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
   Platform,
   Dimensions,
-  Modal,
-  SafeAreaView,
-  Animated,
   ScrollView,
+  Animated,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -66,30 +64,70 @@ export default function CommentModal({
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
-  const slideAnim = React.useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const inputBottomAnim = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    console.log('🎬 CommentModal isVisible:', isVisible);
+    console.log('📊 Comments count:', comments.length);
+    
     if (isVisible) {
+      slideAnim.setValue(SCREEN_HEIGHT);
       Animated.spring(slideAnim, {
         toValue: 0,
         useNativeDriver: true,
         tension: 50,
         friction: 8,
-      }).start();
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: SCREEN_HEIGHT,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
+      }).start(() => {
+        console.log('✅ Modal animation completed');
+      });
     }
   }, [isVisible]);
+
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        const keyboardHeight = e.endCoordinates.height;
+        setKeyboardHeight(keyboardHeight);
+        
+        // Animate input container lên trên bàn phím (không trừ 60 nữa)
+        Animated.timing(inputBottomAnim, {
+          toValue: keyboardHeight,
+          duration: Platform.OS === 'ios' ? 250 : 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+        
+        // Animate input container về vị trí ban đầu
+        Animated.timing(inputBottomAnim, {
+          toValue: 0,
+          duration: Platform.OS === 'ios' ? 250 : 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
 
   const handleSendComment = () => {
     if (commentText.trim()) {
       onAddComment(commentText.trim(), replyingTo?.id || null);
       setCommentText('');
       setReplyingTo(null);
+      Keyboard.dismiss();
     }
   };
 
@@ -133,18 +171,12 @@ export default function CommentModal({
 
   const renderReply = (reply: Comment, parentId: string) => {
     const canDelete = reply.userId === currentUserId;
-    // ✅ Lấy avatar từ reply.user
     const avatarUrl = reply.user?.avatar || 'https://via.placeholder.com/32';
     const username = reply.user?.username || 'Unknown';
 
     return (
       <View style={styles.replyItem} key={reply.id}>
-        {/* ✅ Avatar từ user data */}
-        <Image
-          source={{ uri: avatarUrl }}
-          style={styles.replyAvatar}
-        />
-
+        <Image source={{ uri: avatarUrl }} style={styles.replyAvatar} />
         <View style={styles.commentContent}>
           <View style={styles.commentHeader}>
             <Text style={styles.commentUsername}>{username}</Text>
@@ -152,32 +184,18 @@ export default function CommentModal({
           </View>
           <Text style={styles.commentText}>{reply.content}</Text>
         </View>
-        
         <View style={styles.actionsColumn}>
-          <TouchableOpacity
-            style={styles.likeButton}
-            onPress={() => onLikeComment(reply.id)}
-          >
+          <TouchableOpacity style={styles.likeButton} onPress={() => onLikeComment(reply.id)}>
             <Ionicons
               name={reply.isLiked ? 'heart' : 'heart-outline'}
               size={moderateScale(18)}
               color={reply.isLiked ? '#FF3B5C' : '#666'}
             />
-            {reply.likeCount > 0 && (
-              <Text style={styles.likeCount}>{reply.likeCount}</Text>
-            )}
+            {reply.likeCount > 0 && <Text style={styles.likeCount}>{reply.likeCount}</Text>}
           </TouchableOpacity>
-
           {canDelete && (
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDelete(reply.id, parentId)}
-            >
-              <Ionicons 
-                name="trash-outline" 
-                size={moderateScale(14)} 
-                color="#999"
-              />
+            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(reply.id, parentId)}>
+              <Ionicons name="trash-outline" size={moderateScale(14)} color="#999" />
             </TouchableOpacity>
           )}
         </View>
@@ -189,40 +207,25 @@ export default function CommentModal({
     const isExpanded = expandedComments.has(item.id);
     const hasReplies = item.replies && item.replies.length > 0;
     const canDelete = item.userId === currentUserId;
-    
-    // ✅ Lấy avatar từ item.user
     const avatarUrl = item.user?.avatar || 'https://via.placeholder.com/40';
     const username = item.user?.username || 'Unknown';
 
     return (
       <View style={styles.commentWrapper} key={item.id}>
         <View style={styles.commentItem}>
-          {/* ✅ Avatar từ user data */}
-          <Image
-            source={{ uri: avatarUrl }}
-            style={styles.commentAvatar}
-          />
-
+          <Image source={{ uri: avatarUrl }} style={styles.commentAvatar} />
           <View style={styles.commentContent}>
             <View style={styles.commentHeader}>
               <Text style={styles.commentUsername}>{username}</Text>
               <Text style={styles.commentTime}>{formatTime(item.createdAt)}</Text>
             </View>
             <Text style={styles.commentText}>{item.content}</Text>
-            
             <View style={styles.commentActions}>
-              <TouchableOpacity
-                style={styles.replyButton}
-                onPress={() => handleReply(item)}
-              >
+              <TouchableOpacity style={styles.replyButton} onPress={() => handleReply(item)}>
                 <Text style={styles.replyButtonText}>Reply</Text>
               </TouchableOpacity>
-
               {hasReplies && (
-                <TouchableOpacity
-                  style={styles.viewRepliesButton}
-                  onPress={() => toggleExpand(item.id)}
-                >
+                <TouchableOpacity style={styles.viewRepliesButton} onPress={() => toggleExpand(item.id)}>
                   <Text style={styles.viewRepliesText}>
                     {isExpanded ? 'Hide' : `View ${item.replyCount}`} {item.replyCount === 1 ? 'reply' : 'replies'}
                   </Text>
@@ -235,37 +238,22 @@ export default function CommentModal({
               )}
             </View>
           </View>
-          
           <View style={styles.actionsColumn}>
-            <TouchableOpacity
-              style={styles.likeButton}
-              onPress={() => onLikeComment(item.id)}
-            >
+            <TouchableOpacity style={styles.likeButton} onPress={() => onLikeComment(item.id)}>
               <Ionicons
                 name={item.isLiked ? 'heart' : 'heart-outline'}
                 size={moderateScale(20)}
                 color={item.isLiked ? '#FF3B5C' : '#666'}
               />
-              {item.likeCount > 0 && (
-                <Text style={styles.likeCount}>{item.likeCount}</Text>
-              )}
+              {item.likeCount > 0 && <Text style={styles.likeCount}>{item.likeCount}</Text>}
             </TouchableOpacity>
-
             {canDelete && (
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDelete(item.id, null)}
-              >
-                <Ionicons 
-                  name="trash-outline" 
-                  size={moderateScale(16)} 
-                  color="#999"
-                />
+              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, null)}>
+                <Ionicons name="trash-outline" size={moderateScale(16)} color="#999" />
               </TouchableOpacity>
             )}
           </View>
         </View>
-
         {hasReplies && isExpanded && (
           <View style={styles.repliesContainer}>
             {item.replies!.map((reply) => renderReply(reply, item.id))}
@@ -275,146 +263,151 @@ export default function CommentModal({
     );
   };
 
-  // ✅ Tìm current user để lấy avatar cho input
   const currentUserComment = comments.find(c => c.userId === currentUserId);
-  const currentUserAvatar = currentUserComment?.user?.avatar || 
-    'https://randomuser.me/api/portraits/men/45.jpg';
+  const currentUserAvatar = currentUserComment?.user?.avatar || 'https://randomuser.me/api/portraits/men/45.jpg';
+
+  // Tính chiều cao còn lại cho ScrollView khi bàn phím hiện
+  const scrollViewMaxHeight = keyboardHeight > 0 
+    ? SCREEN_HEIGHT * 0.75 - 140 - keyboardHeight
+    : SCREEN_HEIGHT * 0.75 - 140;
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <TouchableOpacity 
-          style={styles.backdrop} 
-          activeOpacity={1} 
-          onPress={onClose}
-        />
-        
-        <Animated.View 
-          style={[
-            styles.modalContent,
-            { transform: [{ translateY: slideAnim }] }
-          ]}
-        >
-          <View style={styles.container}>
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
-            </View>
-
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>
-                {comments.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0)} comments
-              </Text>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={moderateScale(24)} color="#000" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.commentsList}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-            >
-              {comments.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                  <Ionicons name="chatbubble-outline" size={moderateScale(48)} color="#ccc" />
-                  <Text style={styles.emptyText}>No comments yet</Text>
-                  <Text style={styles.emptySubtext}>Be the first to comment!</Text>
-                </View>
-              ) : (
-                comments.map((comment) => renderComment(comment))
-              )}
-            </ScrollView>
-
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={0}
-            >
-              {replyingTo && (
-                <View style={styles.replyingToBar}>
-                  <Text style={styles.replyingToText}>
-                    Replying to @{replyingTo.user?.username}
-                  </Text>
-                  <TouchableOpacity onPress={() => setReplyingTo(null)}>
-                    <Ionicons name="close" size={moderateScale(18)} color="#666" />
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              <View style={styles.inputContainer}>
-                {/* ✅ Avatar của current user */}
-                <Image
-                  source={{ uri: currentUserAvatar }}
-                  style={styles.inputAvatar}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder={
-                    replyingTo
-                      ? `Reply to @${replyingTo.user?.username}...`
-                      : 'Leave comment...'
-                  }
-                  placeholderTextColor="#999"
-                  value={commentText}
-                  onChangeText={setCommentText}
-                />
-                <TouchableOpacity
-                  style={[
-                    styles.sendButton,
-                    !commentText.trim() && styles.sendButtonDisabled,
-                  ]}
-                  onPress={handleSendComment}
-                  disabled={!commentText.trim()}
-                >
-                  <Ionicons
-                    name="send"
-                    size={moderateScale(20)}
-                    color={commentText.trim() ? '#FF3B5C' : '#ccc'}
-                  />
-                </TouchableOpacity>
-              </View>
-            </KeyboardAvoidingView>
+    <View style={styles.fullScreen} pointerEvents="box-none">
+      <TouchableOpacity 
+        style={styles.backdrop} 
+        activeOpacity={1} 
+        onPress={onClose}
+      />
+      
+      <Animated.View 
+        style={[
+          styles.modalContainer,
+          { transform: [{ translateY: slideAnim }] }
+        ]}
+      >
+        <View style={styles.modalContent}>
+          <View style={styles.handleContainer}>
+            <View style={styles.handle} />
           </View>
-        </Animated.View>
-      </View>
-    </Modal>
+
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>
+              {comments.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0)} comments
+            </Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={moderateScale(24)} color="#000" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            ref={scrollViewRef}
+            style={[styles.scrollView, { maxHeight: scrollViewMaxHeight }]}
+            contentContainerStyle={styles.commentsList}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
+            {comments.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Ionicons name="chatbubble-outline" size={moderateScale(48)} color="#ccc" />
+                <Text style={styles.emptyText}>No comments yet</Text>
+                <Text style={styles.emptySubtext}>Be the first to comment!</Text>
+              </View>
+            ) : (
+              comments.map((comment) => renderComment(comment))
+            )}
+          </ScrollView>
+
+          {replyingTo && (
+            <Animated.View 
+              style={[
+                styles.replyingToBar,
+                { bottom: Animated.add(inputBottomAnim, 56) } // 56 là chiều cao của inputContainer
+              ]}
+            >
+              <Text style={styles.replyingToText}>
+                Replying to @{replyingTo.user?.username}
+              </Text>
+              <TouchableOpacity onPress={() => setReplyingTo(null)}>
+                <Ionicons name="close" size={moderateScale(18)} color="#666" />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+
+          <Animated.View 
+            style={[
+              styles.inputContainer,
+              { bottom: inputBottomAnim }
+            ]}
+          >
+            <Image source={{ uri: currentUserAvatar }} style={styles.inputAvatar} />
+            <TextInput
+              style={styles.input}
+              placeholder={
+                replyingTo
+                  ? `Reply to @${replyingTo.user?.username}...`
+                  : 'Leave comment...'
+              }
+              placeholderTextColor="#999"
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+              maxLength={500}
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, !commentText.trim() && styles.sendButtonDisabled]}
+              onPress={handleSendComment}
+              disabled={!commentText.trim()}
+            >
+              <Ionicons
+                name="send"
+                size={moderateScale(20)}
+                color={commentText.trim() ? '#FF3B5C' : '#ccc'}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  fullScreen: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
+  },
+  modalContainer: {
+    width: '100%',
+    marginBottom: 60,
   },
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: moderateScale(20),
     borderTopRightRadius: moderateScale(20),
-    maxHeight: SCREEN_HEIGHT * 0.75,
+    height: SCREEN_HEIGHT * 0.75,
     ...Platform.select({
-      web: {
-        maxWidth: SCREEN_WIDTH,
-        alignSelf: 'center',
-        width: '100%',
+      android: {
+        elevation: 24,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
       },
     }),
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
   },
   handleContainer: {
     alignItems: 'center',
     paddingVertical: moderateScale(8),
+    backgroundColor: '#fff',
+    borderTopLeftRadius: moderateScale(20),
+    borderTopRightRadius: moderateScale(20),
   },
   handle: {
     width: scale(40),
@@ -430,6 +423,7 @@ const styles = StyleSheet.create({
     paddingVertical: moderateScale(12),
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
   },
   headerTitle: {
     fontSize: moderateScale(16),
@@ -440,12 +434,12 @@ const styles = StyleSheet.create({
     padding: moderateScale(4),
   },
   scrollView: {
-    flex: 1,
+    backgroundColor: '#fff',
   },
   commentsList: {
     paddingHorizontal: scale(16),
     paddingTop: moderateScale(12),
-    paddingBottom: moderateScale(20),
+    paddingBottom: moderateScale(80), // Thêm padding để tránh che comment cuối
   },
   commentWrapper: {
     marginBottom: moderateScale(16),
@@ -547,26 +541,30 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(4),
   },
   replyingToBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: moderateScale(8),
     backgroundColor: '#f8f8f8',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopWidth: 0, // Bỏ border để loại bỏ khoảng trắng
   },
   replyingToText: {
     fontSize: moderateScale(13),
     color: '#666',
   },
   inputContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: moderateScale(12),
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopWidth: 0, // Bỏ border để loại bỏ khoảng trắng
     backgroundColor: '#fff',
   },
   inputAvatar: {
@@ -584,7 +582,8 @@ const styles = StyleSheet.create({
     paddingVertical: moderateScale(10),
     fontSize: moderateScale(14),
     color: '#000',
-    height: 50
+    maxHeight: 100,
+    minHeight: 40,
   },
   sendButton: {
     marginLeft: scale(12),

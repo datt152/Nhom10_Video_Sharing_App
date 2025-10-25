@@ -10,6 +10,7 @@ import {
   PanResponder,
   AppState,
   AppStateStatus,
+  Modal,
 } from 'react-native';
 import { Video as ExpoVideo, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,11 +19,10 @@ import { Video } from '../types/database.types';
 import CommentModal from './CommentModal';
 import { useComments } from '../hooks/useComment';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const TAB_BAR_HEIGHT = 60; // ✅ Chiều cao của tab bar
-
+const BOTTOM_TABS = 120;
+const VIDEO_HEIGHT = SCREEN_HEIGHT - BOTTOM_TABS;
 interface VideoCardProps {
   video: Video;
   isActive: boolean;
@@ -44,7 +44,6 @@ function VideoCard({
   onToggleLike,
   onToggleFollow,
 }: VideoCardProps) {
-  const insets = useSafeAreaInsets();
   const videoRef = useRef<ExpoVideo>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -59,14 +58,10 @@ function VideoCard({
   const [localCommentCount, setLocalCommentCount] = useState(video.commentCount);
   const { comments, loading, fetchComments, addComment, deleteComment, likeComment } = useComments(video.id);
 
-  // ✅ Tính chiều cao video (trừ tab bar)
-  const VIDEO_HEIGHT = SCREEN_HEIGHT - TAB_BAR_HEIGHT;
-
   useEffect(() => {
     setLocalCommentCount(video.commentCount);
   }, [video.commentCount]);
 
-  // ✅ Detect screen focus (khi chuyển tab)
   useFocusEffect(
     React.useCallback(() => {
       console.log(`📍 Screen focused - Video ${video.id}`);
@@ -80,7 +75,6 @@ function VideoCard({
     }, [video.id])
   );
 
-  // ✅ Detect app state changes (background/foreground)
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
@@ -97,9 +91,10 @@ function VideoCard({
     };
   }, [isActive, isPaused, isScreenFocused, video.id]);
 
-  const handleOpenComments = async () => {
-    await fetchComments();
+  const handleOpenComments = () => {
+    console.log('💬 Opening comments for video:', video.id);
     setShowComments(true);
+    fetchComments();
   };
 
   const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
@@ -116,7 +111,6 @@ function VideoCard({
     }
   };
 
-  // ✅ Play/Pause video based on isActive AND screen focus
   useEffect(() => {
     if (!isActive || !isScreenFocused) {
       videoRef.current?.pauseAsync();
@@ -259,8 +253,7 @@ function VideoCard({
 
   return (
     <View style={styles.container}>
-      {/* ✅ Video wrapper với height động, căn giữa */}
-      <View style={[styles.videoWrapper, { height: VIDEO_HEIGHT }]}>
+      <View style={styles.videoWrapper}>
         <TouchableOpacity
           style={styles.videoContainer}
           activeOpacity={1}
@@ -373,16 +366,26 @@ function VideoCard({
         </View>
       </View>
 
-      <CommentModal
-        videoId={video.id}
-        comments={comments}
-        currentUserId={currentUserId}
-        isVisible={showComments}
-        onClose={() => setShowComments(false)}
-        onAddComment={handleAddComment}
-        onDeleteComment={handleDeleteComment}
-        onLikeComment={likeComment}
-      />
+      <Modal
+        visible={showComments}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowComments(false)}
+        presentationStyle="overFullScreen"
+        hardwareAccelerated={true}
+        statusBarTranslucent
+      >
+        <CommentModal
+          videoId={video.id}
+          comments={comments}
+          currentUserId={currentUserId}
+          isVisible={showComments}
+          onClose={() => setShowComments(false)}
+          onAddComment={handleAddComment}
+          onDeleteComment={handleDeleteComment}
+          onLikeComment={likeComment}
+        />
+      </Modal>
     </View>
   );
 }
@@ -404,12 +407,15 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   videoWrapper: {
-    // ✅ Height được set động trong component
-    width: SCREEN_WIDTH,
+    height: VIDEO_HEIGHT, 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: BOTTOM_TABS,
     backgroundColor: '#000',
-    justifyContent: 'center', // ✅ Căn giữa theo chiều dọc
-    alignItems: 'center',     // ✅ Căn giữa theo chiều ngang
-    bottom: TAB_BAR_HEIGHT
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   videoContainer: {
     width: '100%',
@@ -452,7 +458,7 @@ const styles = StyleSheet.create({
   },
   bottomContent: {
     position: 'absolute',
-    bottom: 180, 
+    bottom: 180,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -464,6 +470,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 16,
     justifyContent: 'flex-end',
+    maxWidth: SCREEN_WIDTH - 100,
   },
   username: {
     color: '#fff',
@@ -540,7 +547,7 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     position: 'absolute',
-    bottom: 140, 
+    bottom: 140,
     left: 16,
     right: 16,
     zIndex: 100,
