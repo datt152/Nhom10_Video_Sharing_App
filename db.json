@@ -104,7 +104,11 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3400,
+<<<<<<< HEAD
+      "commentCount": 128,
+=======
       "commentCount": 133,
+>>>>>>> 832ed177f836668a0d82950b599e52749c90c4ca
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,

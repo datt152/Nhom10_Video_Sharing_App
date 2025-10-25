@@ -18,7 +18,20 @@ export interface Music {
   url: string;
   cover: string;
 }
-
+// interface hình ảnh
+export interface Image {
+  id: number;
+  imageUrl: string;       // URL ảnh
+  caption?: string;       // mô tả hoặc caption
+  tags?: string[];        // danh sách tag (ví dụ ["travel", "sunset"])
+  likes: number;          // tổng lượt thích
+  comments: number;       // tổng bình luận
+  views: number;          // tổng lượt xem
+  createdAt: string;      // ngày đăng
+  userId: number;         // ID người đăng
+  userName?: string;      // tên người đăng (nếu cần hiển thị nhanh)
+  location?: string;      // địa điểm chụp (nếu có)
+}
 export interface Video {
   id: string;
   userId: string;

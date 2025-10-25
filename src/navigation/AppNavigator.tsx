@@ -10,7 +10,7 @@ import CreateUploadScreen from '../screens/CreateUploadScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
-
+import EditProfileScreen from '../screens/EditProfileScreen'; 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +68,7 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={BottomTabs} />
         <Stack.Screen name='Notification' component={NotificationScreen} />
+         <Stack.Screen name="EditProfile" component={EditProfileScreen} /> 
       </Stack.Navigator>
   );
 }
