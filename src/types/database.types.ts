@@ -45,10 +45,14 @@ export interface Comment {
   videoId: string;
   userId: string;
   content: string;
-  likeCount: number;
   createdAt: string;
-  // Denormalized
+  likeCount: number;
+  likedBy: string[];
+  replyCount: number;
+  parentId: string | null; // ✅ null = comment gốc, có giá trị = reply
   user?: User;
+  isLiked?: boolean;
+  replies?: Comment[]; // ✅ Danh sách replies
 }
 
 export interface Notification {
