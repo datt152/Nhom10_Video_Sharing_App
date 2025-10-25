@@ -193,14 +193,8 @@ function VideoCard({
   const isOwnVideo = video.user?.id === currentUserId;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  const containerStyle = [
-    styles.container,
-    isFirstVideo && styles.firstVideoContainer,
-    isLastVideo && styles.lastVideoContainer,
-  ];
-
-  return (
-    <View style={containerStyle}>
+return (
+    <View style={styles.container}>
       {isFirstVideo && (
         <View style={styles.headerBar}>
           <Text style={styles.headerTitle}>Khám Phá</Text>
@@ -210,42 +204,47 @@ function VideoCard({
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.videoContainer}
-        activeOpacity={1}
-        onPress={handlePlayPause}
-      >
-        <ExpoVideo
-          ref={videoRef}
-          source={{ uri: video.url }}
-          style={styles.video}
-          resizeMode={ResizeMode.COVER}
-          isLooping
-          shouldPlay={isActive}
-          videoStyle={styles.videoStyle}
-          onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-          progressUpdateIntervalMillis={100} // ✅ Giảm interval để update nhanh hơn
-        />
+      {/* ✅ Container 16:9 nằm giữa */}
+      <View style={styles.videoWrapper}>
+        <TouchableOpacity
+          style={styles.videoContainer}
+          activeOpacity={1}
+          onPress={handlePlayPause}
+        >
+          <ExpoVideo
+            ref={videoRef}
+            source={{ uri: video.url }}
+            style={styles.video}
+            resizeMode={ResizeMode.CONTAIN} // ✅ Giữ nguyên tỷ lệ, không crop
+            isLooping
+            shouldPlay={isActive}
+            videoStyle={styles.videoStyle}
+            onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+            progressUpdateIntervalMillis={100}
+          />
 
-        {showPlayButton && (
-          <Animated.View
-            style={[
-              styles.centerPlayButton,
-              { opacity: playButtonOpacity },
-            ]}
-          >
-            <View style={styles.playButtonCircle}>
-              <Ionicons name="play" size={60} color="#fff" />
-            </View>
-          </Animated.View>
-        )}
-      </TouchableOpacity>
+          {showPlayButton && (
+            <Animated.View
+              style={[
+                styles.centerPlayButton,
+                { opacity: playButtonOpacity },
+              ]}
+            >
+              <View style={styles.playButtonCircle}>
+                <Ionicons name="play" size={60} color="#fff" />
+              </View>
+            </Animated.View>
+          )}
+        </TouchableOpacity>
+      </View>
 
+      {/* Gradient Overlay */}
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
         style={styles.gradient}
       />
 
+      {/* Bottom Content */}
       <View style={styles.bottomContent}>
         <View style={styles.leftContent}>
           <Text style={styles.username}>@{video.user?.username || 'Unknown'}</Text>
@@ -303,6 +302,7 @@ function VideoCard({
         </View>
       </View>
 
+      {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View
           style={styles.progressBarTouchable}
@@ -318,20 +318,11 @@ function VideoCard({
         </View>
       </View>
 
-      {isLastVideo && (
-        <View style={styles.footerBar}>
-          <Text style={styles.footerText}>Bạn đã xem hết video 🎉</Text>
-          <TouchableOpacity style={styles.reloadButton}>
-            <Ionicons name="refresh" size={20} color="#fff" />
-            <Text style={styles.reloadText}>Tải thêm</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      
     </View>
   );
 }
 
-// ✅ QUAN TRỌNG: Dùng memo để tránh re-render không cần thiết
 export default memo(VideoCard, (prevProps, nextProps) => {
   return (
     prevProps.isActive === nextProps.isActive &&
@@ -341,24 +332,19 @@ export default memo(VideoCard, (prevProps, nextProps) => {
     prevProps.video.likeCount === nextProps.video.likeCount
   );
 });
-
-// ... (styles giữ nguyên)
 const styles = StyleSheet.create({
   container: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    height: SCREEN_HEIGHT*0.915,
     backgroundColor: '#000',
     position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  firstVideoContainer: {
-    paddingTop: 60,
-  },
-  lastVideoContainer: {
-    paddingBottom: 80,
-  },
+  // ✅ Header luôn ở top, không bị ảnh hưởng
   headerBar: {
     position: 'absolute',
-    top: 0,
+    top: 0, // ✅ Luôn ở top
     left: 0,
     right: 0,
     height: 60,
@@ -374,19 +360,27 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  videoWrapper: {
+    width: SCREEN_WIDTH,
+    aspectRatio: 16 / 9,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   videoContainer: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
   video: {
-    width: SCREEN_WIDTH,
+    width: '100%',
     height: '100%',
     backgroundColor: '#000',
   },
   videoStyle: {
-    width: SCREEN_WIDTH,
+    width: '100%',
     height: '100%',
   },
   centerPlayButton: {
@@ -410,9 +404,10 @@ const styles = StyleSheet.create({
     height: '50%',
     pointerEvents: 'none',
   },
+  // ✅ Bottom content CỐ ĐỊNH từ bottom
   bottomContent: {
     position: 'absolute',
-    bottom: 70,
+    bottom: 20, // ✅ Cố định từ bottom lên
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -420,7 +415,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
     alignItems: 'flex-end',
-    height: 100
   },
   leftContent: {
     flex: 1,
@@ -460,6 +454,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
+  // ✅ Right content CỐ ĐỊNH
   rightContent: {
     alignItems: 'center',
     gap: 24,
@@ -502,9 +497,10 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
+  // ✅ Progress bar CỐ ĐỊNH
   progressBarContainer: {
     position: 'absolute',
-    bottom: 55,
+    bottom: 0, // ✅ Cố định từ bottom lên
     left: 16,
     right: 16,
   },
@@ -546,9 +542,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
+  // ✅ Footer luôn ở bottom
   footerBar: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 0, // ✅ Luôn ở bottom
     left: 0,
     right: 0,
     height: 80,
