@@ -104,7 +104,11 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3400,
+<<<<<<< HEAD
       "commentCount": 128,
+=======
+      "commentCount": 133,
+>>>>>>> 832ed177f836668a0d82950b599e52749c90c4ca
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -133,7 +137,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3400,
-      "commentCount": 128,
+      "commentCount": 130,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -399,7 +403,7 @@
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
       "likeCount": 5400,
-      "commentCount": 220,
+      "commentCount": 222,
       "views": 36000,
       "createdAt": "2025-10-12T08:00:00Z",
       "isPublic": true,
@@ -451,25 +455,154 @@
   ],
   "comments": [
     {
-      "id": "c1",
+      "id": "c1_r1",
       "videoId": "v1",
-      "userId": "u2",
-      "content": "Cảnh đẹp quá trời 🌄",
-      "createdAt": "2025-10-10T10:15:00Z"
+      "userId": "u1",
+      "content": "Cảm ơn bạn nha! 💖",
+      "createdAt": "2025-10-10T10:20:00Z",
+      "likeCount": 2,
+      "likedBy": [
+        "u2"
+      ],
+      "replyCount": 0,
+      "parentId": "c1"
+    },
+    {
+      "id": "c1_r2",
+      "videoId": "v1",
+      "userId": "u3",
+      "content": "Đúng vậy, tôi cũng muốn đến đó!",
+      "createdAt": "2025-10-10T10:25:00Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": "c1"
     },
     {
       "id": "c2",
       "videoId": "v1",
       "userId": "u3",
       "content": "Đà Lạt chill thật 😍",
-      "createdAt": "2025-10-10T10:20:00Z"
+      "createdAt": "2025-10-10T10:20:00Z",
+      "likeCount": 2,
+      "likedBy": [
+        "u1",
+        "u2"
+      ],
+      "replyCount": 0,
+      "parentId": null
     },
     {
-      "id": "c3",
+      "id": "c1761379851484",
+      "videoId": "v1",
+      "userId": "u4",
+      "content": "Muốn đi thử 1 lần ghê á má",
+      "createdAt": "2025-10-25T08:10:51.484Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": "c1"
+    },
+    {
+      "id": "c1761380136737",
+      "videoId": "v4",
+      "userId": "u4",
+      "content": "Xem đầu",
+      "createdAt": "2025-10-25T08:15:36.737Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761381482801",
+      "videoId": "v1",
+      "userId": "u4",
+      "content": "Wow",
+      "createdAt": "2025-10-25T08:38:02.801Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761382294545",
+      "videoId": "v1",
+      "userId": "u4",
+      "content": "Giờ sao đây",
+      "createdAt": "2025-10-25T08:51:34.545Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761382343911",
+      "videoId": "v2",
+      "userId": "u4",
+      "content": "hic",
+      "createdAt": "2025-10-25T08:52:23.911Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761382370766",
       "videoId": "v2",
       "userId": "u1",
-      "content": "Video hữu ích lắm, cảm ơn bạn!",
-      "createdAt": "2025-10-12T09:00:00Z"
+      "content": "bùn",
+      "createdAt": "2025-10-25T08:52:50.766Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761382462159",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "ai biết",
+      "createdAt": "2025-10-25T08:54:22.159Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 1,
+      "parentId": null
+    },
+    {
+      "id": "c1761382809892",
+      "videoId": "v1",
+      "userId": "u4",
+      "content": "đó",
+      "createdAt": "2025-10-25T09:00:09.892Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761382886589",
+      "videoId": "v4",
+      "userId": "u1",
+      "content": "đẹp đôi",
+      "createdAt": "2025-10-25T09:01:26.589Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761383124374",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "là sao nữa dị",
+      "createdAt": "2025-10-25T09:05:24.374Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": "c1761382462159"
     }
   ],
   "notifications": [

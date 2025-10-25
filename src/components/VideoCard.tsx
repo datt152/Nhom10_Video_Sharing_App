@@ -13,6 +13,8 @@ import { Video as ExpoVideo, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from '../types/database.types';
+import CommentModal from './CommentModal';
+import { useComments } from '../hooks/useComment';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -46,21 +48,47 @@ function VideoCard({
   
   const likeAnimation = useRef(new Animated.Value(0)).current;
   const playButtonOpacity = useRef(new Animated.Value(0)).current;
+  const [showComments, setShowComments] = useState(false);
+  const [localCommentCount, setLocalCommentCount] = useState(video.commentCount);
+  const { comments, loading, fetchComments, addComment, deleteComment, likeComment } = useComments(video.id);
+  // ✅ Sync localCommentCount với video.commentCount
+  useEffect(() => {
+    setLocalCommentCount(video.commentCount);
+  }, [video.commentCount]);
 
-  // ✅ TẮT VIDEO NGAY LẬP TỨC - Chạy đầu tiên
+  const handleOpenComments = async () => {
+    await fetchComments();
+    setShowComments(true);
+  };
+// ✅ Wrapper for delete
+  const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+    await deleteComment(commentId, parentId);
+    setLocalCommentCount((prev) => Math.max(0, prev - 1));
+  };
+  // ✅ Wrapper function để tăng localCommentCount
+  const handleAddComment = async (content: string, parentId: string | null = null) => {
+    try {
+      await addComment(content, parentId);
+      // ✅ Tăng count ngay lập tức
+      setLocalCommentCount((prev) => prev + 1);
+      console.log('✅ Comment added, count increased to:', localCommentCount + 1);
+    } catch (error) {
+      console.error('❌ Error adding comment:', error);
+    }
+  };
+
+  // ✅ TẮT VIDEO NGAY LẬP TỨC
   useEffect(() => {
     if (!isActive) {
-      // ✅ QUAN TRỌNG: Pause ngay lập tức không cần await
       videoRef.current?.pauseAsync();
       videoRef.current?.setPositionAsync(0);
       setCurrentTime(0);
       setIsPaused(false);
       setShowPlayButton(false);
       console.log(`⏹️ STOPPED video ${video.id} immediately`);
-      return; // ✅ Return sớm để không chạy code bên dưới
+      return;
     }
 
-    // ✅ Chỉ play khi active
     const playVideo = async () => {
       try {
         const status = await videoRef.current?.getStatusAsync();
@@ -78,17 +106,14 @@ function VideoCard({
     playVideo();
   }, [isActive, video.id]);
 
-  // ✅ Cleanup khi unmount - TẮT NGAY
   useEffect(() => {
     return () => {
       console.log(`🗑️ Unmounting video ${video.id}`);
       videoRef.current?.pauseAsync();
       videoRef.current?.setPositionAsync(0);
-      // Không unload để tránh flicker
     };
   }, [video.id]);
 
-  // Cập nhật thời gian video
   const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (status.isLoaded && !isSeeking && isActive) {
       setCurrentTime(status.positionMillis / 1000);
@@ -193,7 +218,7 @@ function VideoCard({
   const isOwnVideo = video.user?.id === currentUserId;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-return (
+  return (
     <View style={styles.container}>
       {isFirstVideo && (
         <View style={styles.headerBar}>
@@ -204,7 +229,6 @@ return (
         </View>
       )}
 
-      {/* ✅ Container 16:9 nằm giữa */}
       <View style={styles.videoWrapper}>
         <TouchableOpacity
           style={styles.videoContainer}
@@ -215,7 +239,7 @@ return (
             ref={videoRef}
             source={{ uri: video.url }}
             style={styles.video}
-            resizeMode={ResizeMode.CONTAIN} // ✅ Giữ nguyên tỷ lệ, không crop
+            resizeMode={ResizeMode.CONTAIN}
             isLooping
             shouldPlay={isActive}
             videoStyle={styles.videoStyle}
@@ -238,13 +262,11 @@ return (
         </TouchableOpacity>
       </View>
 
-      {/* Gradient Overlay */}
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
         style={styles.gradient}
       />
 
-      {/* Bottom Content */}
       <View style={styles.bottomContent}>
         <View style={styles.leftContent}>
           <Text style={styles.username}>@{video.user?.username || 'Unknown'}</Text>
@@ -290,9 +312,13 @@ return (
             <Text style={styles.actionText}>{formatNumber(video.likeCount)}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
+          {/* ✅ Comment Button với localCommentCount */}
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleOpenComments}
+          >
             <Ionicons name="chatbubble-outline" size={32} color="#fff" />
-            <Text style={styles.actionText}>{formatNumber(video.commentCount)}</Text>
+            <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
@@ -302,7 +328,6 @@ return (
         </View>
       </View>
 
-      {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View
           style={styles.progressBarTouchable}
@@ -318,10 +343,21 @@ return (
         </View>
       </View>
 
-      
+      {/* ✅ CommentModal với handleAddComment */}
+      <CommentModal
+        videoId={video.id}
+        comments={comments}
+        currentUserId={currentUserId}
+        isVisible={showComments}
+        onClose={() => setShowComments(false)}
+        onAddComment={handleAddComment}
+        onDeleteComment={handleDeleteComment} // ✅ Pass delete function
+        onLikeComment={likeComment}
+      />
     </View>
   );
 }
+
 
 export default memo(VideoCard, (prevProps, nextProps) => {
   return (
