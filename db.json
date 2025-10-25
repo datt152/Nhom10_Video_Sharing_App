@@ -104,11 +104,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3400,
-<<<<<<< HEAD
-      "commentCount": 128,
-=======
-      "commentCount": 133,
->>>>>>> 832ed177f836668a0d82950b599e52749c90c4ca
+      "commentCount": 134,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -166,7 +162,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3401,
-      "commentCount": 128,
+      "commentCount": 129,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -224,8 +220,8 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/splicing-transition-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 128,
+      "likeCount": 3400,
+      "commentCount": 129,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -243,8 +239,7 @@
       },
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ]
     },
     {
@@ -491,7 +486,7 @@
         "u1",
         "u2"
       ],
-      "replyCount": 0,
+      "replyCount": 1,
       "parentId": null
     },
     {
@@ -561,17 +556,6 @@
       "parentId": null
     },
     {
-      "id": "c1761382462159",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "ai biết",
-      "createdAt": "2025-10-25T08:54:22.159Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 1,
-      "parentId": null
-    },
-    {
       "id": "c1761382809892",
       "videoId": "v1",
       "userId": "u4",
@@ -603,6 +587,50 @@
       "likedBy": [],
       "replyCount": 0,
       "parentId": "c1761382462159"
+    },
+    {
+      "id": "c1761392219215",
+      "videoId": "v123",
+      "userId": "u1",
+      "content": "lololo",
+      "createdAt": "2025-10-25T11:36:59.215Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761400503705",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "i",
+      "createdAt": "2025-10-25T13:55:03.705Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": "c2"
+    },
+    {
+      "id": "c1761400711551",
+      "videoId": "v5",
+      "userId": "u1",
+      "content": "hello",
+      "createdAt": "2025-10-25T13:58:31.551Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761401269366",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "Chẳng hiểu gì cả",
+      "createdAt": "2025-10-25T14:07:49.366Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [

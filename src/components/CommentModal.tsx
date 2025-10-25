@@ -300,7 +300,7 @@ export default function CommentModal({
             { transform: [{ translateY: slideAnim }] }
           ]}
         >
-          <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
             <View style={styles.handleContainer}>
               <View style={styles.handle} />
             </View>
@@ -362,8 +362,6 @@ export default function CommentModal({
                   placeholderTextColor="#999"
                   value={commentText}
                   onChangeText={setCommentText}
-                  multiline
-                  maxLength={500}
                 />
                 <TouchableOpacity
                   style={[
@@ -381,7 +379,7 @@ export default function CommentModal({
                 </TouchableOpacity>
               </View>
             </KeyboardAvoidingView>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -404,7 +402,7 @@ const styles = StyleSheet.create({
     maxHeight: SCREEN_HEIGHT * 0.75,
     ...Platform.select({
       web: {
-        maxWidth: 600,
+        maxWidth: SCREEN_WIDTH,
         alignSelf: 'center',
         width: '100%',
       },
