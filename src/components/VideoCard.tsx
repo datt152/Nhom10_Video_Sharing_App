@@ -8,6 +8,8 @@ import {
   Image,
   Animated,
   PanResponder,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { Video as ExpoVideo, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,6 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Video } from '../types/database.types';
 import CommentModal from './CommentModal';
 import { useComments } from '../hooks/useComment';
+import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -45,54 +49,84 @@ function VideoCard({
   const [duration, setDuration] = useState(0);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [isScreenFocused, setIsScreenFocused] = useState(true); // ✅ Track screen focus
   
   const likeAnimation = useRef(new Animated.Value(0)).current;
   const playButtonOpacity = useRef(new Animated.Value(0)).current;
   const [showComments, setShowComments] = useState(false);
   const [localCommentCount, setLocalCommentCount] = useState(video.commentCount);
   const { comments, loading, fetchComments, addComment, deleteComment, likeComment } = useComments(video.id);
-  // ✅ Sync localCommentCount với video.commentCount
+
   useEffect(() => {
     setLocalCommentCount(video.commentCount);
   }, [video.commentCount]);
+
+  // ✅ Detect screen focus (khi chuyển tab)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log(`📍 Screen focused - Video ${video.id}`);
+      setIsScreenFocused(true);
+
+      return () => {
+        console.log(`📍 Screen unfocused - Video ${video.id} will pause`);
+        setIsScreenFocused(false);
+        videoRef.current?.pauseAsync().catch(() => {});
+      };
+    }, [video.id])
+  );
+
+  // ✅ Detect app state changes (background/foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        videoRef.current?.pauseAsync().catch(() => {});
+        console.log(`⏸️ App went to ${nextAppState} - Video ${video.id} paused`);
+      } else if (nextAppState === 'active' && isActive && isScreenFocused && !isPaused) {
+        videoRef.current?.playAsync().catch(() => {});
+        console.log(`▶️ App became active - Video ${video.id} resumed`);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isActive, isPaused, isScreenFocused, video.id]);
 
   const handleOpenComments = async () => {
     await fetchComments();
     setShowComments(true);
   };
-// ✅ Wrapper for delete
+
   const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
     await deleteComment(commentId, parentId);
     setLocalCommentCount((prev) => Math.max(0, prev - 1));
   };
-  // ✅ Wrapper function để tăng localCommentCount
+
   const handleAddComment = async (content: string, parentId: string | null = null) => {
     try {
       await addComment(content, parentId);
-      // ✅ Tăng count ngay lập tức
       setLocalCommentCount((prev) => prev + 1);
-      console.log('✅ Comment added, count increased to:', localCommentCount + 1);
     } catch (error) {
       console.error('❌ Error adding comment:', error);
     }
   };
 
-  // ✅ TẮT VIDEO NGAY LẬP TỨC
+  // ✅ Play/Pause video based on isActive AND screen focus
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || !isScreenFocused) {
       videoRef.current?.pauseAsync();
       videoRef.current?.setPositionAsync(0);
       setCurrentTime(0);
       setIsPaused(false);
       setShowPlayButton(false);
-      console.log(`⏹️ STOPPED video ${video.id} immediately`);
+      console.log(`⏹️ STOPPED video ${video.id} (isActive: ${isActive}, isFocused: ${isScreenFocused})`);
       return;
     }
 
     const playVideo = async () => {
       try {
         const status = await videoRef.current?.getStatusAsync();
-        if (status?.isLoaded && isActive) {
+        if (status?.isLoaded && isActive && isScreenFocused) {
           await videoRef.current?.playAsync();
           setIsPaused(false);
           setShowPlayButton(false);
@@ -104,7 +138,7 @@ function VideoCard({
     };
 
     playVideo();
-  }, [isActive, video.id]);
+  }, [isActive, isScreenFocused, video.id]);
 
   useEffect(() => {
     return () => {
@@ -219,16 +253,7 @@ function VideoCard({
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <View style={styles.container}>
-      {isFirstVideo && (
-        <View style={styles.headerBar}>
-          <Text style={styles.headerTitle}>Khám Phá</Text>
-          <TouchableOpacity>
-            <Ionicons name="search" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      )}
-
+    <SafeAreaView style={styles.container}>
       <View style={styles.videoWrapper}>
         <TouchableOpacity
           style={styles.videoContainer}
@@ -241,7 +266,7 @@ function VideoCard({
             style={styles.video}
             resizeMode={ResizeMode.CONTAIN}
             isLooping
-            shouldPlay={isActive}
+            shouldPlay={isActive && isScreenFocused}
             videoStyle={styles.videoStyle}
             onPlaybackStatusUpdate={onPlaybackStatusUpdate}
             progressUpdateIntervalMillis={100}
@@ -312,7 +337,6 @@ function VideoCard({
             <Text style={styles.actionText}>{formatNumber(video.likeCount)}</Text>
           </TouchableOpacity>
 
-          {/* ✅ Comment Button với localCommentCount */}
           <TouchableOpacity 
             style={styles.actionButton}
             onPress={handleOpenComments}
@@ -343,7 +367,6 @@ function VideoCard({
         </View>
       </View>
 
-      {/* ✅ CommentModal với handleAddComment */}
       <CommentModal
         videoId={video.id}
         comments={comments}
@@ -351,13 +374,12 @@ function VideoCard({
         isVisible={showComments}
         onClose={() => setShowComments(false)}
         onAddComment={handleAddComment}
-        onDeleteComment={handleDeleteComment} // ✅ Pass delete function
+        onDeleteComment={handleDeleteComment}
         onLikeComment={likeComment}
       />
-    </View>
+    </SafeAreaView>
   );
 }
-
 
 export default memo(VideoCard, (prevProps, nextProps) => {
   return (
@@ -365,36 +387,17 @@ export default memo(VideoCard, (prevProps, nextProps) => {
     prevProps.video.id === nextProps.video.id &&
     prevProps.isFollowing === nextProps.isFollowing &&
     prevProps.video.isLiked === nextProps.video.isLiked &&
-    prevProps.video.likeCount === nextProps.video.likeCount
-  );
+    prevProps.video.likeCount === nextProps.video.likeCount);
 });
+
 const styles = StyleSheet.create({
   container: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT*0.915,
+    height: SCREEN_HEIGHT * 0.915,
     backgroundColor: '#000',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  // ✅ Header luôn ở top, không bị ảnh hưởng
-  headerBar: {
-    position: 'absolute',
-    top: 0, // ✅ Luôn ở top
-    left: 0,
-    right: 0,
-    height: 60,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 10,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   videoWrapper: {
     width: SCREEN_WIDTH,
@@ -440,10 +443,9 @@ const styles = StyleSheet.create({
     height: '50%',
     pointerEvents: 'none',
   },
-  // ✅ Bottom content CỐ ĐỊNH từ bottom
   bottomContent: {
     position: 'absolute',
-    bottom: 20, // ✅ Cố định từ bottom lên
+    bottom: 20,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -490,7 +492,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  // ✅ Right content CỐ ĐỊNH
   rightContent: {
     alignItems: 'center',
     gap: 24,
@@ -533,10 +534,9 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  // ✅ Progress bar CỐ ĐỊNH
   progressBarContainer: {
     position: 'absolute',
-    bottom: 0, // ✅ Cố định từ bottom lên
+    bottom: 0,
     left: 16,
     right: 16,
   },
@@ -577,35 +577,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 5,
-  },
-  // ✅ Footer luôn ở bottom
-  footerBar: {
-    position: 'absolute',
-    bottom: 0, // ✅ Luôn ở bottom
-    left: 0,
-    right: 0,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  },
-  footerText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  reloadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#FF3B5C',
-    borderRadius: 20,
-  },
-  reloadText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
