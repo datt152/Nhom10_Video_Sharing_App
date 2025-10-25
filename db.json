@@ -162,7 +162,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3401,
-      "commentCount": 129,
+      "commentCount": 130,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -487,7 +487,7 @@
         "u1",
         "u2"
       ],
-      "replyCount": 1,
+      "replyCount": 0,
       "parentId": null
     },
     {
@@ -603,17 +603,6 @@
       "parentId": null
     },
     {
-      "id": "c1761400503705",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "i",
-      "createdAt": "2025-10-25T13:55:03.705Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": "c2"
-    },
-    {
       "id": "c1761400711551",
       "videoId": "v5",
       "userId": "u1",
@@ -625,11 +614,33 @@
       "parentId": null
     },
     {
-      "id": "c1761401269366",
+      "id": "c1761413446050",
       "videoId": "v1",
       "userId": "u1",
-      "content": "Chẳng hiểu gì cả",
-      "createdAt": "2025-10-25T14:07:49.366Z",
+      "content": "Dè de",
+      "createdAt": "2025-10-25T17:30:46.050Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761415427021",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "Dạ",
+      "createdAt": "2025-10-25T18:03:47.021Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761415452897",
+      "videoId": "v5",
+      "userId": "u1",
+      "content": "Hahaa",
+      "createdAt": "2025-10-25T18:04:12.897Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
