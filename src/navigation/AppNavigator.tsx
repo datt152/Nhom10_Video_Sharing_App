@@ -11,6 +11,7 @@ import ExploreScreen from '../screens/ExploreScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import OtherProfileScreen from '../screens/profileTab/OtherProfileScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,7 @@ export default function AppNavigator() {
       <Stack.Screen name='Notification' component={NotificationScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Followers" component={FollowersScreen} />
+      <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} />
     </Stack.Navigator>
   );
 }

@@ -12,14 +12,15 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFollower } from "../../hooks/useFollowers";
 import { User } from "../../types/database.types";
-
+import OtherProfileScreen from "../../screens/profileTab/OtherProfileScreen"
 type FollowPageRouteProp = RouteProp<
     { params: { tab?: "followers" | "following" | "friends" } },
     "params"
 >;
 
+
 const FollowPage: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation: any = useNavigation();
     const route = useRoute<FollowPageRouteProp>();
     const { followers, following, loading } = useFollower();
     const [activeTab, setActiveTab] = useState<
@@ -168,7 +169,10 @@ const FollowPage: React.FC = () => {
                     }
 
                     return (
-                        <View style={styles.userCard}>
+                        <TouchableOpacity
+                            style={styles.userCard}
+                            onPress={() => navigation.navigate("OtherProfileScreen", { userId: item.id })}
+                        >
                             <View style={styles.userInfo}>
                                 <Image source={{ uri: item.avatar }} style={styles.avatar} />
                                 <Text style={styles.userName}>{item.fullname}</Text>
@@ -176,12 +180,13 @@ const FollowPage: React.FC = () => {
 
                             <TouchableOpacity
                                 style={[styles.followBtn, buttonStyle]}
+                                onPress={() => {/* xử lý follow/unfollow sau này */ }}
                             >
                                 <Text style={[styles.followBtnText, textStyle]}>
                                     {buttonLabel}
                                 </Text>
                             </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     );
                 }}
                 ListEmptyComponent={
