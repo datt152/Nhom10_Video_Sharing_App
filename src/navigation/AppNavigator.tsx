@@ -3,14 +3,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-
+import FollowersScreen from "../screens/profileTab/FollowersScreen"
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CreateUploadScreen from '../screens/CreateUploadScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
-import EditProfileScreen from '../screens/EditProfileScreen'; 
+import EditProfileScreen from '../screens/EditProfileScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -65,10 +65,11 @@ function BottomTabs() {
 export default function AppNavigator() {
   return (
 
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main" component={BottomTabs} />
-        <Stack.Screen name='Notification' component={NotificationScreen} />
-         <Stack.Screen name="EditProfile" component={EditProfileScreen} /> 
-      </Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={BottomTabs} />
+      <Stack.Screen name='Notification' component={NotificationScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="Followers" component={FollowersScreen} />
+    </Stack.Navigator>
   );
 }
