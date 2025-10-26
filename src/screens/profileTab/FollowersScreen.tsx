@@ -6,6 +6,7 @@ import {
     FlatList,
     Image,
     StyleSheet,
+    TextInput,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,6 +29,7 @@ const FollowPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<
         "followers" | "following" | "friends"
     >("followers");
+    const [search, setSearch] = useState("");
 
     // Dữ liệu mẫu
     const followers: User[] = [
@@ -51,9 +53,7 @@ const FollowPage: React.FC = () => {
     ];
 
     // Tạo danh sách bạn bè (người vừa follow bạn vừa được bạn follow)
-    const friends: User[] = followers.filter(
-        (f) => f.isFollowingBack === true
-    );
+    const friends: User[] = followers.filter((f) => f.isFollowingBack === true);
 
     useEffect(() => {
         if (
@@ -76,7 +76,9 @@ const FollowPage: React.FC = () => {
         }
     };
 
-    const list = getList();
+    const list = getList().filter((user) =>
+        user.name.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <View style={styles.container}>
@@ -138,6 +140,18 @@ const FollowPage: React.FC = () => {
                         Friends
                     </Text>
                 </TouchableOpacity>
+            </View>
+
+            {/* Ô tìm kiếm */}
+            <View style={styles.searchBox}>
+                <Ionicons name="search" size={18} color="#FF3CAC" style={{ marginRight: 8 }} />
+                <TextInput
+                    placeholder="Tìm kiếm người dùng..."
+                    placeholderTextColor="#aaa"
+                    value={search}
+                    onChangeText={setSearch}
+                    style={styles.searchInput}
+                />
             </View>
 
             {/* Danh sách */}
@@ -230,14 +244,14 @@ const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: "row",
         justifyContent: "center",
-        marginBottom: 20,
+        marginBottom: 15,
     },
     tab: {
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
         backgroundColor: "#f8f8f8",
-        marginHorizontal: 8,
+        marginHorizontal: 6,
     },
     activeTab: {
         backgroundColor: "#FF3CAC",
@@ -249,6 +263,20 @@ const styles = StyleSheet.create({
     activeTabText: {
         color: "#fff",
         fontWeight: "600",
+    },
+    searchBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#f8f8f8",
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 6,
+        marginBottom: 20,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 15,
+        color: "#333",
     },
     userCard: {
         flexDirection: "row",
