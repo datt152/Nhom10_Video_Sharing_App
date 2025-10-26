@@ -10,13 +10,8 @@ import {
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-
-interface User {
-    id: number;
-    name: string;
-    avatar?: string;
-    isFollowingBack?: boolean;
-}
+import { useFollower } from "../../hooks/useFollowers";
+import { User } from "../../types/database.types";
 
 type FollowPageRouteProp = RouteProp<
     { params: { tab?: "followers" | "following" | "friends" } },
@@ -26,34 +21,15 @@ type FollowPageRouteProp = RouteProp<
 const FollowPage: React.FC = () => {
     const navigation = useNavigation();
     const route = useRoute<FollowPageRouteProp>();
+    const { followers, following, loading } = useFollower();
     const [activeTab, setActiveTab] = useState<
         "followers" | "following" | "friends"
     >("followers");
     const [search, setSearch] = useState("");
 
-    // Dữ liệu mẫu
-    const followers: User[] = [
-        {
-            id: 1,
-            name: "Nguyễn Văn A",
-            avatar: "https://i.pravatar.cc/150?img=11",
-            isFollowingBack: false,
-        },
-        {
-            id: 2,
-            name: "Trần Thị B",
-            avatar: "https://i.pravatar.cc/150?img=12",
-            isFollowingBack: true,
-        },
-    ];
-
-    const following: User[] = [
-        { id: 3, name: "Lê Văn C", avatar: "https://i.pravatar.cc/150?img=13" },
-        { id: 4, name: "Phạm Thị D", avatar: "https://i.pravatar.cc/150?img=14" },
-    ];
-
-    // Tạo danh sách bạn bè (người vừa follow bạn vừa được bạn follow)
-    const friends: User[] = followers.filter((f) => f.isFollowingBack === true);
+    const friends = followers.filter((f) =>
+        following.some((x) => x.id === f.id)
+    );
 
     useEffect(() => {
         if (
@@ -77,8 +53,16 @@ const FollowPage: React.FC = () => {
     };
 
     const list = getList().filter((user) =>
-        user.name.toLowerCase().includes(search.toLowerCase())
+        user.fullname.toLowerCase().includes(search.toLowerCase())
     );
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ textAlign: "center", marginTop: 40 }}>Đang tải...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -99,52 +83,42 @@ const FollowPage: React.FC = () => {
 
             {/* Tabs */}
             <View style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === "following" && styles.activeTab]}
-                    onPress={() => setActiveTab("following")}
-                >
-                    <Text
-                        style={[
-                            styles.tabText,
-                            activeTab === "following" && styles.activeTabText,
-                        ]}
+                {["following", "followers", "friends"].map((tab) => (
+                    <TouchableOpacity
+                        key={tab}
+                        style={{
+                            ...styles.tab,
+                            backgroundColor:
+                                activeTab === tab ? "#FF3CAC" : "#f8f8f8",
+                        }}
+                        onPress={() =>
+                            setActiveTab(tab as "following" | "followers" | "friends")
+                        }
                     >
-                        Following
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === "followers" && styles.activeTab]}
-                    onPress={() => setActiveTab("followers")}
-                >
-                    <Text
-                        style={[
-                            styles.tabText,
-                            activeTab === "followers" && styles.activeTabText,
-                        ]}
-                    >
-                        Followers
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === "friends" && styles.activeTab]}
-                    onPress={() => setActiveTab("friends")}
-                >
-                    <Text
-                        style={[
-                            styles.tabText,
-                            activeTab === "friends" && styles.activeTabText,
-                        ]}
-                    >
-                        Friends
-                    </Text>
-                </TouchableOpacity>
+                        <Text
+                            style={{
+                                color: activeTab === tab ? "#fff" : "#555",
+                                fontWeight: activeTab === tab ? "600" : "500",
+                            }}
+                        >
+                            {tab === "following"
+                                ? "Following"
+                                : tab === "followers"
+                                    ? "Followers"
+                                    : "Friends"}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
 
-            {/* Ô tìm kiếm */}
+            {/* Search box */}
             <View style={styles.searchBox}>
-                <Ionicons name="search" size={18} color="#FF3CAC" style={{ marginRight: 8 }} />
+                <Ionicons
+                    name="search"
+                    size={18}
+                    color="#FF3CAC"
+                    style={{ marginRight: 8 }}
+                />
                 <TextInput
                     placeholder="Tìm kiếm người dùng..."
                     placeholderTextColor="#aaa"
@@ -154,59 +128,62 @@ const FollowPage: React.FC = () => {
                 />
             </View>
 
-            {/* Danh sách */}
+            {/* List */}
             <FlatList
                 data={list}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.userCard}>
-                        <View style={styles.userInfo}>
-                            <Image source={{ uri: item.avatar }} style={styles.avatar} />
-                            <Text style={styles.userName}>{item.name}</Text>
-                        </View>
+                renderItem={({ item }: { item: User }) => {
+                    const isFriend = friends.some((x) => x.id === item.id);
+                    const isFollowing = following.some((x) => x.id === item.id);
+                    const isFollower = followers.some((x) => x.id === item.id);
 
-                        {/* Nút trạng thái */}
-                        {activeTab === "followers" ? (
+                    let buttonLabel = "";
+                    let buttonStyle = {};
+                    let textStyle = {};
+
+                    if (activeTab === "following") {
+                        if (isFriend) {
+                            buttonLabel = "Bạn bè 💞";
+                            buttonStyle = styles.followedBtn;
+                            textStyle = styles.followedBtnText;
+                        } else {
+                            buttonLabel = "Đã Follow";
+                            buttonStyle = styles.followedBtn;
+                            textStyle = styles.followedBtnText;
+                        }
+                    } else if (activeTab === "followers") {
+                        if (isFriend) {
+                            buttonLabel = "Bạn bè 💞";
+                            buttonStyle = styles.followedBtn;
+                            textStyle = styles.followedBtnText;
+                        } else {
+                            buttonLabel = "Follow lại";
+                            buttonStyle = styles.followBackBtn;
+                            textStyle = { color: "#fff", fontWeight: "600" };
+                        }
+                    } else if (activeTab === "friends") {
+                        buttonLabel = "Bạn bè 💞";
+                        buttonStyle = styles.followedBtn;
+                        textStyle = styles.followedBtnText;
+                    }
+
+                    return (
+                        <View style={styles.userCard}>
+                            <View style={styles.userInfo}>
+                                <Image source={{ uri: item.avatar }} style={styles.avatar} />
+                                <Text style={styles.userName}>{item.fullname}</Text>
+                            </View>
+
                             <TouchableOpacity
-                                style={[
-                                    styles.followBtn,
-                                    item.isFollowingBack
-                                        ? styles.followedBtn
-                                        : styles.followBackBtn,
-                                ]}
+                                style={[styles.followBtn, buttonStyle]}
                             >
-                                <Text
-                                    style={[
-                                        styles.followBtnText,
-                                        item.isFollowingBack && styles.followedBtnText,
-                                    ]}
-                                >
-                                    {item.isFollowingBack ? "Đã Follow" : "Follow lại"}
+                                <Text style={[styles.followBtnText, textStyle]}>
+                                    {buttonLabel}
                                 </Text>
                             </TouchableOpacity>
-                        ) : activeTab === "following" ? (
-                            <TouchableOpacity
-                                style={[styles.followBtn, styles.followedBtn]}
-                            >
-                                <Text
-                                    style={[styles.followBtnText, styles.followedBtnText]}
-                                >
-                                    Đã Follow
-                                </Text>
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity
-                                style={[styles.followBtn, styles.followedBtn]}
-                            >
-                                <Text
-                                    style={[styles.followBtnText, styles.followedBtnText]}
-                                >
-                                    Bạn bè 💞
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                )}
+                        </View>
+                    );
+                }}
                 ListEmptyComponent={
                     <Text style={styles.emptyText}>
                         {activeTab === "followers"
@@ -250,19 +227,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
-        backgroundColor: "#f8f8f8",
         marginHorizontal: 6,
-    },
-    activeTab: {
-        backgroundColor: "#FF3CAC",
-    },
-    tabText: {
-        color: "#555",
-        fontWeight: "500",
-    },
-    activeTabText: {
-        color: "#fff",
-        fontWeight: "600",
     },
     searchBox: {
         flexDirection: "row",
@@ -327,6 +292,7 @@ const styles = StyleSheet.create({
     },
     followedBtnText: {
         color: "#FF3CAC",
+        fontWeight: "600",
     },
     emptyText: {
         textAlign: "center",
