@@ -3,9 +3,9 @@
     {
       "id": "u1",
       "username": "linhnguyen",
-      "fullname": "Linh Nguyễn",
+      "fullname": "Linh Nguyễn2004",
       "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-      "bio": "Du lịch & cuộc sống 🌿",
+      "bio": "Du lịch & cuộc sống 🌿125555",
       "followers": 12002,
       "following": 312,
       "likes": 22000,
@@ -15,9 +15,10 @@
         "u4"
       ],
       "followingIds": [
-        "u2",
-        "u3"
-      ]
+        "u4",
+        "u2"
+      ],
+      "externalLinks": []
     },
     {
       "id": "u2",
@@ -29,8 +30,8 @@
       "following": 200,
       "likes": 15800,
       "followerIds": [
-        "u1",
-        "u4"
+        "u4",
+        "u1"
       ],
       "followingIds": [
         "u1"
@@ -46,7 +47,6 @@
       "following": 120,
       "likes": 9000,
       "followerIds": [
-        "u1",
         "u4"
       ],
       "followingIds": [

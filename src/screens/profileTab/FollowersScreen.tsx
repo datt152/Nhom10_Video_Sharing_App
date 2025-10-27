@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
     View,
@@ -12,7 +13,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFollower } from "../../hooks/useFollowers";
 import { User } from "../../types/database.types";
-import OtherProfileScreen from "../../screens/profileTab/OtherProfileScreen"
+import { useVideo } from "../../hooks/useVideo"
 type FollowPageRouteProp = RouteProp<
     { params: { tab?: "followers" | "following" | "friends" } },
     "params"
@@ -20,9 +21,11 @@ type FollowPageRouteProp = RouteProp<
 
 
 const FollowPage: React.FC = () => {
+    const { followers, following, loading, followUser, unfollowUser, refreshFollowers, refreshFollowing } = useFollower();
+
     const navigation: any = useNavigation();
     const route = useRoute<FollowPageRouteProp>();
-    const { followers, following, loading } = useFollower();
+    
     const [activeTab, setActiveTab] = useState<
         "followers" | "following" | "friends"
     >("followers");
@@ -178,9 +181,18 @@ const FollowPage: React.FC = () => {
                                 <Text style={styles.userName}>{item.fullname}</Text>
                             </View>
 
+                            {/* NÚT FOLLOW/UNFOLLOW NẰM Ở ĐÂY */}
                             <TouchableOpacity
                                 style={[styles.followBtn, buttonStyle]}
-                                onPress={() => {/* xử lý follow/unfollow sau này */ }}
+                                onPress={() => {
+                                    if (isFollowing) {
+                                        // Nếu đang follow thì bấm để unfollow
+                                        unfollowUser(item.id);
+                                    } else {
+                                        // Nếu chưa follow thì bấm để follow
+                                        followUser(item.id);
+                                    }
+                                }}
                             >
                                 <Text style={[styles.followBtnText, textStyle]}>
                                     {buttonLabel}

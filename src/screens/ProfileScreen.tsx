@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useUser } from '../hooks/useUser';
+import { useFollower } from '../hooks/useFollowers';
 
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('videos');
@@ -9,15 +11,17 @@ const ProfileScreen: React.FC = () => {
   const [likedTab, setLikedTab] = useState<'likedVideos' | 'likedImages'>('likedVideos');
   const navigation: any = useNavigation();
 
-  const user = {
-    name: 'Khi nào học xong r đi uống trà sữa 🧋',
-    username: '@d124321394dg',
-    avatar: 'https://i.pravatar.cc/150?img=5',
-    follow: 14,
-    followers: 146,
-    likes: 1148,
-  };
-
+  // 🧩 Lấy user hiện tại & follower data
+  const { currentUser, loadUser,loading: userLoading } = useUser();
+  const { loading: followerLoading } = useFollower();
+  const { followerCount, followingCount } = useFollower();
+  // const { followerCount, followingCount, followUser, unfollowUser } = useFollower();
+  const isLoading = userLoading || followerLoading;
+  useFocusEffect(
+    useCallback(() => {
+      loadUser(); // gọi lại khi quay lại màn hình
+    }, [])
+  );
   const renderContent = () => {
     if (menu === 'videos' || menu === 'images') {
       return (
@@ -51,7 +55,7 @@ const ProfileScreen: React.FC = () => {
       );
     }
 
-    // phần đã thích (chia làm 2 tab nhỏ)
+    // phần đã thích
     return (
       <>
         <View style={styles.privacyMenu}>
@@ -78,27 +82,36 @@ const ProfileScreen: React.FC = () => {
     );
   };
 
+  if (isLoading || !currentUser) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FF4EB8" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       {/* Thông tin người dùng */}
       <View style={styles.profileTop}>
         <View style={styles.avatarWrapper}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          <Image source={{ uri: currentUser.avatar }} style={styles.avatar} />
           <TouchableOpacity style={styles.addIcon}>
             <Ionicons name="add" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.name} numberOfLines={1}>{user.name}</Text>
-        <Text style={styles.username}>{user.username}</Text>
+        <Text style={styles.name} numberOfLines={1}>{currentUser.fullname}</Text>
+        <Text style={styles.username}>@{currentUser.username}</Text>
+        <Text style={styles.username}>@{currentUser.bio}</Text>
 
-        {/* Follow / Follower / Thích */}
+        {/* Follow / Follower / Like */}
         <View style={styles.statsRow}>
           <TouchableOpacity
             style={styles.statItem}
             onPress={() => navigation.navigate('Followers', { tab: 'following' })}
           >
-            <Text style={styles.statValue}>{user.follow}</Text>
+            <Text style={styles.statValue}>{followingCount}</Text>
             <Text style={styles.statLabel}>Following</Text>
           </TouchableOpacity>
 
@@ -106,12 +119,12 @@ const ProfileScreen: React.FC = () => {
             style={styles.statItem}
             onPress={() => navigation.navigate('Followers', { tab: 'followers' })}
           >
-            <Text style={styles.statValue}>{user.followers}</Text>
+            <Text style={styles.statValue}>{followerCount}</Text>
             <Text style={styles.statLabel}>Follower</Text>
           </TouchableOpacity>
 
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.likes}</Text>
+            <Text style={styles.statValue}>{currentUser.likes}</Text>
             <Text style={styles.statLabel}>Like</Text>
           </View>
         </View>
@@ -141,12 +154,11 @@ const ProfileScreen: React.FC = () => {
 
       {/* Nội dung */}
       {renderContent()}
-    </ScrollView >
+    </ScrollView>
   );
 };
 
 export default ProfileScreen;
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   profileTop: {

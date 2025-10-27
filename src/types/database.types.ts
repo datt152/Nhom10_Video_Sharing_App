@@ -3,12 +3,14 @@ export interface User {
   username: string;
   fullname: string;
   avatar: string;
+  link: string;
   bio: string;
   followers: number;
   following: number;
   likes: number;
   followerIds: string[];
   followingIds: string[];
+  externalLinks?: string[];
 }
 
 export interface Music {
