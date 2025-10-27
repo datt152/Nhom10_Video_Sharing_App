@@ -22,7 +22,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-// BỎ hard-code BOTTOM_TABS, dùng tabBarHeight từ hook
 
 interface VideoCardProps {
   video: Video;
@@ -45,15 +44,20 @@ function VideoCard({
   onToggleLike,
   onToggleFollow,
 }: VideoCardProps) {
-  const tabBarHeight = useBottomTabBarHeight(); // chiều cao tab bar (đã gồm safe-area)
-
+  const tabBarHeight = useBottomTabBarHeight();
   const videoRef = useRef<ExpoVideo>(null);
+  
   const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [isScreenFocused, setIsScreenFocused] = useState(true);
+  
+  // 🎵 Music states (chỉ cho animation)
+  const [isMuted, setIsMuted] = useState(false);
+  const musicDiscRotation = useRef(new Animated.Value(0)).current;
+  const musicDiscScale = useRef(new Animated.Value(1)).current;
   
   const likeAnimation = useRef(new Animated.Value(0)).current;
   const playButtonOpacity = useRef(new Animated.Value(0)).current;
@@ -64,6 +68,71 @@ function VideoCard({
   useEffect(() => {
     setLocalCommentCount(video.commentCount);
   }, [video.commentCount]);
+
+  // 🎵 Music disc rotation animation (chỉ UI effect)
+  useEffect(() => {
+    if (isActive && !isPaused && !isMuted) {
+      musicDiscRotation.setValue(0);
+      const rotationAnimation = Animated.loop(
+        Animated.timing(musicDiscRotation, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        })
+      );
+      rotationAnimation.start();
+
+      Animated.spring(musicDiscScale, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+
+      return () => {
+        musicDiscRotation.stopAnimation();
+      };
+    } else {
+      musicDiscRotation.stopAnimation();
+      Animated.spring(musicDiscScale, {
+        toValue: 0.8,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isActive, isPaused, isMuted, musicDiscRotation, musicDiscScale]);
+
+  // ✅ Quản lý playback đơn giản (giống TikTok)
+  useEffect(() => {
+    const managePlayback = async () => {
+      if (!isActive || !isScreenFocused) {
+        // Stop video khi không active
+        await videoRef.current?.pauseAsync();
+        await videoRef.current?.setPositionAsync(0);
+        setCurrentTime(0);
+        setIsPaused(false);
+        setShowPlayButton(false);
+        console.log(`⏹️ STOPPED video ${video.id}`);
+        return;
+      }
+
+      // Play video khi active (audio đã trong video)
+      try {
+        const videoStatus = await videoRef.current?.getStatusAsync();
+        if (videoStatus?.isLoaded) {
+          await videoRef.current?.setVolumeAsync(isMuted ? 0 : 1);
+          await videoRef.current?.playAsync();
+          console.log(`▶️ Playing video ${video.id}`);
+        }
+
+        setIsPaused(false);
+        setShowPlayButton(false);
+      } catch (error) {
+        console.error(`Error playing video ${video.id}:`, error);
+      }
+    };
+
+    managePlayback();
+  }, [isActive, isScreenFocused, video.id, isMuted]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -82,10 +151,10 @@ function VideoCard({
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         videoRef.current?.pauseAsync().catch(() => {});
-        console.log(`⏸️ App went to ${nextAppState} - Video ${video.id} paused`);
+        console.log(`⏸️ App went to ${nextAppState} - Paused video ${video.id}`);
       } else if (nextAppState === 'active' && isActive && isScreenFocused && !isPaused) {
         videoRef.current?.playAsync().catch(() => {});
-        console.log(`▶️ App became active - Video ${video.id} resumed`);
+        console.log(`▶️ App became active - Resumed video ${video.id}`);
       }
     });
 
@@ -114,42 +183,6 @@ function VideoCard({
     }
   };
 
-  useEffect(() => {
-    if (!isActive || !isScreenFocused) {
-      videoRef.current?.pauseAsync();
-      videoRef.current?.setPositionAsync(0);
-      setCurrentTime(0);
-      setIsPaused(false);
-      setShowPlayButton(false);
-      console.log(`⏹️ STOPPED video ${video.id} (isActive: ${isActive}, isFocused: ${isScreenFocused})`);
-      return;
-    }
-
-    const playVideo = async () => {
-      try {
-        const status = await videoRef.current?.getStatusAsync();
-        if (status?.isLoaded && isActive && isScreenFocused) {
-          await videoRef.current?.playAsync();
-          setIsPaused(false);
-          setShowPlayButton(false);
-          console.log(`▶️ Playing video ${video.id}`);
-        }
-      } catch (error) {
-        console.error(`Error playing video ${video.id}:`, error);
-      }
-    };
-
-    playVideo();
-  }, [isActive, isScreenFocused, video.id]);
-
-  useEffect(() => {
-    return () => {
-      console.log(`🗑️ Unmounting video ${video.id}`);
-      videoRef.current?.pauseAsync();
-      videoRef.current?.setPositionAsync(0);
-    };
-  }, [video.id]);
-
   const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (status.isLoaded && !isSeeking && isActive) {
       setCurrentTime(status.positionMillis / 1000);
@@ -174,27 +207,34 @@ function VideoCard({
     })
   ).current;
 
-  const handleSeek = (locationX: number) => {
+  const handleSeek = async (locationX: number) => {
     const progressBarWidth = SCREEN_WIDTH - 32;
     const seekPosition = Math.max(0, Math.min(locationX, progressBarWidth));
     const seekTime = (seekPosition / progressBarWidth) * duration;
     
     setCurrentTime(seekTime);
-    videoRef.current?.setPositionAsync(seekTime * 1000);
+    await videoRef.current?.setPositionAsync(seekTime * 1000);
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (isPaused) {
-      videoRef.current?.playAsync();
+      await videoRef.current?.playAsync();
       setIsPaused(false);
       setShowPlayButton(false);
       hidePlayButton();
     } else {
-      videoRef.current?.pauseAsync();
+      await videoRef.current?.pauseAsync();
       setIsPaused(true);
       setShowPlayButton(true);
       showPlayButtonAnimation();
     }
+  };
+
+  const handleToggleMute = async () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    await videoRef.current?.setVolumeAsync(newMutedState ? 0 : 1);
+    console.log(`🔊 Video ${video.id} ${newMutedState ? 'MUTED' : 'UNMUTED'}`);
   };
 
   const showPlayButtonAnimation = () => {
@@ -251,12 +291,17 @@ function VideoCard({
     outputRange: [1, 1.3],
   });
 
+  const spin = musicDiscRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   const isOwnVideo = video.user?.id === currentUserId;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <View style={styles.container}>
-      <View style={styles.videoWrapper }>
+      <View style={styles.videoWrapper}>
         <TouchableOpacity
           style={styles.videoContainer}
           activeOpacity={1}
@@ -272,6 +317,7 @@ function VideoCard({
             videoStyle={styles.videoStyle}
             onPlaybackStatusUpdate={onPlaybackStatusUpdate}
             progressUpdateIntervalMillis={100}
+            volume={isMuted ? 0 : 1} // ✅ Control volume từ video (đã có audio)
           />
 
           {showPlayButton && (
@@ -288,7 +334,6 @@ function VideoCard({
           )}
         </TouchableOpacity>
 
-        {/* Đưa overlay vào trong videoWrapper để tránh tab bar */}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
           style={styles.gradient}
@@ -303,12 +348,27 @@ function VideoCard({
             </Text>
 
             {video.music && (
-              <View style={styles.musicContainer}>
-                <Ionicons name="musical-note" size={14} color="#fff" />
+              <TouchableOpacity 
+                style={styles.musicContainer}
+                activeOpacity={0.8}
+              >
+                <Animated.View
+                  style={[
+                    styles.musicDisc,
+                    {
+                      transform: [
+                        { rotate: spin },
+                        { scale: musicDiscScale },
+                      ],
+                    },
+                  ]}
+                >
+                  <Ionicons name="disc" size={16} color="#fff" />
+                </Animated.View>
                 <Text style={styles.musicText} numberOfLines={1}>
                   {video.music.title} - {video.music.artist}
                 </Text>
-              </View>
+              </TouchableOpacity>
             )}
           </View>
 
@@ -348,9 +408,15 @@ function VideoCard({
               <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="paper-plane-outline" size={30} color="#fff" />
-              <Text style={styles.actionText}>{formatNumber(video.shareCount)}</Text>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={handleToggleMute}
+            >
+              <Ionicons 
+                name={isMuted ? 'volume-mute' : 'volume-high'} 
+                size={30} 
+                color="#fff" 
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -421,8 +487,7 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     width: '100%',
-    height: SCREEN_HEIGHT-140,
-
+    height: SCREEN_HEIGHT - 140,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -495,11 +560,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    maxWidth: '85%',
+  },
+  musicDisc: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 6,
   },
   musicText: {
     color: '#fff',
     fontSize: 13,
-    marginLeft: 6,
     flex: 1,
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -1, height: 1 },

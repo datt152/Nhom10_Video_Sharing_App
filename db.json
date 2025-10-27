@@ -73,23 +73,20 @@
   "music": [
     {
       "id": "m1",
-      "title": "Summer Vibes",
-      "artist": "DJ Sunny",
-      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      "title": "Quay đi quay lại",
+      "artist": "HIEUTHUHAI",
       "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
     },
     {
       "id": "m2",
       "title": "Night Drive",
       "artist": "Zayne",
-      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
       "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
     },
     {
       "id": "m3",
       "title": "Chill Beats",
       "artist": "Lowkey",
-      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
       "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
     }
   ],
@@ -103,6 +100,7 @@
       "musicId": "m1",
       "likeCount": 3400,
       "commentCount": 134,
+      "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -114,288 +112,38 @@
       },
       "music": {
         "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        "title": "Quay đi quay lại",
+        "artist": "HIEUTHUHAI",
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
       },
-      "likedBy": [
-        "u2",
-        "u3"
-      ]
+      "likedBy": ["u2", "u3"]
     },
     {
       "id": "v4",
       "userId": "u4",
-      "title": "Hành trình ở Đà Lạt 🌿",
+      "title": "Dance challenge 💃",
       "url": "https://res.cloudinary.com/ddcw5fmea/video/upload/v1761317722/samples/dance-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3400,
       "commentCount": 130,
+      "shareCount": 67,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
       "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+        "id": "u4",
+        "username": "datt152",
+        "fullname": "Dat Tran",
+        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
       },
       "music": {
         "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3"
-      ]
-    },
-    {
-      "id": "v5",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/trim-video.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 129,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v56",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/demo/video/upload/cat.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
+        "title": "Quay đi quay lại",
+        "artist": "HIEUTHUHAI",
         "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
       },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v123",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/splicing-transition-2.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 129,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
-      },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v1123",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/overlays.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
-      },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v1532",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m3",
-        "title": "Chill Beats",
-        "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v1456",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3401,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m3",
-        "title": "Chill Beats",
-        "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3",
-        "u1"
-      ]
-    },
-    {
-      "id": "v123461",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3400,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m3",
-        "title": "Chill Beats",
-        "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3"
-      ]
-    },
-    {
-      "id": "v1123662",
-      "userId": "u1",
-      "title": "Hành trình ở Đà Lạt 🌿",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-      "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
-      "likeCount": 3400,
-      "commentCount": 128,
-      "views": 25002,
-      "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m3",
-        "title": "Chill Beats",
-        "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-      },
-      "likedBy": [
-        "u2",
-        "u3"
-      ]
+      "likedBy": ["u2", "u3"]
     },
     {
       "id": "v2",
@@ -406,6 +154,7 @@
       "musicId": "m2",
       "likeCount": 5400,
       "commentCount": 222,
+      "shareCount": 156,
       "views": 36000,
       "createdAt": "2025-10-12T08:00:00Z",
       "isPublic": true,
@@ -416,15 +165,12 @@
         "avatar": "https://randomuser.me/api/portraits/men/12.jpg"
       },
       "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        "id": "m2",
+        "title": "Night Drive",
+        "artist": "Zayne",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": ["u1"]
     },
     {
       "id": "v3",
@@ -433,8 +179,9 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
-      "likeCount": 4,
+      "likeCount": 4200,
       "commentCount": 90,
+      "shareCount": 43,
       "views": 21000,
       "createdAt": "2025-10-15T09:30:00Z",
       "isPublic": true,
@@ -448,13 +195,9 @@
         "id": "m3",
         "title": "Chill Beats",
         "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
       },
-      "likedBy": [
-        "u4",
-        "u1"
-      ]
+      "likedBy": ["u4", "u1"]
     }
   ],
   "comments": [
