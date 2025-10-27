@@ -12,13 +12,12 @@
       "followerIds": [
         "u2",
         "u3",
-        "u4",
         "u4"
+        
       ],
       "followingIds": [
         "u2",
-        "u3",
-        "u4"
+        "u3"
       ]
     },
     {

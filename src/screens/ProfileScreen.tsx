@@ -7,7 +7,7 @@ const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('videos');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [likedTab, setLikedTab] = useState<'likedVideos' | 'likedImages'>('likedVideos');
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
 
   const user = {
     name: 'Khi nào học xong r đi uống trà sữa 🧋',
@@ -94,17 +94,25 @@ const ProfileScreen: React.FC = () => {
 
         {/* Follow / Follower / Thích */}
         <View style={styles.statsRow}>
-          <View style={styles.statItem}>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => navigation.navigate('Followers', { tab: 'following' })}
+          >
             <Text style={styles.statValue}>{user.follow}</Text>
-            <Text style={styles.statLabel}>Follow</Text>
-          </View>
-          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Following</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => navigation.navigate('Followers', { tab: 'followers' })}
+          >
             <Text style={styles.statValue}>{user.followers}</Text>
             <Text style={styles.statLabel}>Follower</Text>
-          </View>
+          </TouchableOpacity>
+
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{user.likes}</Text>
-            <Text style={styles.statLabel}>Thích</Text>
+            <Text style={styles.statLabel}>Like</Text>
           </View>
         </View>
 
@@ -124,16 +132,16 @@ const ProfileScreen: React.FC = () => {
           <Text style={[styles.menuText, menu === 'videos' && styles.activeMenu]}>Video</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setMenu('images')}>
-          <Text style={[styles.menuText, menu === 'images' && styles.activeMenu]}>Ảnh</Text>
+          <Text style={[styles.menuText, menu === 'images' && styles.activeMenu]}>Image</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setMenu('liked')}>
-          <Text style={[styles.menuText, menu === 'liked' && styles.activeMenu]}>Đã thích</Text>
+          <Text style={[styles.menuText, menu === 'liked' && styles.activeMenu]}>Like</Text>
         </TouchableOpacity>
       </View>
 
       {/* Nội dung */}
       {renderContent()}
-    </ScrollView>
+    </ScrollView >
   );
 };
 
