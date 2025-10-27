@@ -13,7 +13,6 @@
         "u2",
         "u3",
         "u4"
-        
       ],
       "followingIds": [
         "u2",
@@ -76,21 +75,21 @@
       "id": "m1",
       "title": "Summer Vibes",
       "artist": "DJ Sunny",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
+      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
       "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
     },
     {
       "id": "m2",
       "title": "Night Drive",
       "artist": "Zayne",
-      "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
+      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
       "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
     },
     {
       "id": "m3",
       "title": "Chill Beats",
       "artist": "Lowkey",
-      "url": "https://res.cloudinary.com/demo/video/upload/cat.mp4",
+      "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
       "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
     }
   ],
@@ -117,7 +116,8 @@
         "id": "m1",
         "title": "Summer Vibes",
         "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
       },
       "likedBy": [
         "u2",
@@ -146,7 +146,8 @@
         "id": "m1",
         "title": "Summer Vibes",
         "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
       },
       "likedBy": [
         "u2",
@@ -175,7 +176,8 @@
         "id": "m1",
         "title": "Summer Vibes",
         "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
       },
       "likedBy": [
         "u2",
@@ -190,7 +192,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/cat.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3400,
+      "likeCount": 3401,
       "commentCount": 128,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -209,7 +211,8 @@
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -291,10 +294,11 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "id": "m3",
+        "title": "Chill Beats",
+        "artist": "Lowkey",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
       },
       "likedBy": [
         "u2",
@@ -321,10 +325,11 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "id": "m3",
+        "title": "Chill Beats",
+        "artist": "Lowkey",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
       },
       "likedBy": [
         "u2",
@@ -351,10 +356,11 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "id": "m3",
+        "title": "Chill Beats",
+        "artist": "Lowkey",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
       },
       "likedBy": [
         "u2",
@@ -380,10 +386,11 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "music": {
-        "id": "m1",
-        "title": "Summer Vibes",
-        "artist": "DJ Sunny",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "id": "m3",
+        "title": "Chill Beats",
+        "artist": "Lowkey",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
       },
       "likedBy": [
         "u2",
@@ -409,10 +416,11 @@
         "avatar": "https://randomuser.me/api/portraits/men/12.jpg"
       },
       "music": {
-        "id": "m2",
-        "title": "Night Drive",
-        "artist": "Zayne",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
+        "id": "m1",
+        "title": "Summer Vibes",
+        "artist": "DJ Sunny",
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
       },
       "likedBy": [
         "u1"
@@ -440,7 +448,8 @@
         "id": "m3",
         "title": "Chill Beats",
         "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
       },
       "likedBy": [
         "u4",

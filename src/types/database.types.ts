@@ -17,6 +17,7 @@ export interface Music {
   artist: string;
   url: string;
   cover: string;
+  audioUrl: string;
 }
 // interface hình ảnh
 export interface Image {

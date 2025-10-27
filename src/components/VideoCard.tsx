@@ -19,10 +19,11 @@ import { Video } from '../types/database.types';
 import CommentModal from './CommentModal';
 import { useComments } from '../hooks/useComment';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const BOTTOM_TABS = 60;
-const VIDEO_HEIGHT = SCREEN_HEIGHT - BOTTOM_TABS;
+// BỎ hard-code BOTTOM_TABS, dùng tabBarHeight từ hook
+
 interface VideoCardProps {
   video: Video;
   isActive: boolean;
@@ -44,6 +45,8 @@ function VideoCard({
   onToggleLike,
   onToggleFollow,
 }: VideoCardProps) {
+  const tabBarHeight = useBottomTabBarHeight(); // chiều cao tab bar (đã gồm safe-area)
+
   const videoRef = useRef<ExpoVideo>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -253,7 +256,7 @@ function VideoCard({
 
   return (
     <View style={styles.container}>
-      <View style={styles.videoWrapper}>
+      <View style={styles.videoWrapper }>
         <TouchableOpacity
           style={styles.videoContainer}
           activeOpacity={1}
@@ -284,84 +287,86 @@ function VideoCard({
             </Animated.View>
           )}
         </TouchableOpacity>
-      </View>
 
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
-        style={styles.gradient}
-      />
+        {/* Đưa overlay vào trong videoWrapper để tránh tab bar */}
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
+          style={styles.gradient}
+          pointerEvents="none"
+        />
 
-      <View style={styles.bottomContent}>
-        <View style={styles.leftContent}>
-          <Text style={styles.username}>@{video.user?.username || 'Unknown'}</Text>
-          <Text style={styles.title} numberOfLines={2}>
-            {video.title || ''}
-          </Text>
+        <View style={styles.bottomContent}>
+          <View style={styles.leftContent}>
+            <Text style={styles.username}>@{video.user?.username || 'Unknown'}</Text>
+            <Text style={styles.title} numberOfLines={2}>
+              {video.title || ''}
+            </Text>
 
-          {video.music && (
-            <View style={styles.musicContainer}>
-              <Ionicons name="musical-note" size={14} color="#fff" />
-              <Text style={styles.musicText} numberOfLines={1}>
-                {video.music.title} - {video.music.artist}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.rightContent}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: video.user?.avatar || 'https://via.placeholder.com/50' }}
-              style={styles.avatar}
-            />
-            {!isOwnVideo && !isFollowing && (
-              <TouchableOpacity
-                style={styles.followButton}
-                onPress={handleFollow}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="add" size={20} color="#fff" />
-              </TouchableOpacity>
+            {video.music && (
+              <View style={styles.musicContainer}>
+                <Ionicons name="musical-note" size={14} color="#fff" />
+                <Text style={styles.musicText} numberOfLines={1}>
+                  {video.music.title} - {video.music.artist}
+                </Text>
+              </View>
             )}
           </View>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
-            <Animated.View style={{ transform: [{ scale: likeScale }] }}>
-              <Ionicons
-                name={video.isLiked ? 'heart' : 'heart-outline'}
-                size={35}
-                color={video.isLiked ? '#FF3B5C' : '#fff'}
+          <View style={styles.rightContent}>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={{ uri: video.user?.avatar || 'https://via.placeholder.com/50' }}
+                style={styles.avatar}
               />
-            </Animated.View>
-            <Text style={styles.actionText}>{formatNumber(video.likeCount)}</Text>
-          </TouchableOpacity>
+              {!isOwnVideo && !isFollowing && (
+                <TouchableOpacity
+                  style={styles.followButton}
+                  onPress={handleFollow}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="add" size={20} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </View>
 
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={handleOpenComments}
-          >
-            <Ionicons name="chatbubble-outline" size={32} color="#fff" />
-            <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
+              <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+                <Ionicons
+                  name={video.isLiked ? 'heart' : 'heart-outline'}
+                  size={35}
+                  color={video.isLiked ? '#FF3B5C' : '#fff'}
+                />
+              </Animated.View>
+              <Text style={styles.actionText}>{formatNumber(video.likeCount)}</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="paper-plane-outline" size={30} color="#fff" />
-            <Text style={styles.actionText}>{formatNumber(video.shareCount)}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={handleOpenComments}
+            >
+              <Ionicons name="chatbubble-outline" size={32} color="#fff" />
+              <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="paper-plane-outline" size={30} color="#fff" />
+              <Text style={styles.actionText}>{formatNumber(video.shareCount)}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.progressBarContainer}>
-        <View
-          style={styles.progressBarTouchable}
-          {...panResponder.panHandlers}
-        >
-          <Text style={styles.timeText}>
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
-            <View style={[styles.progressDot, { left: `${progress}%` }]} />
+        <View style={styles.progressBarContainer}>
+          <View
+            style={styles.progressBarTouchable}
+            {...panResponder.panHandlers}
+          >
+            <Text style={styles.timeText}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </Text>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+              <View style={[styles.progressDot, { left: `${progress}%` }]} />
+            </View>
           </View>
         </View>
       </View>
@@ -407,19 +412,17 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   videoWrapper: {
-    height: VIDEO_HEIGHT, 
-    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: BOTTOM_TABS,
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
   },
   videoContainer: {
     width: '100%',
-    height: '100%',
+    height: SCREEN_HEIGHT-140,
+
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -458,7 +461,7 @@ const styles = StyleSheet.create({
   },
   bottomContent: {
     position: 'absolute',
-    bottom: 180,
+    bottom: 40,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -468,9 +471,7 @@ const styles = StyleSheet.create({
   },
   leftContent: {
     flex: 1,
-    paddingRight: 16,
     justifyContent: 'flex-end',
-    maxWidth: SCREEN_WIDTH - 100,
   },
   username: {
     color: '#fff',
@@ -547,7 +548,7 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     position: 'absolute',
-    bottom: 140,
+    bottom: 0,
     left: 16,
     right: 16,
     zIndex: 100,
