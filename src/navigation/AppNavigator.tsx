@@ -12,6 +12,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import OtherProfileScreen from '../screens/profileTab/OtherProfileScreen';
+import EditVideoScreen from '../screens/EditVideoScreen';
+import CameraRecordScreen from '../screens/CameraRecordingScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -40,7 +42,7 @@ function BottomTabs() {
       />
       <Tab.Screen
         name="Upload"
-        component={CreateUploadScreen}
+        component={CameraRecordScreen}
         options={{
           tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={24} color={color} />,
         }}
@@ -72,6 +74,16 @@ export default function AppNavigator() {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Followers" component={FollowersScreen} />
       <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} />
+      <Stack.Screen 
+  name="CameraRecord" 
+  component={CameraRecordScreen}
+  options={{ headerShown: false }}
+/>
+<Stack.Screen 
+  name="EditVideo" 
+  component={EditVideoScreen}
+  options={{ headerShown: false }}
+/>
     </Stack.Navigator>
   );
 }
