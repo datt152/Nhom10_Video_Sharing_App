@@ -30,193 +30,167 @@ const CameraRecordScreen: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
-  
+
+  // Timer
+  const [timerDelay, setTimerDelay] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isRecordingRef = useRef<boolean>(false); // Track recording state reliably
+  const isRecordingRef = useRef<boolean>(false);
 
   // Reset màn hình khi focus lại
   useFocusEffect(
-  React.useCallback(() => {
-    console.log('📱 [useFocusEffect] Screen focused');
-    isScreenActiveRef.current = true; // ✅ Màn hình đang active
+    React.useCallback(() => {
+      console.log('📱 [useFocusEffect] Screen focused');
+      isScreenActiveRef.current = true;
 
-    return () => {
-      console.log('🔄 [useFocusEffect] Screen blurred - cleanup');
-      isScreenActiveRef.current = false; 
-
-      if (isRecordingRef.current && cameraRef.current) {
-        try {
-          cameraRef.current.stopRecording();
-        } catch (error) {
-          console.log('⚠️ [Cleanup] Error stopping recording:', error);
-        }
-      }
-
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = null;
-      }
-
-      // Reset tất cả state khi rời màn hình
+      // Reset giao diện mỗi khi quay lại
       setRecordedVideo(null);
       setRecordingTime(0);
       setIsRecording(false);
       setTorchEnabled(false);
       setCameraType('back');
+      setTimerDelay(null);
       isRecordingRef.current = false;
-    };
-  }, [])
-);
 
+      return () => {
+        console.log('🔄 [useFocusEffect] Screen blurred - cleanup');
+        isScreenActiveRef.current = false;
+
+        if (isRecordingRef.current && cameraRef.current) {
+          try {
+            cameraRef.current.stopRecording();
+          } catch (error) {
+            console.log('⚠️ [Cleanup] Error stopping recording:', error);
+          }
+        }
+
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+
+        if (countdownRef.current) {
+          clearInterval(countdownRef.current);
+          countdownRef.current = null;
+          setCountdown(null);
+          
+        }
+      };
+    }, [])
+  );
 
   // Cleanup on unmount
   useEffect(() => {
-    console.log('🎬 [useEffect] Component mounted');
-    
     return () => {
-      console.log('💀 [useEffect] Component unmounting');
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-      // Reset ref khi unmount
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
       isRecordingRef.current = false;
     };
   }, []);
 
-  // Request permission if not granted
+  // Request permission
   useEffect(() => {
-  (async () => {
-    if (!cameraPermission?.granted) {
-      await requestCameraPermission();
-    }
-    if (!micPermission?.granted) {
-      await requestMicPermission();
-    }
-  })();
-}, [cameraPermission, micPermission]);
-
+    (async () => {
+      if (!cameraPermission?.granted) await requestCameraPermission();
+      if (!micPermission?.granted) await requestMicPermission();
+    })();
+  }, [cameraPermission, micPermission]);
 
   // Close camera
   const handleClose = () => {
-    console.log('❌ [handleClose] Closing camera');
-    console.log('❌ [handleClose] isRecordingRef.current:', isRecordingRef.current);
-    
-    if (isRecordingRef.current) {
-      console.log('⏹️ [handleClose] Stopping recording before close');
-      stopRecording();
-    }
+    if (isRecordingRef.current) stopRecording();
     navigation.goBack();
   };
 
   // Flip camera
   const flipCamera = () => {
     const newType = cameraType === 'back' ? 'front' : 'back';
-    console.log('🔄 [Flip] Camera flipped from', cameraType, 'to', newType);
     setCameraType(newType);
   };
 
   // Toggle flash
   const toggleFlash = () => {
-  const newTorch = !torchEnabled;
-  console.log('⚡ [Flash] Torch toggled:', newTorch);
-  setTorchEnabled(newTorch);
-};
+    setTorchEnabled((prev) => !prev);
+  };
+const startRecording = async () => {
+    if (!cameraRef.current || isRecordingRef.current) return;
 
-  // Start recording
-  const startRecording = async () => {
-    console.log('🎬 [startRecording] Called');
-    console.log('🎬 [startRecording] isRecordingRef.current:', isRecordingRef.current);
-    
-    if (!cameraRef.current) {
-      console.log('❌ [startRecording] Camera ref is null');
+    // Nếu có timer, chạy countdown trước khi quay
+    if (timerDelay) {
+      console.log('⏳ [Timer] Countdown starting:', timerDelay);
+      setCountdown(timerDelay);
+
+      let timeLeft = timerDelay;
+      countdownRef.current = setInterval(() => {
+        timeLeft -= 1;
+        if (timeLeft > 0) {
+          setCountdown(timeLeft);
+        } else {
+          clearInterval(countdownRef.current!);
+          setCountdown(null);
+          console.log('🎬 [Timer] Countdown done, start recording');
+          startRecordingNow();
+        }
+      }, 1000);
       return;
     }
 
-    // Prevent starting if already recording
-    if (isRecordingRef.current) {
-      console.log('⚠️ [startRecording] Already recording, skipping...');
-      return;
-    }
+    // Nếu không có timer thì quay luôn
+    startRecordingNow();
+  };
 
+  const startRecordingNow = async () => {
     try {
-      console.log('▶️ [startRecording] Setting recording state to true');
-      isRecordingRef.current = true; // ✅ Set ref FIRST
+      isRecordingRef.current = true;
       setIsRecording(true);
       setRecordingTime(0);
 
-      // Start timer
-      console.log('⏱️ [startRecording] Starting timer');
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          const newTime = prev + 1;
-          console.log('⏱️ [Timer] Recording time:', newTime, 'seconds');
-          
-          if (newTime >= 60) {
-            console.log('⏱️ [Timer] Max duration reached, stopping...');
+          if (prev >= 60) {
             stopRecording();
             return 60;
           }
-          return newTime;
+          return prev + 1;
         });
       }, 1000);
 
-      console.log('🎬 [startRecording] Starting camera recording...');
-      
-      const video = await cameraRef.current.recordAsync({
-        maxDuration: 60,
-      });
+      console.log('🎥 [startRecordingNow] Recording started');
+      const video = await cameraRef.current!.recordAsync({ maxDuration: 60 });
 
       if (isScreenActiveRef.current && video) {
-        console.log('✅ [startRecording] Video recorded successfully');
-        console.log('📹 [startRecording] Video URI:', video.uri);
         setRecordedVideo(video.uri);
       }
     } catch (error) {
-      console.error('❌ [startRecording] Error:', error);
+      console.error('❌ [startRecordingNow] Error:', error);
       Alert.alert('Error', 'Failed to record video');
-      isRecordingRef.current = false; // ✅ Reset ref on error
+      isRecordingRef.current = false;
       setIsRecording(false);
-      
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = null;
-      }
     }
   };
 
-  // Stop recording
   const stopRecording = () => {
-    console.log('⏹️ [stopRecording] Called');
-    console.log('⏹️ [stopRecording] isRecordingRef.current:', isRecordingRef.current);
-    console.log('⏹️ [stopRecording] cameraRef.current:', !!cameraRef.current);
-    
     if (cameraRef.current && isRecordingRef.current) {
-      console.log('⏹️ [stopRecording] Stopping camera recording...');
       try {
         cameraRef.current.stopRecording();
-        isRecordingRef.current = false; // ✅ Reset ref
-        setIsRecording(false);
-        
-        if (recordingTimerRef.current) {
-          console.log('⏱️ [stopRecording] Clearing timer');
-          clearInterval(recordingTimerRef.current);
-          recordingTimerRef.current = null;
-        }
-        console.log('✅ [stopRecording] Recording stopped successfully');
-      } catch (error) {
-        console.log('⚠️ [stopRecording] Error:', error);
-        isRecordingRef.current = false; // ✅ Reset ref even on error
-        setIsRecording(false);
+      } catch (e) {
+        console.log('⚠️ Error stopping recording:', e);
       }
-    } else {
-      console.log('⚠️ [stopRecording] Cannot stop - not recording or camera ref null');
+    }
+
+    isRecordingRef.current = false;
+    setIsRecording(false);
+
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
     }
   };
 
   // Upload from gallery
   const handleUpload = async () => {
-    console.log('📁 [handleUpload] Opening gallery...');
-    
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -224,14 +198,8 @@ const CameraRecordScreen: React.FC = () => {
         quality: 1,
         videoMaxDuration: 60,
       });
-
-      console.log('📁 [handleUpload] Result:', result);
-
       if (!result.canceled && result.assets[0]) {
-        console.log('✅ [handleUpload] Video selected:', result.assets[0].uri);
         setRecordedVideo(result.assets[0].uri);
-      } else {
-        console.log('❌ [handleUpload] Selection canceled');
       }
     } catch (error) {
       console.error('❌ [handleUpload] Error:', error);
@@ -239,31 +207,18 @@ const CameraRecordScreen: React.FC = () => {
     }
   };
 
-  // Use recorded video
   const handleUseVideo = () => {
-    console.log('➡️ [handleUseVideo] Navigating to EditVideo');
-    console.log('📹 [handleUseVideo] Video URI:', recordedVideo);
-    
     if (recordedVideo) {
-      navigation.navigate("EditVideo" as never, { videoUri: recordedVideo });
-    } else {
-      console.log('❌ [handleUseVideo] No video to use');
+      navigation.navigate('EditVideo' as never, { videoUri: recordedVideo });
     }
   };
 
-  // Retake video
   const handleRetake = () => {
-    console.log('🔄 [handleRetake] Retaking video');
-    console.log('🔄 [handleRetake] Previous video:', recordedVideo);
-    
     setRecordedVideo(null);
     setRecordingTime(0);
-    isRecordingRef.current = false; // ✅ Reset ref
-    
-    console.log('✅ [handleRetake] States reset');
+    isRecordingRef.current = false;
   };
 
-  // Format time
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -275,46 +230,43 @@ const CameraRecordScreen: React.FC = () => {
   return <View style={styles.container} />;
 }
 
-if (!cameraPermission.granted || !micPermission.granted) {
-  return (
-    <View style={styles.container}>
-      <Ionicons name="mic-outline" size={80} color="#666" />
-      <Text style={styles.permissionText}>
-        Camera & Microphone permissions required
-      </Text>
-      <TouchableOpacity
-        style={styles.permissionButton}
-        onPress={async () => {
-          await requestCameraPermission();
-          await requestMicPermission();
-        }}
-      >
-        <Text style={styles.permissionButtonText}>Grant Permissions</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+if (!cameraPermission?.granted || !micPermission?.granted) {
+    return (
+      <View style={styles.container}>
+        <Ionicons name="mic-outline" size={80} color="#666" />
+        <Text style={styles.permissionText}>
+          Camera & Microphone permissions required
+        </Text>
+        <TouchableOpacity
+          style={styles.permissionButton}
+          onPress={async () => {
+            await requestCameraPermission();
+            await requestMicPermission();
+          }}
+        >
+          <Text style={styles.permissionButtonText}>Grant Permissions</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
 
   // Preview recorded video
   if (recordedVideo) {
-    console.log('🎥 [Render] Showing preview for:', recordedVideo);
-    
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        {/* Top bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.nextButton} onPress={handleRetake}>
             <Ionicons name="arrow-back" size={20} color="#fff" />
             <Text style={styles.nextText}>Back</Text>
           </TouchableOpacity>
-          <View style={styles.topButton} />
           <TouchableOpacity style={styles.nextButton} onPress={handleUseVideo}>
             <Text style={styles.nextText}>Next</Text>
             <Ionicons name="arrow-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
+
         <Video
           source={{ uri: recordedVideo }}
           style={styles.preview}
@@ -323,23 +275,14 @@ if (!cameraPermission.granted || !micPermission.granted) {
           isLooping
           shouldPlay
         />
-
-        
-
       </View>
     );
   }
 
-  console.log('📸 [Render] Showing camera view');
-  console.log('📸 [Render] Camera type:', cameraType);
-  console.log('📸 [Render] Flash:', torchEnabled);
-  console.log('📸 [Render] Is recording:', isRecording);
-  console.log('📸 [Render] Is recording (ref):', isRecordingRef.current);
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <CameraView
         ref={cameraRef}
         style={styles.camera}
@@ -347,12 +290,19 @@ if (!cameraPermission.granted || !micPermission.granted) {
         enableTorch={torchEnabled}
         mode="video"
       >
+        {/* Đếm ngược Timer */}
+        {countdown !== null && (
+          <View style={styles.countdownOverlay}>
+            <Text style={styles.countdownText}>{countdown}</Text>
+          </View>
+        )}
+
         {/* Top bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.topButton} onPress={handleClose}>
             <Ionicons name="close" size={32} color="#fff" />
           </TouchableOpacity>
-          
+
           <View style={styles.centerTop}>
             {isRecording && (
               <View style={styles.recordingIndicator}>
@@ -365,7 +315,7 @@ if (!cameraPermission.granted || !micPermission.granted) {
           <View style={styles.topButton} />
         </View>
 
-        {/* Right side tools */}
+        {/* Right tools */}
         <View style={styles.rightTools}>
           <TouchableOpacity style={styles.tool} onPress={flipCamera}>
             <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
@@ -377,16 +327,28 @@ if (!cameraPermission.granted || !micPermission.granted) {
             <Text style={styles.toolText}>Filter</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tool}>
-            <Ionicons name="time-outline" size={28} color="#fff" />
-            <Text style={styles.toolText}>Timer</Text>
+          {/* Timer button */}
+          <TouchableOpacity
+            style={styles.tool}
+            onPress={() => {
+              const newDelay = timerDelay === 3 ? 10 : timerDelay === 10 ? null : 3;
+              console.log('⏰ [Timer] Set to:', newDelay);
+              setTimerDelay(newDelay);
+            }}
+          >
+            <Ionicons
+              name="time-outline"
+              size={28}
+              color={timerDelay ? '#FF4EB8' : '#fff'}
+            />
+            <Text style={styles.toolText}>{timerDelay ? `${timerDelay}s` : 'Timer'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.tool} onPress={toggleFlash}>
-            <Ionicons 
-              name={torchEnabled ? 'flash-off' : 'flash'} 
-              size={28} 
-              color="#fff" 
+            <Ionicons
+              name={torchEnabled ? 'flash-off' : 'flash'}
+              size={28}
+              color="#fff"
             />
             <Text style={styles.toolText}>Flash</Text>
           </TouchableOpacity>
@@ -394,7 +356,6 @@ if (!cameraPermission.granted || !micPermission.granted) {
 
         {/* Bottom controls */}
         <View style={styles.bottomControls}>
-          {/* Effects button */}
           <TouchableOpacity style={styles.bottomButton}>
             <View style={styles.effectButton}>
               <Ionicons name="happy-outline" size={24} color="#fff" />
@@ -402,26 +363,18 @@ if (!cameraPermission.granted || !micPermission.granted) {
             <Text style={styles.bottomButtonText}>Effect</Text>
           </TouchableOpacity>
 
-          {/* Record button */}
           <View style={styles.recordButtonContainer}>
             {isRecording ? (
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={stopRecording}
-              >
+              <TouchableOpacity style={styles.recordButton} onPress={stopRecording}>
                 <View style={styles.stopButton} />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={startRecording}
-              >
+              <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
                 <View style={styles.recordInner} />
               </TouchableOpacity>
             )}
           </View>
 
-          {/* Upload button */}
           <TouchableOpacity style={styles.bottomButton} onPress={handleUpload}>
             <View style={styles.uploadButton}>
               <Ionicons name="images-outline" size={24} color="#fff" />
@@ -429,37 +382,23 @@ if (!cameraPermission.granted || !micPermission.granted) {
             <Text style={styles.bottomButtonText}>Upload</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Add audio button (top center) */}
-        <TouchableOpacity style={styles.addAudioButton}>
-          <Ionicons name="musical-note" size={18} color="#000" />
-          <Text style={styles.addAudioText}>Add audio</Text>
-        </TouchableOpacity>
       </CameraView>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   camera: {
     flex: 1,
-  },
-  permissionContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
   },
   permissionText: {
     color: '#fff',
     fontSize: 18,
     textAlign: 'center',
     marginTop: 20,
-    marginBottom: 30,
   },
   permissionButton: {
     backgroundColor: '#FF4EB8',
@@ -472,15 +411,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  
-  // Top bar
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: StatusBar.currentHeight || 20,
     paddingHorizontal: 20,
-    paddingBottom: 10,
   },
   topButton: {
     width: 40,
@@ -512,27 +448,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-
-  // Add audio button
-  addAudioButton: {
-    position: 'absolute',
-    top: StatusBar.currentHeight ? StatusBar.currentHeight + 50 : 90,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  addAudioText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#000',
-  },
-
-  // Right tools
   rightTools: {
     position: 'absolute',
     right: 20,
@@ -546,12 +461,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     marginTop: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
-
-  // Bottom controls
   bottomControls: {
     position: 'absolute',
     bottom: 40,
@@ -560,7 +470,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   bottomButton: {
     alignItems: 'center',
@@ -569,7 +478,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     marginTop: 8,
-    fontWeight: '500',
   },
   effectButton: {
     width: 44,
@@ -591,10 +499,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.5)',
   },
-
-  // Record button
   recordButtonContainer: {
-    position: 'relative',
     width: 80,
     height: 80,
     justifyContent: 'center',
@@ -622,52 +527,37 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#FF3B5C',
   },
-
-  // Preview mode
   preview: {
     flex: 1,
-  },
-  previewTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  previewActions: {
-    position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  retakeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    gap: 8,
-  },
-  actionText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   nextButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FF3B5C',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 25,
-    gap: 8,
+    gap: 6,
   },
   nextText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  countdownOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  countdownText: {
+    fontSize: 120,
+    color: '#fff',
+    fontWeight: '700',
   },
 });
 
