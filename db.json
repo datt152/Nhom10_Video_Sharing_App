@@ -15,8 +15,7 @@
         "u4"
       ],
       "followingIds": [
-        "u4",
-        "u2"
+        "u4"
       ],
       "externalLinks": []
     },
@@ -30,8 +29,7 @@
       "following": 200,
       "likes": 15800,
       "followerIds": [
-        "u4",
-        "u1"
+        "u4"
       ],
       "followingIds": [
         "u1"
@@ -88,6 +86,61 @@
       "title": "Chill Beats",
       "artist": "Lowkey",
       "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      "caption": "Chiều hoàng hôn tuyệt đẹp 🌇",
+      "tags": [
+        "sunset",
+        "travel",
+        "nature"
+      ],
+      "likes": 120,
+      "comments": 15,
+      "views": 2300,
+      "createdAt": "2025-10-20T17:45:00Z",
+      "userId": "u1",
+      "userName": "Nguyễn Dũng",
+      "location": "Đà Lạt, Việt Nam",
+      "isPublic": true
+    },
+    {
+      "id": 2,
+      "imageUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+      "caption": "Nụ cười là ánh nắng của tâm hồn ☀️",
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
+      ],
+      "likes": 95,
+      "comments": 10,
+      "views": 1800,
+      "createdAt": "2025-10-21T10:30:00Z",
+      "userId": "u1",
+      "userName": "Trần Minh Anh",
+      "location": "TP. Hồ Chí Minh",
+      "isPublic": true
+    },
+    {
+      "id": 3,
+      "imageUrl": "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
+      "caption": "Buổi sáng yên bình 🌅",
+      "tags": [
+        "morning",
+        "nature"
+      ],
+      "likes": 80,
+      "comments": 8,
+      "views": 1500,
+      "createdAt": "2025-10-22T07:00:00Z",
+      "userId": "u1",
+      "userName": "Nguyễn Dũng",
+      "location": "Hội An",
+      "isPublic": false
     }
   ],
   "videos": [

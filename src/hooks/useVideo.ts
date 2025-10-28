@@ -2,11 +2,12 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.1.73:3000';
-export const CURRENT_USER_ID = 'u1'; 
+const API_BASE_URL = 'http://192.168.65.2:3000';
+export const CURRENT_USER_ID = 'u1';
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);
+  const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [followingStatus, setFollowingStatus] = useState<Record<string, boolean>>({});
 
@@ -74,11 +75,11 @@ export const useVideo = () => {
       prevVideos.map((v) =>
         v.id === videoId
           ? {
-              ...v,
-              isLiked: !isLiked,
-              likeCount: updatedLikeCount,
-              likedBy: updatedLikedBy,
-            }
+            ...v,
+            isLiked: !isLiked,
+            likeCount: updatedLikeCount,
+            likedBy: updatedLikedBy,
+          }
           : v
       )
     );
@@ -103,7 +104,7 @@ export const useVideo = () => {
         api.get(`/users/${CURRENT_USER_ID}`),
         api.get(`/users/${userId}`),
       ]);
-      
+
       const currentUser = currentUserRes.data;
       const targetUser = targetUserRes.data;
 
@@ -117,12 +118,12 @@ export const useVideo = () => {
         ? targetUser.followerIds.filter((id: string) => id !== CURRENT_USER_ID)
         : [...(targetUser.followerIds || []), CURRENT_USER_ID];
 
-      const updatedFollowing = isFollowing 
-        ? currentUser.following - 1 
+      const updatedFollowing = isFollowing
+        ? currentUser.following - 1
         : currentUser.following + 1;
 
-      const updatedFollowers = isFollowing 
-        ? targetUser.followers - 1 
+      const updatedFollowers = isFollowing
+        ? targetUser.followers - 1
         : targetUser.followers + 1;
 
       setFollowingStatus((prev) => ({
@@ -150,14 +151,43 @@ export const useVideo = () => {
       }));
     }
   }, []);
+  // 🔥 Lấy danh sách video theo userId
+  const loadVideos = async (userId?: string) => {
+    try {
+      setLoading(true);
+      const res = await api.get('/videos');
+      const allVideos = res.data;
+      setVideos(userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos);
+    } catch (err) {
+      console.error('Error loading videos:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // 🖼️ Lấy danh sách ảnh theo userId
+  const loadImages = async (userId?: string) => {
+    try {
+      setLoading(true);
+      const res = await api.get('/images');
+      const allImages = res.data;
+      setImages(userId ? allImages.filter((i: any) => i.userId === userId) : allImages);
+    } catch (err) {
+      console.error('Error loading images:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return {
     videos,
+    images,
     loading,
     followingStatus,
     currentUserId: CURRENT_USER_ID, // ✅ Export để dùng ở component
     toggleLike,
     toggleFollow,
     refreshVideos: fetchVideos,
+    loadVideos, 
+    loadImages
   };
 };

@@ -9,8 +9,7 @@ export const useUser = (userId?: string) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [targetUser, setTargetUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [followerCount, setFollowerCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
+
 
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowedByOther, setIsFollowedByOther] = useState(false);
@@ -61,7 +60,7 @@ export const useUser = (userId?: string) => {
         }
     };
 
-    // --- 🟢 Hàm load lại thông tin user (dùng khi quay lại màn hình Profile)
+    // ---  Hàm load lại thông tin user (dùng khi quay lại màn hình Profile)
     const loadUser = async () => {
         try {
             const res = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);

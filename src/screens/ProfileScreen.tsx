@@ -1,32 +1,55 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useUser } from '../hooks/useUser';
 import { useFollower } from '../hooks/useFollowers';
+import { useImage } from '../hooks/useImage';
+import ProfileImageList from './profileTab/ProfileImageList';
 
 const ProfileScreen: React.FC = () => {
-  const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('videos');
+  const [menu, setMenu] = useState<'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
-  const [likedTab, setLikedTab] = useState<'likedVideos' | 'likedImages'>('likedVideos');
-  const navigation: any = useNavigation();
+  const [likedTab, setLikedTab] = useState<'likedImages'>('likedImages');
 
-  // 🧩 Lấy user hiện tại & follower data
-  const { currentUser, loadUser,loading: userLoading } = useUser();
-  const { loading: followerLoading } = useFollower();
-  const { followerCount, followingCount } = useFollower();
-  // const { followerCount, followingCount, followUser, unfollowUser } = useFollower();
+  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
+  const [loadingContent, setLoadingContent] = useState(false);
+  const navigation: any = useNavigation();
+  const { currentUser, loadUser, loading: userLoading } = useUser();
+  const { followerCount, followingCount, loading: followerLoading } = useFollower();
+
   const isLoading = userLoading || followerLoading;
+
+  const fetchProfileContent = useCallback(async () => {
+    if (!currentUser) return;
+    setLoadingContent(true);
+    await loadImages();
+    setLoadingContent(false);
+  }, [currentUser]);
+
+  useEffect(() => {
+    loadImages();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      loadUser(); // gọi lại khi quay lại màn hình
+      loadUser();
+      fetchProfileContent();
     }, [])
   );
+
   const renderContent = () => {
-    if (menu === 'videos' || menu === 'images') {
+    if (menu === 'images') {
       return (
         <>
-          {/* menu công khai / riêng tư */}
           <View style={styles.privacyMenu}>
             <TouchableOpacity onPress={() => setPrivacy('public')}>
               <Text style={[styles.privacyText, privacy === 'public' && styles.activePrivacy]}>
@@ -41,44 +64,21 @@ const ProfileScreen: React.FC = () => {
           </View>
 
           <View style={styles.contentBox}>
-            <Text style={styles.contentText}>
-              {menu === 'videos'
-                ? privacy === 'public'
-                  ? '🎬 Video công khai hiển thị ở đây'
-                  : '🔒 Video riêng tư hiển thị ở đây'
-                : privacy === 'public'
-                  ? '📸 Ảnh công khai hiển thị ở đây'
-                  : '🔒 Ảnh riêng tư hiển thị ở đây'}
-            </Text>
+            <ProfileImageList
+              images={privacy === 'public' ? publicImages : privateImages}
+              privacy={privacy}
+              loading={loadingContent || imageLoading}
+            />
           </View>
         </>
       );
     }
 
-    // phần đã thích
+    // Tab yêu thích (tạm placeholder)
     return (
-      <>
-        <View style={styles.privacyMenu}>
-          <TouchableOpacity onPress={() => setLikedTab('likedVideos')}>
-            <Text style={[styles.privacyText, likedTab === 'likedVideos' && styles.activePrivacy]}>
-              Video
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setLikedTab('likedImages')}>
-            <Text style={[styles.privacyText, likedTab === 'likedImages' && styles.activePrivacy]}>
-              Hình ảnh
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.contentBox}>
-          <Text style={styles.contentText}>
-            {likedTab === 'likedVideos'
-              ? '🎥 Danh sách video bạn đã thích'
-              : '🖼️ Danh sách hình ảnh bạn đã thích'}
-          </Text>
-        </View>
-      </>
+      <View style={styles.contentBox}>
+        <Text style={styles.contentText}>🖼️ Danh sách hình ảnh bạn đã thích</Text>
+      </View>
     );
   };
 
@@ -101,9 +101,11 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.name} numberOfLines={1}>{currentUser.fullname}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {currentUser.fullname}
+        </Text>
         <Text style={styles.username}>@{currentUser.username}</Text>
-        <Text style={styles.username}>@{currentUser.bio}</Text>
+        <Text style={styles.username}>{currentUser.bio}</Text>
 
         {/* Follow / Follower / Like */}
         <View style={styles.statsRow}>
@@ -129,7 +131,6 @@ const ProfileScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* nút sửa hồ sơ */}
         <TouchableOpacity
           style={styles.editBtn}
           onPress={() => navigation.navigate('EditProfile' as never)}
@@ -141,9 +142,6 @@ const ProfileScreen: React.FC = () => {
 
       {/* Menu chính */}
       <View style={styles.menu}>
-        <TouchableOpacity onPress={() => setMenu('videos')}>
-          <Text style={[styles.menuText, menu === 'videos' && styles.activeMenu]}>Video</Text>
-        </TouchableOpacity>
         <TouchableOpacity onPress={() => setMenu('images')}>
           <Text style={[styles.menuText, menu === 'images' && styles.activeMenu]}>Image</Text>
         </TouchableOpacity>
@@ -159,6 +157,7 @@ const ProfileScreen: React.FC = () => {
 };
 
 export default ProfileScreen;
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   profileTop: {
@@ -225,6 +224,6 @@ const styles = StyleSheet.create({
   },
   privacyText: { fontSize: 14, color: '#888' },
   activePrivacy: { color: '#FF4EB8', fontWeight: '600' },
-  contentBox: { alignItems: 'center', paddingVertical: 40 },
-  contentText: { fontSize: 15, color: '#777' },
+  contentBox: { alignItems: 'center', paddingVertical: 20 },
+  contentText: { fontSize: 15, color: '#777', marginTop: 10 },
 });
