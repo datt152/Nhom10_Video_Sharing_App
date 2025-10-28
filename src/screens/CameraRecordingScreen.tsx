@@ -271,7 +271,6 @@ if (!cameraPermission?.granted || !micPermission?.granted) {
           source={{ uri: recordedVideo }}
           style={styles.preview}
           useNativeControls
-          resizeMode="cover"
           isLooping
           shouldPlay
         />
