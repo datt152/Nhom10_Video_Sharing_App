@@ -7,7 +7,7 @@ export const CURRENT_USER_ID = 'u1';
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [images, setImages] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [followingStatus, setFollowingStatus] = useState<Record<string, boolean>>({});
 
@@ -151,43 +151,27 @@ export const useVideo = () => {
       }));
     }
   }, []);
-  // 🔥 Lấy danh sách video theo userId
-  const loadVideos = async (userId?: string) => {
+  // 🎥 Lấy danh sách video theo userId (tách riêng giống loadImages)
+  const loadVideosByUser = async (userId?: string) => {
     try {
       setLoading(true);
       const res = await api.get('/videos');
       const allVideos = res.data;
       setVideos(userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos);
     } catch (err) {
-      console.error('Error loading videos:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🖼️ Lấy danh sách ảnh theo userId
-  const loadImages = async (userId?: string) => {
-    try {
-      setLoading(true);
-      const res = await api.get('/images');
-      const allImages = res.data;
-      setImages(userId ? allImages.filter((i: any) => i.userId === userId) : allImages);
-    } catch (err) {
-      console.error('Error loading images:', err);
+      console.error('Error loading user videos:', err);
     } finally {
       setLoading(false);
     }
   };
   return {
     videos,
-    images,
     loading,
     followingStatus,
-    currentUserId: CURRENT_USER_ID, // ✅ Export để dùng ở component
+    currentUserId: CURRENT_USER_ID,
     toggleLike,
     toggleFollow,
     refreshVideos: fetchVideos,
-    loadVideos, 
-    loadImages
+    loadVideosByUser, // 🆕 thêm vào đây
   };
 };

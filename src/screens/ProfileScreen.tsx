@@ -14,9 +14,10 @@ import { useUser } from '../hooks/useUser';
 import { useFollower } from '../hooks/useFollowers';
 import { useImage } from '../hooks/useImage';
 import ProfileImageList from './profileTab/ProfileImageList';
-
+import { useVideo } from '../hooks/useVideo';
+import ProfileVideoList from './profileTab/ProfileVideoList';
 const ProfileScreen: React.FC = () => {
-  const [menu, setMenu] = useState<'images' | 'liked'>('images');
+  const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [likedTab, setLikedTab] = useState<'likedImages'>('likedImages');
 
@@ -27,7 +28,10 @@ const ProfileScreen: React.FC = () => {
   const { followerCount, followingCount, loading: followerLoading } = useFollower();
 
   const isLoading = userLoading || followerLoading;
+  const { videos, loading: videoLoading, loadVideosByUser } = useVideo();
 
+  const publicVideos = videos.filter((v) => v.isPublic === true);
+  const privateVideos = videos.filter((v) => v.isPublic === false);
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);
@@ -47,6 +51,7 @@ const ProfileScreen: React.FC = () => {
   );
 
   const renderContent = () => {
+    // 🖼 TAB HÌNH ẢNH
     if (menu === 'images') {
       return (
         <>
@@ -73,6 +78,36 @@ const ProfileScreen: React.FC = () => {
         </>
       );
     }
+
+    // 🎬 TAB VIDEO
+    if (menu === 'videos') {
+      return (
+        <>
+          <View style={styles.privacyMenu}>
+            <TouchableOpacity onPress={() => setPrivacy('public')}>
+              <Text style={[styles.privacyText, privacy === 'public' && styles.activePrivacy]}>
+                Công khai
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setPrivacy('private')}>
+              <Text style={[styles.privacyText, privacy === 'private' && styles.activePrivacy]}>
+                Riêng tư
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.contentBox}>
+            <ProfileVideoList
+              videos={privacy === 'public' ? publicVideos : privateVideos}
+              privacy={privacy}
+              loading={loadingContent || videoLoading}
+            />
+          </View>
+        </>
+      );
+    }
+
+    // ❤️ TAB LIKE
 
     // Tab yêu thích (tạm placeholder)
     return (
@@ -142,6 +177,9 @@ const ProfileScreen: React.FC = () => {
 
       {/* Menu chính */}
       <View style={styles.menu}>
+        <TouchableOpacity onPress={() => setMenu('videos')}>
+          <Text style={[styles.menuText, menu === 'videos' && styles.activeMenu]}>Video</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setMenu('images')}>
           <Text style={[styles.menuText, menu === 'images' && styles.activeMenu]}>Image</Text>
         </TouchableOpacity>
