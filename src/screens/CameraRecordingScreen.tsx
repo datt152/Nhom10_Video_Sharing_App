@@ -25,7 +25,8 @@ const CameraRecordScreen: React.FC = () => {
   const [micPermission, requestMicPermission] = useMicrophonePermissions();
 
   const [cameraType, setCameraType] = useState<CameraType>('back');
-  const [flash, setFlash] = useState<'off' | 'on'>('off');
+  const [torchEnabled, setTorchEnabled] = useState(false);
+
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -60,7 +61,7 @@ const CameraRecordScreen: React.FC = () => {
       setRecordedVideo(null);
       setRecordingTime(0);
       setIsRecording(false);
-      setFlash('off');
+      setTorchEnabled(false);
       setCameraType('back');
       isRecordingRef.current = false;
     };
@@ -116,10 +117,10 @@ const CameraRecordScreen: React.FC = () => {
 
   // Toggle flash
   const toggleFlash = () => {
-    const newFlash = flash === 'off' ? 'on' : 'off';
-    console.log('⚡ [Flash] Toggled from', flash, 'to', newFlash);
-    setFlash(newFlash);
-  };
+  const newTorch = !torchEnabled;
+  console.log('⚡ [Flash] Torch toggled:', newTorch);
+  setTorchEnabled(newTorch);
+};
 
   // Start recording
   const startRecording = async () => {
@@ -331,7 +332,7 @@ if (!cameraPermission.granted || !micPermission.granted) {
 
   console.log('📸 [Render] Showing camera view');
   console.log('📸 [Render] Camera type:', cameraType);
-  console.log('📸 [Render] Flash:', flash);
+  console.log('📸 [Render] Flash:', torchEnabled);
   console.log('📸 [Render] Is recording:', isRecording);
   console.log('📸 [Render] Is recording (ref):', isRecordingRef.current);
 
@@ -343,7 +344,7 @@ if (!cameraPermission.granted || !micPermission.granted) {
         ref={cameraRef}
         style={styles.camera}
         facing={cameraType}
-        flash={flash}
+        enableTorch={torchEnabled}
         mode="video"
       >
         {/* Top bar */}
@@ -383,7 +384,7 @@ if (!cameraPermission.granted || !micPermission.granted) {
 
           <TouchableOpacity style={styles.tool} onPress={toggleFlash}>
             <Ionicons 
-              name={flash === 'off' ? 'flash-off' : 'flash'} 
+              name={torchEnabled ? 'flash-off' : 'flash'} 
               size={28} 
               color="#fff" 
             />
