@@ -1,19 +1,34 @@
 import React from 'react';
-import { View, Image, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Image as ImageType } from '../../types/database.types';
+import {
+    View,
+    Image,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    TouchableOpacity,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Image as ImageType } from '../../types/database.types';
 
 type Props = {
     images: ImageType[];
     privacy: 'public' | 'private';
     loading: boolean;
+    onPressImage?: (img: ImageType) => void; // 👈 thêm callback khi bấm ảnh
 };
 
-const ProfileImageList: React.FC<Props> = ({ images, privacy, loading }) => {
+const ProfileImageList: React.FC<Props> = ({
+    images,
+    privacy,
+    loading,
+    onPressImage,
+}) => {
+    // ⏳ loading
     if (loading) {
         return <ActivityIndicator size="small" color="#FF4EB8" />;
     }
 
+    // 📭 nếu không có ảnh
     if (!images.length) {
         return (
             <View style={styles.emptyBox}>
@@ -26,8 +41,8 @@ const ProfileImageList: React.FC<Props> = ({ images, privacy, loading }) => {
         );
     }
 
-    // ✅ Tách ảnh thành hàng 2 ảnh
-    const rows = [];
+    // 🧩 Chia ảnh thành từng hàng 2 ảnh
+    const rows: ImageType[][] = [];
     for (let i = 0; i < images.length; i += 2) {
         rows.push(images.slice(i, i + 2));
     }
@@ -37,7 +52,12 @@ const ProfileImageList: React.FC<Props> = ({ images, privacy, loading }) => {
             {rows.map((row, index) => (
                 <View key={index} style={styles.row}>
                     {row.map((img) => (
-                        <View key={img.id} style={styles.imageWrapper}>
+                        <TouchableOpacity
+                            key={img.id}
+                            activeOpacity={0.8}
+                            style={styles.imageWrapper}
+                            onPress={() => onPressImage?.(img)} // 👈 gọi callback nếu có
+                        >
                             <Image source={{ uri: img.imageUrl }} style={styles.imageBox} />
 
                             {/* overlay hiển thị lượt xem & tym */}
@@ -53,7 +73,7 @@ const ProfileImageList: React.FC<Props> = ({ images, privacy, loading }) => {
                                     </View>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
             ))}
@@ -70,7 +90,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center', //  căn giữa khi chỉ có 1 ảnh
         marginBottom: 12,
-      
     },
     imageWrapper: {
         position: 'relative',

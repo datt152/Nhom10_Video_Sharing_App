@@ -21,7 +21,6 @@ const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [likedVideo, setLikedVideo] = useState<'videos' | 'images'>('images');
-  const [likedTab, setLikedTab] = useState<'likedImages' | 'likedVideos'>('likedImages');
 
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const [loadingContent, setLoadingContent] = useState(false);
@@ -75,6 +74,12 @@ const ProfileScreen: React.FC = () => {
               images={privacy === 'public' ? publicImages : privateImages}
               privacy={privacy}
               loading={loadingContent || imageLoading}
+              onPressImage={(img) =>
+                navigation.navigate('UserImageViewer', {
+                  images: privacy === 'public' ? publicImages : privateImages,
+                  initialImageId: img.id,
+                })
+              }
             />
           </View>
         </>
@@ -144,6 +149,12 @@ const ProfileScreen: React.FC = () => {
                 images={privacy === 'public' ? publicImages : privateImages}
                 privacy={privacy}
                 loading={loadingContent || imageLoading}
+                onPressImage={(img) =>
+                  navigation.navigate('UserVideoViewer', {
+                    videos: [...publicImages, ...privateImages], // hoặc images đã like
+                    initialVideoId: img.id,
+                  })
+                }
               />
             )}
           </View>
@@ -187,7 +198,7 @@ const ProfileScreen: React.FC = () => {
         {/* Liên kết khác */}
         {Array.isArray(currentUser.externalLinks) && currentUser.externalLinks.length > 0 && (
           <View style={styles.linkContainer}>
-          
+
             {currentUser.externalLinks.map((link, index) => (
               <TouchableOpacity
                 key={index}
@@ -288,8 +299,8 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 10,
-    gap: 20,
+    marginTop: 5,
+    gap: 30,
   },
   statItem: { alignItems: 'center' },
   statValue: { fontSize: 16, fontWeight: '700', color: '#333' },
@@ -327,7 +338,7 @@ const styles = StyleSheet.create({
   contentText: { fontSize: 15, color: '#777', marginTop: 10 },
   linkContainer: {
     marginTop: 2,
-    marginLeft:100,
+    marginLeft: 100,
     alignSelf: 'center',
     width: '100%',
     backgroundColor: '#fff',
@@ -338,7 +349,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-    alignContent:"center"
+    alignContent: "center"
   },
 
   linkTitle: {

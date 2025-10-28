@@ -14,6 +14,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import OtherProfileScreen from '../screens/profileTab/OtherProfileScreen';
 import EditVideoScreen from '../screens/EditVideoScreen';
 import CameraRecordScreen from '../screens/CameraRecordingScreen';
+import UserImageViewer from '../screens/profileTab/UserImageViewer'
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -74,16 +75,21 @@ export default function AppNavigator() {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Followers" component={FollowersScreen} />
       <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} />
-      <Stack.Screen 
-  name="CameraRecord" 
-  component={CameraRecordScreen}
-  options={{ headerShown: false }}
-/>
-<Stack.Screen 
-  name="EditVideo" 
-  component={EditVideoScreen}
-  options={{ headerShown: false }}
-/>
+      <Stack.Screen
+        name="CameraRecord"
+        component={CameraRecordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditVideo"
+        component={EditVideoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UserImageViewer"
+        component={UserImageViewer}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }

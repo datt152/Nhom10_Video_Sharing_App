@@ -18,22 +18,32 @@ export interface Music {
   title: string;
   artist: string;
   cover: string;
+  audioUrl: string
 }
-// interface hình ảnh
 export interface Image {
-  id: number;
+  id: string;
   imageUrl: string;       // URL ảnh
-  caption?: string;       // mô tả hoặc caption
-  tags?: string[];        // danh sách tag (ví dụ ["travel", "sunset"])
-  likes: number;          // tổng lượt thích
-  comments: number;       // tổng bình luận
-  views: number;          // tổng lượt xem
-  createdAt: string;      // ngày đăng
-  userId: string;         // ID người đăng
-  userName?: string;      // tên người đăng (nếu cần hiển thị nhanh)
+  caption?: string;
+  tags?: string[];
+  likes: number;
+  comments: number;
+  views: number;
+  createdAt: string;
+  userId: string;
+  userName?: string;
   location?: string;
-  isPublic?:boolean;
-  likeBy?:string[];      // địa điểm chụp (nếu có)
+  isPublic?: boolean;
+  likeBy?: string[];
+
+  // Liên kết nhạc
+  musicId?: string; // ID bài nhạc (nếu dùng _expand)
+  music?: {
+    id: string;
+    title: string;
+    artist?: string;
+    audioUrl: string;   // 🔥 Link phát nhạc thật
+    thumbnailUrl?: string; // (tuỳ chọn) ảnh bài hát
+  };
 }
 export interface Video {
   id: string;
@@ -58,17 +68,18 @@ export interface Video {
 
 export interface Comment {
   id: string;
-  videoId: string;
   userId: string;
   content: string;
   createdAt: string;
   likeCount: number;
   likedBy: string[];
   replyCount: number;
-  parentId: string | null; // ✅ null = comment gốc, có giá trị = reply
+  parentId: string | null;
+  videoId?: string;  // ✅ cho phép optional
+  imageId?: string;  // ✅ cho phép optional
   user?: User;
   isLiked?: boolean;
-  replies?: Comment[]; // ✅ Danh sách replies
+  replies?: Comment[];
 }
 
 export interface Notification {

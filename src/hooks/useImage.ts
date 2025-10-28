@@ -46,6 +46,60 @@ export const useImage = () => {
     useEffect(() => {
         fetchImages();
     }, [fetchImages]);
+    const getImageLikes = async (imageId: string): Promise<number> => {
+        try {
+            console.log("🔍 Gọi API lấy lượt like:", `${API_BASE_URL}/images/${imageId}`);
+            const response = await fetch(`${API_BASE_URL}/images/${imageId}`);
+
+            if (!response.ok) {
+                console.error("❌ Lỗi response:", response.status);
+                return 0;
+            }
+
+            const image = await response.json();
+            console.log("✅ Dữ liệu ảnh:", image);
+
+            // 🔥 Nếu có likedBy là mảng, trả về độ dài
+            if (Array.isArray(image.likedBy)) {
+                return image.likedBy.length;
+            }
+
+            // Nếu có trường likes (phòng khi cũ vẫn còn)
+            if (typeof image.likes === "number") {
+                return image.likes;
+            }
+
+            console.warn("⚠️ Không có likedBy hoặc likes trong image:", image);
+            return 0;
+        } catch (error) {
+            console.error("🔥 Lỗi khi lấy lượt like:", error);
+            return 0;
+        }
+    };
+
+    const toggleLike = async (imageId: string, userId: string) => {
+        try {
+            const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
+            const image = res.data;
+
+            let updatedLikedBy = image.likedBy || [];
+            if (updatedLikedBy.includes(userId)) {
+                updatedLikedBy = updatedLikedBy.filter((id: string) => id !== userId);
+            } else {
+                updatedLikedBy.push(userId);
+            }
+
+            await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
+                likedBy: updatedLikedBy,
+                likes: updatedLikedBy.length,
+            });
+
+            return updatedLikedBy.length; // trả về số lượt like mới
+        } catch (err) {
+            console.error("🔥 Lỗi cập nhật like:", err);
+            return null;
+        }
+    };
 
     return {
         publicImages,
@@ -53,5 +107,7 @@ export const useImage = () => {
         loading,
         error,
         refresh: fetchImages,
+        getImageLikes,
+        toggleLike // ✅ thêm dòng này
     };
 };

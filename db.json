@@ -93,7 +93,7 @@
   ],
   "images": [
     {
-      "id": 1,
+      "id": "1",
       "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
       "caption": "Chiều hoàng hôn tuyệt đẹp 🌇",
       "tags": [
@@ -105,17 +105,19 @@
         "u2",
         "u3"
       ],
-      "likes": 120,
-      "comments": 15,
+      "music": {
+        "id": 5,
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+      },
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
-      "userName": "Nguyễn Dũng",
+      
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true
     },
     {
-      "id": 2,
+      "id": "2",
       "imageUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9",
       "caption": "Nụ cười là ánh nắng của tâm hồn ☀️",
       "tags": [
@@ -127,17 +129,19 @@
         "u2",
         "u3"
       ],
-      "likes": 95,
-      "comments": 10,
+      "music": {
+        "id": 5,
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+      },
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "userId": "u1",
-      "userName": "Trần Minh Anh",
+      
       "location": "TP. Hồ Chí Minh",
       "isPublic": true
     },
     {
-      "id": 3,
+      "id": "3",
       "imageUrl": "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
       "caption": "Buổi sáng yên bình 🌅",
       "tags": [
@@ -148,12 +152,14 @@
         "u2",
         "u3"
       ],
-      "likes": 80,
-      "comments": 8,
+      "music": {
+        "id": 5,
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+      },
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "userId": "u1",
-      "userName": "Nguyễn Dũng",
+     
       "location": "Hội An",
       "isPublic": false
     }
@@ -541,6 +547,17 @@
       "userId": "u1",
       "content": "Chẳng hiểu gì cả",
       "createdAt": "2025-10-25T14:07:49.366Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761661595567",
+      "videoId": "2",
+      "userId": "u1",
+      "content": "fffff",
+      "createdAt": "2025-10-28T14:26:35.567Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
