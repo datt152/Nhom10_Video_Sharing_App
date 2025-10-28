@@ -14,12 +14,13 @@ import { useUser } from '../hooks/useUser';
 import { useFollower } from '../hooks/useFollowers';
 import { useImage } from '../hooks/useImage';
 import ProfileImageList from './profileTab/ProfileImageList';
-import { useVideo } from '../hooks/useVideo';
+import { CURRENT_USER_ID, useVideo } from '../hooks/useVideo';
 import ProfileVideoList from './profileTab/ProfileVideoList';
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
-  const [likedTab, setLikedTab] = useState<'likedImages'>('likedImages');
+  const [likedVideo, setLikedVideo] = useState<'videos' | 'images'>('images');
+  const [likedTab, setLikedTab] = useState<'likedImages' | 'likedVideos'>('likedImages');
 
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const [loadingContent, setLoadingContent] = useState(false);
@@ -108,14 +109,55 @@ const ProfileScreen: React.FC = () => {
     }
 
     // ❤️ TAB LIKE
+    if (menu === 'liked') {
+      // lọc video & hình mà user đã like
+      const likedVideos = videos.filter((v) => v.likedBy?.includes(CURRENT_USER_ID));
+      const likedImages = [...publicImages, ...privateImages].filter((img) =>
+        img.likeBy?.includes(CURRENT_USER_ID)
+      );
 
-    // Tab yêu thích (tạm placeholder)
+      return (
+        <>
+          <View style={styles.privacyMenu}>
+            <TouchableOpacity onPress={() => setLikedVideo('videos')}>
+              <Text style={[styles.privacyText, likedVideo === 'videos' && styles.activePrivacy]}>
+                Videos
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setLikedVideo('images')}>
+              <Text style={[styles.privacyText, likedVideo === 'images' && styles.activePrivacy]}>
+                Images
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.contentBox}>
+            {likedVideo === 'videos' ? (
+              <ProfileVideoList
+                videos={privacy === 'public' ? publicVideos : privateVideos}
+                privacy={privacy}
+                loading={loadingContent || videoLoading}
+              />
+            ) : (
+              <ProfileImageList
+                images={privacy === 'public' ? publicImages : privateImages}
+                privacy={privacy}
+                loading={loadingContent || imageLoading}
+              />
+            )}
+          </View>
+        </>
+      );
+    }
+
+    // 🔹 Mặc định (fallback)
     return (
       <View style={styles.contentBox}>
-        <Text style={styles.contentText}>🖼️ Danh sách hình ảnh bạn đã thích</Text>
+        <Text style={styles.contentText}>Không có nội dung hiển thị</Text>
       </View>
     );
   };
+
 
   if (isLoading || !currentUser) {
     return (

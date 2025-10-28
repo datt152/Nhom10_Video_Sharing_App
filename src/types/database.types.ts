@@ -32,7 +32,8 @@ export interface Image {
   userId: string;         // ID người đăng
   userName?: string;      // tên người đăng (nếu cần hiển thị nhanh)
   location?: string;
-  isPublic?:boolean;      // địa điểm chụp (nếu có)
+  isPublic?:boolean;
+  likeBy?:string[];      // địa điểm chụp (nếu có)
 }
 export interface Video {
   id: string;

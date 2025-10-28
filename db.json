@@ -98,6 +98,10 @@
         "travel",
         "nature"
       ],
+      "likedBy": [
+        "u2",
+        "u3"
+      ],
       "likes": 120,
       "comments": 15,
       "views": 2300,
@@ -116,6 +120,10 @@
         "smile",
         "people"
       ],
+      "likedBy": [
+        "u2",
+        "u3"
+      ],
       "likes": 95,
       "comments": 10,
       "views": 1800,
@@ -132,6 +140,10 @@
       "tags": [
         "morning",
         "nature"
+      ],
+      "likedBy": [
+        "u2",
+        "u3"
       ],
       "likes": 80,
       "comments": 8,
