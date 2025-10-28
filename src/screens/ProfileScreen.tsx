@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -183,6 +184,24 @@ const ProfileScreen: React.FC = () => {
         </Text>
         <Text style={styles.username}>@{currentUser.username}</Text>
         <Text style={styles.username}>{currentUser.bio}</Text>
+        {/* Liên kết khác */}
+        {Array.isArray(currentUser.externalLinks) && currentUser.externalLinks.length > 0 && (
+          <View style={styles.linkContainer}>
+          
+            {currentUser.externalLinks.map((link, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => Linking.openURL(link)}
+                style={styles.linkItem}
+              >
+                <Ionicons name="link-outline" size={18} color="#007AFF" style={styles.linkIcon} />
+                <Text style={styles.linkText} numberOfLines={1}>
+                  {link}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Follow / Follower / Like */}
         <View style={styles.statsRow}>
@@ -306,4 +325,48 @@ const styles = StyleSheet.create({
   activePrivacy: { color: '#FF4EB8', fontWeight: '600' },
   contentBox: { alignItems: 'center', paddingVertical: 20 },
   contentText: { fontSize: 15, color: '#777', marginTop: 10 },
+  linkContainer: {
+    marginTop: 2,
+    marginLeft:100,
+    alignSelf: 'center',
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ffffff',
+    shadowColor: '#ffffff',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    alignContent:"center"
+  },
+
+  linkTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'left', // hoặc 'center' nếu muốn canh giữa
+  },
+
+  linkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+
+  linkIcon: {
+    marginRight: 8,
+  },
+
+  linkText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+
 });
