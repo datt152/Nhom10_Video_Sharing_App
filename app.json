@@ -21,7 +21,14 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "android": {
+  "permissions": [
+    "CAMERA",
+    "RECORD_AUDIO"
+  ]
+}
+
     },
     "web": {
       "favicon": "./assets/favicon.png"
