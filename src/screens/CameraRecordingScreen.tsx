@@ -8,10 +8,10 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { Video } from 'expo-av';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -19,8 +19,11 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CameraRecordScreen: React.FC = () => {
   const navigation = useNavigation();
   const cameraRef = useRef<CameraView>(null);
-  
-  const [permission, requestPermission] = useCameraPermissions();
+  const isScreenActiveRef = useRef(true);
+
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [micPermission, requestMicPermission] = useMicrophonePermissions();
+
   const [cameraType, setCameraType] = useState<CameraType>('back');
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [isRecording, setIsRecording] = useState(false);
@@ -28,26 +31,77 @@ const CameraRecordScreen: React.FC = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isRecordingRef = useRef<boolean>(false); // Track recording state reliably
+
+  // Reset màn hình khi focus lại
+  useFocusEffect(
+  React.useCallback(() => {
+    console.log('📱 [useFocusEffect] Screen focused');
+    isScreenActiveRef.current = true; // ✅ Màn hình đang active
+
+    return () => {
+      console.log('🔄 [useFocusEffect] Screen blurred - cleanup');
+      isScreenActiveRef.current = false; 
+
+      if (isRecordingRef.current && cameraRef.current) {
+        try {
+          cameraRef.current.stopRecording();
+        } catch (error) {
+          console.log('⚠️ [Cleanup] Error stopping recording:', error);
+        }
+      }
+
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+
+      // Reset tất cả state khi rời màn hình
+      setRecordedVideo(null);
+      setRecordingTime(0);
+      setIsRecording(false);
+      setFlash('off');
+      setCameraType('back');
+      isRecordingRef.current = false;
+    };
+  }, [])
+);
+
 
   // Cleanup on unmount
   useEffect(() => {
+    console.log('🎬 [useEffect] Component mounted');
+    
     return () => {
+      console.log('💀 [useEffect] Component unmounting');
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
       }
+      // Reset ref khi unmount
+      isRecordingRef.current = false;
     };
   }, []);
 
   // Request permission if not granted
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain) {
-      requestPermission();
+  (async () => {
+    if (!cameraPermission?.granted) {
+      await requestCameraPermission();
     }
-  }, [permission]);
+    if (!micPermission?.granted) {
+      await requestMicPermission();
+    }
+  })();
+}, [cameraPermission, micPermission]);
+
 
   // Close camera
   const handleClose = () => {
-    if (isRecording) {
+    console.log('❌ [handleClose] Closing camera');
+    console.log('❌ [handleClose] isRecordingRef.current:', isRecordingRef.current);
+    
+    if (isRecordingRef.current) {
+      console.log('⏹️ [handleClose] Stopping recording before close');
       stopRecording();
     }
     navigation.goBack();
@@ -55,46 +109,71 @@ const CameraRecordScreen: React.FC = () => {
 
   // Flip camera
   const flipCamera = () => {
-    setCameraType(current => current === 'back' ? 'front' : 'back');
+    const newType = cameraType === 'back' ? 'front' : 'back';
+    console.log('🔄 [Flip] Camera flipped from', cameraType, 'to', newType);
+    setCameraType(newType);
   };
 
   // Toggle flash
   const toggleFlash = () => {
-    setFlash(current => current === 'off' ? 'on' : 'off');
+    const newFlash = flash === 'off' ? 'on' : 'off';
+    console.log('⚡ [Flash] Toggled from', flash, 'to', newFlash);
+    setFlash(newFlash);
   };
 
   // Start recording
   const startRecording = async () => {
-    if (!cameraRef.current) return;
+    console.log('🎬 [startRecording] Called');
+    console.log('🎬 [startRecording] isRecordingRef.current:', isRecordingRef.current);
+    
+    if (!cameraRef.current) {
+      console.log('❌ [startRecording] Camera ref is null');
+      return;
+    }
+
+    // Prevent starting if already recording
+    if (isRecordingRef.current) {
+      console.log('⚠️ [startRecording] Already recording, skipping...');
+      return;
+    }
 
     try {
+      console.log('▶️ [startRecording] Setting recording state to true');
+      isRecordingRef.current = true; // ✅ Set ref FIRST
       setIsRecording(true);
       setRecordingTime(0);
 
       // Start timer
+      console.log('⏱️ [startRecording] Starting timer');
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          if (prev >= 60) {
+          const newTime = prev + 1;
+          console.log('⏱️ [Timer] Recording time:', newTime, 'seconds');
+          
+          if (newTime >= 60) {
+            console.log('⏱️ [Timer] Max duration reached, stopping...');
             stopRecording();
             return 60;
           }
-          return prev + 1;
+          return newTime;
         });
       }, 1000);
 
-      console.log('🎬 Starting recording...');
+      console.log('🎬 [startRecording] Starting camera recording...');
       
       const video = await cameraRef.current.recordAsync({
         maxDuration: 60,
       });
 
-      if (video) {
+      if (isScreenActiveRef.current && video) {
+        console.log('✅ [startRecording] Video recorded successfully');
+        console.log('📹 [startRecording] Video URI:', video.uri);
         setRecordedVideo(video.uri);
-        console.log('✅ Video recorded:', video.uri);
       }
     } catch (error) {
-      console.error('❌ Recording error:', error);
+      console.error('❌ [startRecording] Error:', error);
       Alert.alert('Error', 'Failed to record video');
+      isRecordingRef.current = false; // ✅ Reset ref on error
       setIsRecording(false);
       
       if (recordingTimerRef.current) {
@@ -106,20 +185,37 @@ const CameraRecordScreen: React.FC = () => {
 
   // Stop recording
   const stopRecording = () => {
-    if (cameraRef.current && isRecording) {
-      console.log('⏹️ Stopping recording...');
-      cameraRef.current.stopRecording();
-      setIsRecording(false);
-      
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = null;
+    console.log('⏹️ [stopRecording] Called');
+    console.log('⏹️ [stopRecording] isRecordingRef.current:', isRecordingRef.current);
+    console.log('⏹️ [stopRecording] cameraRef.current:', !!cameraRef.current);
+    
+    if (cameraRef.current && isRecordingRef.current) {
+      console.log('⏹️ [stopRecording] Stopping camera recording...');
+      try {
+        cameraRef.current.stopRecording();
+        isRecordingRef.current = false; // ✅ Reset ref
+        setIsRecording(false);
+        
+        if (recordingTimerRef.current) {
+          console.log('⏱️ [stopRecording] Clearing timer');
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+        console.log('✅ [stopRecording] Recording stopped successfully');
+      } catch (error) {
+        console.log('⚠️ [stopRecording] Error:', error);
+        isRecordingRef.current = false; // ✅ Reset ref even on error
+        setIsRecording(false);
       }
+    } else {
+      console.log('⚠️ [stopRecording] Cannot stop - not recording or camera ref null');
     }
   };
 
   // Upload from gallery
   const handleUpload = async () => {
+    console.log('📁 [handleUpload] Opening gallery...');
+    
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -128,27 +224,42 @@ const CameraRecordScreen: React.FC = () => {
         videoMaxDuration: 60,
       });
 
+      console.log('📁 [handleUpload] Result:', result);
+
       if (!result.canceled && result.assets[0]) {
+        console.log('✅ [handleUpload] Video selected:', result.assets[0].uri);
         setRecordedVideo(result.assets[0].uri);
-        console.log('✅ Video selected from gallery:', result.assets[0].uri);
+      } else {
+        console.log('❌ [handleUpload] Selection canceled');
       }
     } catch (error) {
-      console.error('❌ Error picking video:', error);
+      console.error('❌ [handleUpload] Error:', error);
       Alert.alert('Error', 'Failed to pick video');
     }
   };
 
   // Use recorded video
   const handleUseVideo = () => {
+    console.log('➡️ [handleUseVideo] Navigating to EditVideo');
+    console.log('📹 [handleUseVideo] Video URI:', recordedVideo);
+    
     if (recordedVideo) {
-       navigation.navigate("EditVideo" as never, { videoUri: recordedVideo });
+      navigation.navigate("EditVideo" as never, { videoUri: recordedVideo });
+    } else {
+      console.log('❌ [handleUseVideo] No video to use');
     }
   };
 
   // Retake video
   const handleRetake = () => {
+    console.log('🔄 [handleRetake] Retaking video');
+    console.log('🔄 [handleRetake] Previous video:', recordedVideo);
+    
     setRecordedVideo(null);
     setRecordingTime(0);
+    isRecordingRef.current = false; // ✅ Reset ref
+    
+    console.log('✅ [handleRetake] States reset');
   };
 
   // Format time
@@ -159,30 +270,50 @@ const CameraRecordScreen: React.FC = () => {
   };
 
   // Check permissions
-  if (!permission) {
-    return <View style={styles.container} />;
-  }
+  if (!cameraPermission || !micPermission) {
+  return <View style={styles.container} />;
+}
 
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.permissionContainer}>
-          <Ionicons name="camera-outline" size={80} color="#666" />
-          <Text style={styles.permissionText}>Camera permission required</Text>
-          <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
+if (!cameraPermission.granted || !micPermission.granted) {
+  return (
+    <View style={styles.container}>
+      <Ionicons name="mic-outline" size={80} color="#666" />
+      <Text style={styles.permissionText}>
+        Camera & Microphone permissions required
+      </Text>
+      <TouchableOpacity
+        style={styles.permissionButton}
+        onPress={async () => {
+          await requestCameraPermission();
+          await requestMicPermission();
+        }}
+      >
+        <Text style={styles.permissionButtonText}>Grant Permissions</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 
   // Preview recorded video
   if (recordedVideo) {
+    console.log('🎥 [Render] Showing preview for:', recordedVideo);
+    
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        
+        {/* Top bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleRetake}>
+            <Ionicons name="arrow-back" size={20} color="#fff" />
+            <Text style={styles.nextText}>Back</Text>
+          </TouchableOpacity>
+          <View style={styles.topButton} />
+          <TouchableOpacity style={styles.nextButton} onPress={handleUseVideo}>
+            <Text style={styles.nextText}>Next</Text>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
         <Video
           source={{ uri: recordedVideo }}
           style={styles.preview}
@@ -192,30 +323,17 @@ const CameraRecordScreen: React.FC = () => {
           shouldPlay
         />
 
-        {/* Top bar */}
-        <View style={styles.topBar}>
-          <TouchableOpacity style={styles.topButton} onPress={handleRetake}>
-            <Ionicons name="arrow-back" size={28} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.previewTitle}>Preview</Text>
-          <View style={styles.topButton} />
-        </View>
+        
 
-        {/* Bottom actions */}
-        <View style={styles.previewActions}>
-          <TouchableOpacity style={styles.retakeButton} onPress={handleRetake}>
-            <Ionicons name="refresh" size={24} color="#fff" />
-            <Text style={styles.actionText}>Retake</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.nextButton} onPress={handleUseVideo}>
-            <Text style={styles.nextText}>Next</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
       </View>
     );
   }
+
+  console.log('📸 [Render] Showing camera view');
+  console.log('📸 [Render] Camera type:', cameraType);
+  console.log('📸 [Render] Flash:', flash);
+  console.log('📸 [Render] Is recording:', isRecording);
+  console.log('📸 [Render] Is recording (ref):', isRecordingRef.current);
 
   return (
     <View style={styles.container}>
@@ -300,24 +418,6 @@ const CameraRecordScreen: React.FC = () => {
                 <View style={styles.recordInner} />
               </TouchableOpacity>
             )}
-            
-            {/* Progress ring */}
-            {isRecording && (
-              <View style={styles.progressRing}>
-                <View 
-                  style={[
-                    styles.progressFill,
-                    { 
-                      transform: [
-                        { 
-                          rotate: `${(recordingTime / 60) * 360}deg` 
-                        }
-                      ] 
-                    }
-                  ]} 
-                />
-              </View>
-            )}
           </View>
 
           {/* Upload button */}
@@ -342,7 +442,7 @@ const CameraRecordScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
   },
   camera: {
     flex: 1,
@@ -377,7 +477,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: StatusBar.currentHeight || 40,
+    paddingTop: StatusBar.currentHeight || 20,
     paddingHorizontal: 20,
     paddingBottom: 10,
   },
@@ -520,23 +620,6 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 4,
     backgroundColor: '#FF3B5C',
-  },
-  progressRing: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  progressFill: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#FF3B5C',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent',
   },
 
   // Preview mode
