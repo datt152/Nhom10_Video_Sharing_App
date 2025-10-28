@@ -163,7 +163,6 @@ const EditVideoScreen: React.FC = () => {
             source={{ uri: videoUri }}
             style={styles.video}
             useNativeControls
-            resizeMode="contain"
             isLooping
           />
         </View>

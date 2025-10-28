@@ -187,7 +187,6 @@ const CameraRecordScreen: React.FC = () => {
           source={{ uri: recordedVideo }}
           style={styles.preview}
           useNativeControls
-          resizeMode="cover"
           isLooping
           shouldPlay
         />
