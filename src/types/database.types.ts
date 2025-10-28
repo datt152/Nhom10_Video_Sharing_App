@@ -29,9 +29,11 @@ export interface Image {
   comments: number;       // tổng bình luận
   views: number;          // tổng lượt xem
   createdAt: string;      // ngày đăng
-  userId: number;         // ID người đăng
+  userId: string;         // ID người đăng
   userName?: string;      // tên người đăng (nếu cần hiển thị nhanh)
-  location?: string;      // địa điểm chụp (nếu có)
+  location?: string;
+  isPublic?:boolean;
+  likeBy?:string[];      // địa điểm chụp (nếu có)
 }
 export interface Video {
   id: string;
