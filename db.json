@@ -7,7 +7,7 @@
       "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
       "bio": "Du lịch & cuộc sống 🌿125555",
       "followers": 12002,
-      "following": 312,
+      "following": 313,
       "likes": 22000,
       "followerIds": [
         "u2",
@@ -15,7 +15,8 @@
         "u4"
       ],
       "followingIds": [
-        "u4"
+        "u4",
+        "u3"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
@@ -44,11 +45,12 @@
       "fullname": "Hoàng Trung",
       "avatar": "https://randomuser.me/api/portraits/men/33.jpg",
       "bio": "Âm nhạc & chill 🎵",
-      "followers": 5002,
+      "followers": 5003,
       "following": 120,
       "likes": 9000,
       "followerIds": [
-        "u4"
+        "u4",
+        "u1"
       ],
       "followingIds": [
         "u1"
@@ -172,7 +174,7 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3400,
+      "likeCount": 3401,
       "commentCount": 134,
       "shareCount": 89,
       "views": 25002,
@@ -188,11 +190,13 @@
         "id": "m1",
         "title": "Quay đi quay lại",
         "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -218,7 +222,8 @@
         "id": "m1",
         "title": "Quay đi quay lại",
         "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
         "u2",
@@ -248,7 +253,8 @@
         "id": "m2",
         "title": "Night Drive",
         "artist": "Zayne",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
         "u1"
@@ -277,7 +283,8 @@
         "id": "m3",
         "title": "Chill Beats",
         "artist": "Lowkey",
-        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
+        "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
         "u4",
@@ -313,6 +320,34 @@
       "likedBy": [
         "u1"
       ]
+    },
+    {
+      "id": "v1761849039838",
+      "userId": "u4",
+      "title": "Cày rank đêm khuya dìa dia dìa dia",
+      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.mp4",
+      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.jpg",
+      "musicId": "m1",
+      "likeCount": 0,
+      "commentCount": 0,
+      "shareCount": 0,
+      "views": 0,
+      "createdAt": "2025-10-30T18:30:39.838Z",
+      "isPublic": true,
+      "user": {
+        "id": "u4",
+        "username": "datt152",
+        "fullname": "Dat Tran",
+        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
+      },
+      "music": {
+        "id": "m1",
+        "title": "Quay đi quay lại",
+        "artist": "HIEUTHUHAI",
+        "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
+      },
+      "likedBy": []
     }
   ],
   "comments": [

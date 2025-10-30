@@ -18,7 +18,7 @@ export interface Music {
   title: string;
   artist: string;
   cover: string;
-  audioUrl: string
+  uri: string
 }
 export interface Image {
   id: string;

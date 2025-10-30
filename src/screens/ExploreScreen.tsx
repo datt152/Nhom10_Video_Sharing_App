@@ -57,8 +57,6 @@ export default function ExploreScreen() {
         isActive={index === currentIndex}
         isFollowing={item.user ? followingStatus[item.user.id] || false : false}
         currentUserId={currentUserId}
-        isFirstVideo={index === 0}
-        isLastVideo={index === videos.length - 1}
         onToggleLike={toggleLike}
         onToggleFollow={toggleFollow}
       />
@@ -75,11 +73,11 @@ export default function ExploreScreen() {
         data={videos}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        pagingEnabled
+        pagingEnabled={false}
         showsVerticalScrollIndicator={false}
         snapToInterval={SCREEN_HEIGHT} // ✅ Dùng full screen height
         snapToAlignment="start"
-        decelerationRate="fast"
+        decelerationRate={0.05}
         viewabilityConfig={viewabilityConfig}
         onViewableItemsChanged={onViewableItemsChanged}
         refreshControl={
