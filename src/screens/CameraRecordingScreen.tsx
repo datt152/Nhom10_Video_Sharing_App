@@ -7,12 +7,19 @@ import {
   Dimensions,
   StatusBar,
   Alert,
+  Modal,
+  FlatList,
+  Image,
+  TextInput,
+  _View
 } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 import { CameraView, CameraType, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { Video } from 'expo-av';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Audio, Video } from 'expo-av';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import { useMusic } from '../hooks/useMusic';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -31,21 +38,29 @@ const CameraRecordScreen: React.FC = () => {
   const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
 
-  // Timer
+  const [musicUri, setMusicUri] = useState<string | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
   const [timerDelay, setTimerDelay] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
-
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isRecordingRef = useRef<boolean>(false);
 
-  // Reset màn hình khi focus lại
+  const { musicList, selectedMusic, fetchMusic, selectMusic } = useMusic();
+  const [showMusicModal, setShowMusicModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('ForYou');
+  const [searchText, setSearchText] = useState('');
+
+  useEffect(() => {
+    fetchMusic(); // Lấy danh sách nhạc khi mở màn hình
+  }, []);
+
+
   useFocusEffect(
     React.useCallback(() => {
       console.log('📱 [useFocusEffect] Screen focused');
       isScreenActiveRef.current = true;
-
-      // Reset giao diện mỗi khi quay lại
       setRecordedVideo(null);
       setRecordingTime(0);
       setIsRecording(false);
@@ -66,31 +81,27 @@ const CameraRecordScreen: React.FC = () => {
           }
         }
 
-        if (recordingTimerRef.current) {
-          clearInterval(recordingTimerRef.current);
-          recordingTimerRef.current = null;
-        }
+        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
 
-        if (countdownRef.current) {
-          clearInterval(countdownRef.current);
-          countdownRef.current = null;
-          setCountdown(null);
-          
+        // stop music nếu đang phát
+        if (sound) {
+          sound.stopAsync();
+          sound.unloadAsync();
         }
       };
-    }, [])
+    }, [sound])
   );
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
       isRecordingRef.current = false;
+      if (sound) sound.unloadAsync();
     };
   }, []);
 
-  // Request permission
   useEffect(() => {
     (async () => {
       if (!cameraPermission?.granted) await requestCameraPermission();
@@ -98,46 +109,38 @@ const CameraRecordScreen: React.FC = () => {
     })();
   }, [cameraPermission, micPermission]);
 
-  // Close camera
   const handleClose = () => {
     if (isRecordingRef.current) stopRecording();
     navigation.goBack();
   };
 
-  // Flip camera
   const flipCamera = () => {
-    const newType = cameraType === 'back' ? 'front' : 'back';
-    setCameraType(newType);
+    setCameraType((prev) => (prev === 'back' ? 'front' : 'back'));
   };
 
-  // Toggle flash
   const toggleFlash = () => {
     setTorchEnabled((prev) => !prev);
   };
-const startRecording = async () => {
+
+
+  const startRecording = async () => {
     if (!cameraRef.current || isRecordingRef.current) return;
 
-    // Nếu có timer, chạy countdown trước khi quay
     if (timerDelay) {
-      console.log('⏳ [Timer] Countdown starting:', timerDelay);
       setCountdown(timerDelay);
-
       let timeLeft = timerDelay;
       countdownRef.current = setInterval(() => {
         timeLeft -= 1;
-        if (timeLeft > 0) {
-          setCountdown(timeLeft);
-        } else {
+        if (timeLeft > 0) setCountdown(timeLeft);
+        else {
           clearInterval(countdownRef.current!);
           setCountdown(null);
-          console.log('🎬 [Timer] Countdown done, start recording');
           startRecordingNow();
         }
       }, 1000);
       return;
     }
 
-    // Nếu không có timer thì quay luôn
     startRecordingNow();
   };
 
@@ -146,6 +149,11 @@ const startRecording = async () => {
       isRecordingRef.current = true;
       setIsRecording(true);
       setRecordingTime(0);
+
+      if (musicUri && sound) {
+        console.log('🎵 [startRecordingNow] Playing music...');
+        await sound.replayAsync();
+      }
 
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
@@ -157,21 +165,25 @@ const startRecording = async () => {
         });
       }, 1000);
 
-      console.log('🎥 [startRecordingNow] Recording started');
       const video = await cameraRef.current!.recordAsync({ maxDuration: 60 });
-
       if (isScreenActiveRef.current && video) {
-        setRecordedVideo(video.uri);
+        if (sound) await sound.stopAsync();
+
+        navigation.navigate('EditVideo' as never, {
+          videoUri: video.uri,
+          musicUri: musicUri || null,
+        } as never);
       }
     } catch (error) {
       console.error('❌ [startRecordingNow] Error:', error);
       Alert.alert('Error', 'Failed to record video');
+    } finally {
       isRecordingRef.current = false;
       setIsRecording(false);
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (cameraRef.current && isRecordingRef.current) {
       try {
         cameraRef.current.stopRecording();
@@ -180,16 +192,13 @@ const startRecording = async () => {
       }
     }
 
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    if (sound) await sound.stopAsync();
+
     isRecordingRef.current = false;
     setIsRecording(false);
-
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
   };
 
-  // Upload from gallery
   const handleUpload = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -199,24 +208,16 @@ const startRecording = async () => {
         videoMaxDuration: 60,
       });
       if (!result.canceled && result.assets[0]) {
-        setRecordedVideo(result.assets[0].uri);
+        const uri = result.assets[0].uri;
+        navigation.navigate('EditVideo' as never, {
+          videoUri: uri,
+          musicUri: musicUri || null,
+        } as never);
       }
     } catch (error) {
       console.error('❌ [handleUpload] Error:', error);
       Alert.alert('Error', 'Failed to pick video');
     }
-  };
-
-  const handleUseVideo = () => {
-    if (recordedVideo) {
-      navigation.navigate('EditVideo' as never, { videoUri: recordedVideo });
-    }
-  };
-
-  const handleRetake = () => {
-    setRecordedVideo(null);
-    setRecordingTime(0);
-    isRecordingRef.current = false;
   };
 
   const formatTime = (seconds: number) => {
@@ -225,58 +226,8 @@ const startRecording = async () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Check permissions
-  if (!cameraPermission || !micPermission) {
-  return <View style={styles.container} />;
-}
-
-if (!cameraPermission?.granted || !micPermission?.granted) {
-    return (
-      <View style={styles.container}>
-        <Ionicons name="mic-outline" size={80} color="#666" />
-        <Text style={styles.permissionText}>
-          Camera & Microphone permissions required
-        </Text>
-        <TouchableOpacity
-          style={styles.permissionButton}
-          onPress={async () => {
-            await requestCameraPermission();
-            await requestMicPermission();
-          }}
-        >
-          <Text style={styles.permissionButtonText}>Grant Permissions</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-
-  // Preview recorded video
-  if (recordedVideo) {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.topBar}>
-          <TouchableOpacity style={styles.nextButton} onPress={handleRetake}>
-            <Ionicons name="arrow-back" size={20} color="#fff" />
-            <Text style={styles.nextText}>Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.nextButton} onPress={handleUseVideo}>
-            <Text style={styles.nextText}>Next</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
-        <Video
-          source={{ uri: recordedVideo }}
-          style={styles.preview}
-          useNativeControls
-          isLooping
-          shouldPlay
-        />
-      </View>
-    );
-  }
+  if (!cameraPermission || !micPermission) return <View style={styles.container} />;
+  if (!cameraPermission?.granted || !micPermission?.granted) return;
 
   return (
     <View style={styles.container}>
@@ -289,20 +240,27 @@ if (!cameraPermission?.granted || !micPermission?.granted) {
         enableTorch={torchEnabled}
         mode="video"
       >
-        {/* Đếm ngược Timer */}
         {countdown !== null && (
           <View style={styles.countdownOverlay}>
             <Text style={styles.countdownText}>{countdown}</Text>
           </View>
         )}
 
-        {/* Top bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.topButton} onPress={handleClose}>
             <Ionicons name="close" size={32} color="#fff" />
           </TouchableOpacity>
 
           <View style={styles.centerTop}>
+            {selectedMusic && (
+            <View style={styles.selectedMusicLabel}>
+              <Ionicons name="musical-notes" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={styles.selectedMusicText} numberOfLines={1}>
+                {selectedMusic?.title ?? 'Add audio'}
+
+              </Text>
+            </View>
+          )}
             {isRecording && (
               <View style={styles.recordingIndicator}>
                 <View style={styles.recordingDot} />
@@ -310,7 +268,7 @@ if (!cameraPermission?.granted || !micPermission?.granted) {
               </View>
             )}
           </View>
-
+          
           <View style={styles.topButton} />
         </View>
 
@@ -321,17 +279,20 @@ if (!cameraPermission?.granted || !micPermission?.granted) {
             <Text style={styles.toolText}>Flip</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tool}>
-            <MaterialIcons name="filter" size={28} color="#fff" />
-            <Text style={styles.toolText}>Filter</Text>
+          {/* 🎵 Replace Filter with Music */}
+          <TouchableOpacity
+            style={styles.tool}
+            onPress={() => setShowMusicModal(true)}
+          >
+            <Ionicons name="musical-notes" size={28} color="#fff" />
+
           </TouchableOpacity>
 
-          {/* Timer button */}
+
           <TouchableOpacity
             style={styles.tool}
             onPress={() => {
               const newDelay = timerDelay === 3 ? 10 : timerDelay === 10 ? null : 3;
-              console.log('⏰ [Timer] Set to:', newDelay);
               setTimerDelay(newDelay);
             }}
           >
@@ -382,9 +343,79 @@ if (!cameraPermission?.granted || !micPermission?.granted) {
           </TouchableOpacity>
         </View>
       </CameraView>
+      <Modal
+  visible={showMusicModal}
+  animationType="slide"
+  transparent
+  onRequestClose={() => setShowMusicModal(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      {/* Header */}
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>Add audio</Text>
+        <TouchableOpacity onPress={() => setShowMusicModal(false)}>
+          <Ionicons name="close" size={24} color="#555" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Ô tìm kiếm */}
+      <View style={styles.searchRow}>
+        <Ionicons name="search" size={20} color="#777" style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Search music..."
+          placeholderTextColor="#888"
+          style={styles.searchInput}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
+
+      {/* Danh sách nhạc */}
+      <FlatList
+        data={musicList.filter(m =>
+          m.title.toLowerCase().includes(searchText.toLowerCase()) ||
+          m.artist.toLowerCase().includes(searchText.toLowerCase())
+        )}
+        keyExtractor={(item, index) => item?.id ?? index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.musicItem}>
+            <TouchableOpacity
+            style={[
+              styles.useButton,
+              selectedMusic?.id === item.id && { borderColor: '#FF4EB8', borderWidth: 2 },
+            ]}
+            onPress={() => {
+              selectMusic(item);
+            }}
+          >
+            <Image source={{ uri: item.cover }} style={styles.musicCover} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.musicTitle} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.musicArtist}>{item.artist}</Text>
+            </View>
+            <Ionicons
+              name={
+                selectedMusic?.id === item.id
+                  ? 'checkmark-circle'
+                  : 'musical-notes-outline'
+              }
+              size={22}
+              color={selectedMusic?.id === item.id ? '#FF4EB8' : '#888'}
+            />
+          </TouchableOpacity>
+          </View>
+        )}
+      />
+    </View>
+  </View>
+</Modal>
+
+
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -425,8 +456,7 @@ const styles = StyleSheet.create({
   },
   centerTop: {
     flex: 1,
-    alignItems: 'center',
-  },
+    alignItems: 'center',  },
   recordingIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -558,6 +588,94 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
   },
+  selectMusicButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: '70%',
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: { fontSize: 18, fontWeight: 'bold' },
+  tabRow: { flexDirection: 'row', marginBottom: 15 },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabButtonActive: { borderBottomColor: '#FF4EB8' },
+  tabText: { color: '#888' },
+  tabTextActive: { color: '#FF4EB8', fontWeight: 'bold' },
+  musicItem: {
+    alignItems: 'center',
+    marginBottom: 15,
+    borderColor: 'white'
+  },
+  musicCover: { width: 50, height: 50, borderRadius: 50, marginRight: 20 },
+  musicTitle: { fontWeight: '600' },
+  musicArtist: { color: '#999', fontSize: 12 },
+  useButton: {
+    borderWidth: 1,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    borderColor: '#FF4EB8',
+    alignItems: 'center'
+
+  },
+  useButtonText: { color: '#FF4EB8', fontWeight: 'bold' },
+  selectedMusicLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 6,
+    maxWidth: '80%',
+  },
+  selectedMusicText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+searchRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#f2f2f2',
+  borderRadius: 10,
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+  marginBottom: 15,
+},
+searchInput: {
+  flex: 1,
+  fontSize: 15,
+  color: '#333',
+},
 });
 
 export default CameraRecordScreen;

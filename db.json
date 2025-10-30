@@ -76,19 +76,19 @@
       "id": "m1",
       "title": "Quay đi quay lại",
       "artist": "HIEUTHUHAI",
-      "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
+      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg"
     },
     {
       "id": "m2",
       "title": "Night Drive",
       "artist": "Zayne",
-      "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg"
+      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg"
     },
     {
       "id": "m3",
       "title": "Chill Beats",
       "artist": "Lowkey",
-      "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg"
+      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg"
     }
   ],
   "images": [
@@ -112,7 +112,6 @@
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
-      
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true
     },
@@ -136,7 +135,6 @@
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "userId": "u1",
-      
       "location": "TP. Hồ Chí Minh",
       "isPublic": true
     },
@@ -159,7 +157,6 @@
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "userId": "u1",
-     
       "location": "Hội An",
       "isPublic": false
     }
@@ -283,87 +280,6 @@
         "u4",
         "u1"
       ]
-    },
-    {
-      "id": "v1761563627679",
-      "userId": "u4",
-      "title": "Nhớ bé",
-      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563623/gxc9wrtvznmavhwt88d9.mp4",
-      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563623/gxc9wrtvznmavhwt88d9.jpg",
-      "musicId": "m1",
-      "likeCount": 0,
-      "commentCount": 0,
-      "shareCount": 0,
-      "views": 0,
-      "createdAt": "2025-10-27T11:13:47.679Z",
-      "isPublic": true,
-      "user": {
-        "id": "u4",
-        "username": "datt152",
-        "fullname": "Dat Tran",
-        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Quay đi quay lại",
-        "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
-      },
-      "likedBy": []
-    },
-    {
-      "id": "v1761563730824",
-      "userId": "u4",
-      "title": "No cap",
-      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563730/yiufnwkyxnewd4yvxrbd.mp4",
-      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563730/yiufnwkyxnewd4yvxrbd.jpg",
-      "musicId": "m1",
-      "likeCount": 0,
-      "commentCount": 0,
-      "shareCount": 0,
-      "views": 0,
-      "createdAt": "2025-10-27T11:15:30.824Z",
-      "isPublic": true,
-      "user": {
-        "id": "u4",
-        "username": "datt152",
-        "fullname": "Dat Tran",
-        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Quay đi quay lại",
-        "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
-      },
-      "likedBy": []
-    },
-    {
-      "id": "v1761563803615",
-      "userId": "u4",
-      "title": "No cap",
-      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563801/id9lwgjvqwxvl7psodik.mp4",
-      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761563801/id9lwgjvqwxvl7psodik.jpg",
-      "musicId": "m1",
-      "likeCount": 0,
-      "commentCount": 0,
-      "shareCount": 0,
-      "views": 0,
-      "createdAt": "2025-10-27T11:16:43.615Z",
-      "isPublic": true,
-      "user": {
-        "id": "u4",
-        "username": "datt152",
-        "fullname": "Dat Tran",
-        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Quay đi quay lại",
-        "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg"
-      },
-      "likedBy": []
     }
   ],
   "comments": [
