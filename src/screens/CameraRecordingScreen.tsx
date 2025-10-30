@@ -56,41 +56,41 @@ const CameraRecordScreen: React.FC = () => {
     fetchMusic(); // Lấy danh sách nhạc khi mở màn hình
   }, []);
 
-// 🎧 Khi user chọn nhạc, tự khởi tạo Audio.Sound để phát khi quay
-useEffect(() => {
-  const setupSound = async () => {
-    try {
-      if (selectedMusic?.uri) {
-        console.log('🎧 [setupSound] Tạo mới sound object cho:', selectedMusic.title);
-        
-        // Dừng và hủy sound cũ nếu có
-        if (sound) {
-          await sound.stopAsync();
-          await sound.unloadAsync();
-          console.log('🧹 [setupSound] Đã dọn sound cũ');
+  // 🎧 Khi user chọn nhạc, tự khởi tạo Audio.Sound để phát khi quay
+  useEffect(() => {
+    const setupSound = async () => {
+      try {
+        if (selectedMusic?.uri) {
+          console.log('🎧 [setupSound] Tạo mới sound object cho:', selectedMusic.title);
+
+          // Dừng và hủy sound cũ nếu có
+          if (sound) {
+            await sound.stopAsync();
+            await sound.unloadAsync();
+            console.log('🧹 [setupSound] Đã dọn sound cũ');
+          }
+
+          // Tạo sound mới
+          const { sound: newSound } = await Audio.Sound.createAsync(
+            { uri: selectedMusic.uri },
+            { shouldPlay: false }
+          );
+
+          setSound(newSound);
+          setMusicUri(selectedMusic.uri);
+          console.log('✅ [setupSound] Sound object created & ready');
+        } else {
+          console.log('🚫 [setupSound] Không có selectedMusic.uri — bỏ qua');
+          setSound(null);
         }
-
-        // Tạo sound mới
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: selectedMusic.uri },
-          { shouldPlay: false }
-        );
-
-        setSound(newSound);
-        setMusicUri(selectedMusic.uri);
-        console.log('✅ [setupSound] Sound object created & ready');
-      } else {
-        console.log('🚫 [setupSound] Không có selectedMusic.uri — bỏ qua');
+      } catch (err) {
+        console.error('❌ [setupSound] Lỗi khi tạo sound:', err);
         setSound(null);
       }
-    } catch (err) {
-      console.error('❌ [setupSound] Lỗi khi tạo sound:', err);
-      setSound(null);
-    }
-  };
+    };
 
-  setupSound();
-}, [selectedMusic]);
+    setupSound();
+  }, [selectedMusic]);
 
 
 
@@ -188,21 +188,21 @@ useEffect(() => {
       setRecordingTime(0);
 
       console.log('🎬 [startRecordingNow] Bắt đầu quay...');
-console.log('🎧 [Debug] musicUri =', musicUri);
-console.log('🎧 [Debug] selectedMusic =', selectedMusic);
-console.log('🎧 [Debug] sound =', sound ? '✅ Có sound object' : '❌ Không có sound');
+      console.log('🎧 [Debug] musicUri =', musicUri);
+      console.log('🎧 [Debug] selectedMusic =', selectedMusic);
+      console.log('🎧 [Debug] sound =', sound ? '✅ Có sound object' : '❌ Không có sound');
 
-if (musicUri && sound) {
-  try {
-    console.log('🎵 [startRecordingNow] Phát nhạc từ đầu...');
-    await sound.setPositionAsync(0);
-    await sound.playAsync();
-  } catch (err) {
-    console.log('⚠️ [startRecordingNow] Lỗi khi phát nhạc:', err);
-  }
-} else {
-  console.log('🚫 [startRecordingNow] Không có nhạc được chọn hoặc sound chưa khởi tạo.');
-}
+      if (musicUri && sound) {
+        try {
+          console.log('🎵 [startRecordingNow] Phát nhạc từ đầu...');
+          await sound.setPositionAsync(0);
+          await sound.playAsync();
+        } catch (err) {
+          console.log('⚠️ [startRecordingNow] Lỗi khi phát nhạc:', err);
+        }
+      } else {
+        console.log('🚫 [startRecordingNow] Không có nhạc được chọn hoặc sound chưa khởi tạo.');
+      }
 
 
       recordingTimerRef.current = setInterval(() => {
@@ -235,21 +235,21 @@ if (musicUri && sound) {
 
   const stopRecording = async () => {
     console.log('🛑 [stopRecording] Đang dừng quay...');
-if (cameraRef.current && isRecordingRef.current) {
-  try {
-    console.log('📹 [stopRecording] Gọi stopRecording() của camera...');
-    cameraRef.current.stopRecording();
-  } catch (e) {
-    console.log('⚠️ [stopRecording] Lỗi khi dừng camera:', e);
-  }
-}
+    if (cameraRef.current && isRecordingRef.current) {
+      try {
+        console.log('📹 [stopRecording] Gọi stopRecording() của camera...');
+        cameraRef.current.stopRecording();
+      } catch (e) {
+        console.log('⚠️ [stopRecording] Lỗi khi dừng camera:', e);
+      }
+    }
 
 
     if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-   if (sound) {
-  console.log('🔇 [stopRecording] Dừng nhạc phát cùng video...');
-  await sound.stopAsync();
-}
+    if (sound) {
+      console.log('🔇 [stopRecording] Dừng nhạc phát cùng video...');
+      await sound.stopAsync();
+    }
 
 
     isRecordingRef.current = false;
@@ -296,6 +296,7 @@ if (cameraRef.current && isRecordingRef.current) {
         facing={cameraType}
         enableTorch={torchEnabled}
         mode="video"
+        videoQuality='480p'
       >
         {countdown !== null && (
           <View style={styles.countdownOverlay}>
@@ -310,14 +311,14 @@ if (cameraRef.current && isRecordingRef.current) {
 
           <View style={styles.centerTop}>
             {selectedMusic && (
-            <View style={styles.selectedMusicLabel}>
-              <Ionicons name="musical-notes" size={16} color="#fff" style={{ marginRight: 6 }} />
-              <Text style={styles.selectedMusicText} numberOfLines={1}>
-                {selectedMusic?.title ?? 'Add audio'}
+              <View style={styles.selectedMusicLabel}>
+                <Ionicons name="musical-notes" size={16} color="#fff" style={{ marginRight: 6 }} />
+                <Text style={styles.selectedMusicText} numberOfLines={1}>
+                  {selectedMusic?.title ?? 'Add audio'}
 
-              </Text>
-            </View>
-          )}
+                </Text>
+              </View>
+            )}
             {isRecording && (
               <View style={styles.recordingIndicator}>
                 <View style={styles.recordingDot} />
@@ -325,7 +326,7 @@ if (cameraRef.current && isRecordingRef.current) {
               </View>
             )}
           </View>
-          
+
           <View style={styles.topButton} />
         </View>
 
@@ -401,72 +402,72 @@ if (cameraRef.current && isRecordingRef.current) {
         </View>
       </CameraView>
       <Modal
-  visible={showMusicModal}
-  animationType="slide"
-  transparent
-  onRequestClose={() => setShowMusicModal(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      {/* Header */}
-      <View style={styles.modalHeader}>
-        <Text style={styles.modalTitle}>Add audio</Text>
-        <TouchableOpacity onPress={() => setShowMusicModal(false)}>
-          <Ionicons name="close" size={24} color="#555" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Ô tìm kiếm */}
-      <View style={styles.searchRow}>
-        <Ionicons name="search" size={20} color="#777" style={{ marginRight: 8 }} />
-        <TextInput
-          placeholder="Search music..."
-          placeholderTextColor="#888"
-          style={styles.searchInput}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
-
-      {/* Danh sách nhạc */}
-      <FlatList
-        data={musicList.filter(m =>
-          m.title.toLowerCase().includes(searchText.toLowerCase()) ||
-          m.artist.toLowerCase().includes(searchText.toLowerCase())
-        )}
-        keyExtractor={(item, index) => item?.id ?? index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.musicItem}>
-            <TouchableOpacity
-            style={[
-              styles.useButton,
-              selectedMusic?.id === item.id && { borderColor: '#FF4EB8', borderWidth: 2 },
-            ]}
-            onPress={() => {
-              selectMusic(item);
-            }}
-          >
-            <Image source={{ uri: item.cover }} style={styles.musicCover} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.musicTitle} numberOfLines={1}>{item.title}</Text>
-              <Text style={styles.musicArtist}>{item.artist}</Text>
+        visible={showMusicModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowMusicModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add audio</Text>
+              <TouchableOpacity onPress={() => setShowMusicModal(false)}>
+                <Ionicons name="close" size={24} color="#555" />
+              </TouchableOpacity>
             </View>
-            <Ionicons
-              name={
-                selectedMusic?.id === item.id
-                  ? 'checkmark-circle'
-                  : 'musical-notes-outline'
-              }
-              size={22}
-              color={selectedMusic?.id === item.id ? '#FF4EB8' : '#888'}
+
+            {/* Ô tìm kiếm */}
+            <View style={styles.searchRow}>
+              <Ionicons name="search" size={20} color="#777" style={{ marginRight: 8 }} />
+              <TextInput
+                placeholder="Search music..."
+                placeholderTextColor="#888"
+                style={styles.searchInput}
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+            </View>
+
+            {/* Danh sách nhạc */}
+            <FlatList
+              data={musicList.filter(m =>
+                m.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                m.artist.toLowerCase().includes(searchText.toLowerCase())
+              )}
+              keyExtractor={(item, index) => item?.id ?? index.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.musicItem}>
+                  <TouchableOpacity
+                    style={[
+                      styles.useButton,
+                      selectedMusic?.id === item.id && { borderColor: '#FF4EB8', borderWidth: 2 },
+                    ]}
+                    onPress={() => {
+                      selectMusic(item);
+                    }}
+                  >
+                    <Image source={{ uri: item.cover }} style={styles.musicCover} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.musicTitle} numberOfLines={1}>{item.title}</Text>
+                      <Text style={styles.musicArtist}>{item.artist}</Text>
+                    </View>
+                    <Ionicons
+                      name={
+                        selectedMusic?.id === item.id
+                          ? 'checkmark-circle'
+                          : 'musical-notes-outline'
+                      }
+                      size={22}
+                      color={selectedMusic?.id === item.id ? '#FF4EB8' : '#888'}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
             />
-          </TouchableOpacity>
           </View>
-        )}
-      />
-    </View>
-  </View>
-</Modal>
+        </View>
+      </Modal>
 
 
     </View>
@@ -513,7 +514,8 @@ const styles = StyleSheet.create({
   },
   centerTop: {
     flex: 1,
-    alignItems: 'center',  },
+    alignItems: 'center',
+  },
   recordingIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -719,20 +721,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-searchRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#f2f2f2',
-  borderRadius: 10,
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  marginBottom: 15,
-},
-searchInput: {
-  flex: 1,
-  fontSize: 15,
-  color: '#333',
-},
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 15,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#333',
+  },
 });
 
 export default CameraRecordScreen;

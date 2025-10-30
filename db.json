@@ -78,7 +78,6 @@
       "artist": "HIEUTHUHAI",
       "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
       "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-
     },
     {
       "id": "m2",
@@ -93,7 +92,6 @@
       "artist": "Lowkey",
       "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
       "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-
     }
   ],
   "images": [
@@ -112,7 +110,7 @@
       ],
       "music": {
         "id": 5,
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
@@ -135,7 +133,7 @@
       ],
       "music": {
         "id": 5,
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
@@ -157,7 +155,7 @@
       ],
       "music": {
         "id": 5,
-        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
@@ -264,7 +262,7 @@
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
       "likeCount": 4200,
-      "commentCount": 90,
+      "commentCount": 91,
       "shareCount": 43,
       "views": 21000,
       "createdAt": "2025-10-15T09:30:00Z",
@@ -283,6 +281,36 @@
       },
       "likedBy": [
         "u4",
+        "u1"
+      ]
+    },
+    {
+      "id": "v1761841701895",
+      "userId": "u4",
+      "title": "Khai giảng IUH nò",
+      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
+      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
+      "musicId": "m1",
+      "likeCount": 1,
+      "commentCount": 0,
+      "shareCount": 0,
+      "views": 0,
+      "createdAt": "2025-10-30T16:28:21.895Z",
+      "isPublic": true,
+      "user": {
+        "id": "u4",
+        "username": "datt152",
+        "fullname": "Dat Tran",
+        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
+      },
+      "music": {
+        "id": "m1",
+        "title": "Quay đi quay lại",
+        "artist": "HIEUTHUHAI",
+        "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
+        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
+      },
+      "likedBy": [
         "u1"
       ]
     }
@@ -479,6 +507,17 @@
       "userId": "u1",
       "content": "fffff",
       "createdAt": "2025-10-28T14:26:35.567Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1761837914246",
+      "videoId": "v3",
+      "userId": "u1",
+      "content": "ủa",
+      "createdAt": "2025-10-30T15:25:14.246Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,

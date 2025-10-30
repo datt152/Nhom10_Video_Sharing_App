@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useMusic } from '../hooks/useMusic';
 
-const API_BASE_URL = 'http://192.168.1.117:3000';
+const API_BASE_URL = 'http://192.168.1.125:3000';
 const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
 const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
 const CURRENT_USER_ID = 'u4';
@@ -32,8 +32,8 @@ interface MusicOption {
 const EditVideoScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { videoUri, musicUri: passedMusicUri } = route.params as { videoUri: string, musicUri?: string };
-
+  const { videoUri, musicUri: passedMusicUri } = route.params as { videoUri: string; musicUri?: string };
+  const videoRef = useRef<Video>(null);
   const { musicList, fetchMusic } = useMusic();
 
   const [title, setTitle] = useState('');
@@ -43,7 +43,7 @@ const EditVideoScreen: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-  // Fetch music list on mount
+  // Fetch music list
   useEffect(() => {
     fetchMusic();
   }, []);
@@ -51,30 +51,57 @@ const EditVideoScreen: React.FC = () => {
   // Set selectedMusic if passedMusicUri exists
   useEffect(() => {
     if (passedMusicUri && musicList.length > 0) {
-      const found = musicList.find(m => m.uri === passedMusicUri);
+      const found = musicList.find((m) => m.uri === passedMusicUri);
       if (found) setSelectedMusic(found);
       else setSelectedMusic({ id: 'custom', title: 'Custom Audio', artist: '', cover: '', uri: passedMusicUri });
     }
   }, [passedMusicUri, musicList]);
 
-  // Setup Audio.Sound for preview
+  // Setup Audio.Sound with looping
   useEffect(() => {
-    if (selectedMusic?.uri) {
-      const setupSound = async () => {
-        try {
-          if (sound) await sound.unloadAsync();
-          const { sound: newSound } = await Audio.Sound.createAsync({ uri: selectedMusic.uri });
-          setSound(newSound);
-        } catch (err) {
-          console.error('❌ Error creating sound:', err);
-        }
-      };
-      setupSound();
-    }
+    if (!selectedMusic?.uri) return;
+
+    let isUnmounted = false;
+    const setupSound = async () => {
+      try {
+        if (sound) await sound.unloadAsync();
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: selectedMusic.uri },
+          { shouldPlay: false, isLooping: true } // loop nhạc
+        );
+        setSound(newSound);
+      } catch (err) {
+        console.error('❌ Error creating sound:', err);
+      }
+    };
+
+    setupSound();
+
     return () => {
+      isUnmounted = true;
       if (sound) sound.unloadAsync();
     };
   }, [selectedMusic]);
+
+  // Sync video & music
+  const handlePlaybackStatusUpdate = async (status: any) => {
+    if (!sound) return;
+
+    if (status.isPlaying) {
+      const musicStatus = await sound.getStatusAsync();
+      if (!musicStatus.isPlaying) {
+        // sync nhạc theo vị trí video
+        if (musicStatus.durationMillis) {
+          const pos = status.positionMillis % musicStatus.durationMillis;
+          await sound.setPositionAsync(pos);
+        }
+        await sound.playAsync();
+      }
+    } else if (!status.isPlaying) {
+      const musicStatus = await sound.getStatusAsync();
+      if (musicStatus.isPlaying) await sound.pauseAsync();
+    }
+  };
 
   const uploadToCloudinary = async (uri: string): Promise<string> => {
     const formData = new FormData();
@@ -98,7 +125,6 @@ const EditVideoScreen: React.FC = () => {
         },
       }
     );
-
     return response.data.secure_url;
   };
 
@@ -149,9 +175,8 @@ const EditVideoScreen: React.FC = () => {
       };
 
       await axios.post(`${API_BASE_URL}/videos`, newVideo);
-
       Alert.alert('Success! 🎉', 'Your video has been posted!', [
-        { text: 'OK', onPress: () => navigation.navigate("Main" as never) },
+        { text: 'OK', onPress: () => navigation.navigate('Main' as never) },
       ]);
     } catch (error) {
       console.error('Upload error:', error);
@@ -163,7 +188,6 @@ const EditVideoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
@@ -180,17 +204,15 @@ const EditVideoScreen: React.FC = () => {
         {/* Video Preview */}
         <View style={styles.videoPreview}>
           <Video
+            ref={videoRef}
             source={{ uri: videoUri }}
             style={styles.video}
             useNativeControls
-            isLooping
-            shouldPlay
-            onPlaybackStatusUpdate={async (status) => {
-              if (sound) {
-                if (status.isPlaying) await sound.playAsync();
-                else await sound.pauseAsync();
-              }
-            }}
+            shouldPlay={false}
+            isLooping={false}
+            isMuted={!!selectedMusic?.uri}
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+            resizeMode="contain"
           />
         </View>
 
@@ -212,7 +234,6 @@ const EditVideoScreen: React.FC = () => {
         {/* Music Selection */}
         <View style={styles.section}>
           <Text style={styles.label}>Music</Text>
-
           {selectedMusic ? (
             <View style={styles.musicSelector}>
               {selectedMusic.cover ? (
@@ -273,10 +294,7 @@ const EditVideoScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0'
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   headerTitle: { fontSize: 18, fontWeight: '600' },
   postButton: { fontSize: 16, fontWeight: '600', color: '#FF4EB8' },
   disabled: { opacity: 0.5 },
