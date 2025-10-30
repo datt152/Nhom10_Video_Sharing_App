@@ -56,6 +56,43 @@ const CameraRecordScreen: React.FC = () => {
     fetchMusic(); // Lấy danh sách nhạc khi mở màn hình
   }, []);
 
+// 🎧 Khi user chọn nhạc, tự khởi tạo Audio.Sound để phát khi quay
+useEffect(() => {
+  const setupSound = async () => {
+    try {
+      if (selectedMusic?.uri) {
+        console.log('🎧 [setupSound] Tạo mới sound object cho:', selectedMusic.title);
+        
+        // Dừng và hủy sound cũ nếu có
+        if (sound) {
+          await sound.stopAsync();
+          await sound.unloadAsync();
+          console.log('🧹 [setupSound] Đã dọn sound cũ');
+        }
+
+        // Tạo sound mới
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: selectedMusic.uri },
+          { shouldPlay: false }
+        );
+
+        setSound(newSound);
+        setMusicUri(selectedMusic.uri);
+        console.log('✅ [setupSound] Sound object created & ready');
+      } else {
+        console.log('🚫 [setupSound] Không có selectedMusic.uri — bỏ qua');
+        setSound(null);
+      }
+    } catch (err) {
+      console.error('❌ [setupSound] Lỗi khi tạo sound:', err);
+      setSound(null);
+    }
+  };
+
+  setupSound();
+}, [selectedMusic]);
+
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -150,10 +187,23 @@ const CameraRecordScreen: React.FC = () => {
       setIsRecording(true);
       setRecordingTime(0);
 
-      if (musicUri && sound) {
-        console.log('🎵 [startRecordingNow] Playing music...');
-        await sound.replayAsync();
-      }
+      console.log('🎬 [startRecordingNow] Bắt đầu quay...');
+console.log('🎧 [Debug] musicUri =', musicUri);
+console.log('🎧 [Debug] selectedMusic =', selectedMusic);
+console.log('🎧 [Debug] sound =', sound ? '✅ Có sound object' : '❌ Không có sound');
+
+if (musicUri && sound) {
+  try {
+    console.log('🎵 [startRecordingNow] Phát nhạc từ đầu...');
+    await sound.setPositionAsync(0);
+    await sound.playAsync();
+  } catch (err) {
+    console.log('⚠️ [startRecordingNow] Lỗi khi phát nhạc:', err);
+  }
+} else {
+  console.log('🚫 [startRecordingNow] Không có nhạc được chọn hoặc sound chưa khởi tạo.');
+}
+
 
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
@@ -184,16 +234,23 @@ const CameraRecordScreen: React.FC = () => {
   };
 
   const stopRecording = async () => {
-    if (cameraRef.current && isRecordingRef.current) {
-      try {
-        cameraRef.current.stopRecording();
-      } catch (e) {
-        console.log('⚠️ Error stopping recording:', e);
-      }
-    }
+    console.log('🛑 [stopRecording] Đang dừng quay...');
+if (cameraRef.current && isRecordingRef.current) {
+  try {
+    console.log('📹 [stopRecording] Gọi stopRecording() của camera...');
+    cameraRef.current.stopRecording();
+  } catch (e) {
+    console.log('⚠️ [stopRecording] Lỗi khi dừng camera:', e);
+  }
+}
+
 
     if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-    if (sound) await sound.stopAsync();
+   if (sound) {
+  console.log('🔇 [stopRecording] Dừng nhạc phát cùng video...');
+  await sound.stopAsync();
+}
+
 
     isRecordingRef.current = false;
     setIsRecording(false);
