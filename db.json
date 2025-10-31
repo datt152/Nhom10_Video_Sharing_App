@@ -162,7 +162,7 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3401,
+      "likeCount": 2,
       "commentCount": 134,
       "shareCount": 89,
       "views": 25002,
@@ -183,8 +183,7 @@
       },
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ]
     },
     {
@@ -194,7 +193,7 @@
       "url": "https://res.cloudinary.com/ddcw5fmea/video/upload/v1761317722/samples/dance-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3400,
+      "likeCount": 2,
       "commentCount": 130,
       "shareCount": 67,
       "views": 25002,
@@ -225,7 +224,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
-      "likeCount": 5400,
+      "likeCount": 0,
       "commentCount": 222,
       "shareCount": 156,
       "views": 36000,
@@ -244,9 +243,7 @@
         "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     },
     {
       "id": "v3",
@@ -255,7 +252,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
-      "likeCount": 4200,
+      "likeCount": 1,
       "commentCount": 91,
       "shareCount": 43,
       "views": 21000,
@@ -275,8 +272,7 @@
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
-        "u4",
-        "u1"
+        "u4"
       ]
     },
     {
@@ -286,7 +282,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 0,
+      "likeCount": 1,
       "commentCount": 1,
       "shareCount": 0,
       "views": 0,
@@ -316,7 +312,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.jpg",
       "musicId": "m1",
-      "likeCount": 0,
+      "likeCount": 1,
       "commentCount": 0,
       "shareCount": 0,
       "views": 0,
@@ -335,7 +331,9 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": []
+      "likedBy": [
+        "u1"
+      ]
     }
   ],
   "comments": [

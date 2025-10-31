@@ -21,9 +21,7 @@ interface VideoCardProps {
     video: VideoType;
     isFollowing: boolean;
     currentUserId: string;
-    onToggleLike: (videoId: string) => void;
     onToggleFollow: (userId: string) => void;
-    isLiked: boolean;
     isActive?: boolean;
     musics?: Music[];
 }
@@ -32,27 +30,30 @@ const VideoCard: React.FC<VideoCardProps> = ({
     video,
     isFollowing,
     currentUserId,
-    onToggleLike,
     onToggleFollow,
-    isLiked,
     isActive,
     musics = [],
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(video.likeCount || 0);
     const [localCommentCount, setLocalCommentCount] = useState(video.commentCount || 0);
+    const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const videoRef = useRef<Video | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-    const { likeVideo, unlikeVideo } = useVideo();
-    const { comments, fetchComments, addComment, deleteComment, likeComment } = useComments(
-        String(video.id)
-    );
+    // 🧩 Lấy hàm từ useVideo
+    const { likeVideo, unlikeVideo, getLikeCount } = useVideo();
+    const { comments, fetchComments, addComment, deleteComment, likeComment } = useComments(String(video.id));
 
     const music = musics.find((m) => m.id === video.musicId);
+    const likeCount = getLikeCount(video.id);
+
+    // ✅ Cập nhật lại localIsLiked khi video thay đổi (ví dụ khi lướt sang video khác)
+    useEffect(() => {
+        setLocalIsLiked(video.isLiked || false);
+    }, [video]);
 
     useEffect(() => {
         let isMounted = true;
@@ -104,17 +105,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
         outputRange: ['0deg', '360deg'],
     });
 
+    // ❤️ Xử lý tym
     const handleLike = async () => {
         try {
-            if (isLiked) {
+            if (localIsLiked) {
                 await unlikeVideo(video.id);
-                setLocalLikeCount((prev) => Math.max(0, prev - 1));
+                setLocalIsLiked(false);
             } else {
                 await likeVideo(video.id);
-                setLocalLikeCount((prev) => prev + 1);
+                setLocalIsLiked(true);
             }
-
-            onToggleLike(video.id);
 
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
@@ -180,29 +180,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     </View>
 
                     <View style={styles.rightContent}>
+                        {/* ❤️ Tym */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
                                 <Ionicons
-                                    name={isLiked ? 'heart' : 'heart-outline'}
+                                    name={localIsLiked ? 'heart' : 'heart-outline'}
                                     size={32}
-                                    color={isLiked ? '#FF3B5C' : '#fff'}
+                                    color={localIsLiked ? '#FF3B5C' : '#fff'}
                                 />
                             </Animated.View>
-                            <Text style={styles.actionText}>
-                                {formatNumber(localLikeCount)}
-                            </Text>
+                            <Text style={styles.actionText}>{formatNumber(likeCount)}</Text>
                         </TouchableOpacity>
 
+                        {/* 💬 Bình luận */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
                             <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
                         </TouchableOpacity>
 
+                        {/* 👁 Lượt xem */}
                         <View style={styles.actionButton}>
                             <Ionicons name="eye-outline" size={28} color="#fff" />
                             <Text style={styles.actionText}>{formatNumber(video.views || 0)}</Text>
                         </View>
 
+                        {/* 🎵 Nhạc */}
                         {music && (
                             <Animated.View style={[styles.musicDisc, { transform: [{ rotate }] }]}>
                                 <Ionicons name="musical-notes" size={22} color="#fff" />

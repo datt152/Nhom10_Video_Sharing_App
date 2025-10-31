@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { Audio } from 'expo-av';
 
-const API_BASE_URL = 'http://192.168.1.125:3000'; // URL của JSON Server hoặc backend của bạn
+const API_BASE_URL = 'http://192.168.65.2:3000'; // URL của JSON Server hoặc backend của bạn
 
 export interface Music {
   id: string;

@@ -120,7 +120,7 @@ export default function AppNavigator() {
           options={{ presentation: 'fullScreenModal' }}
         />
         <Stack.Screen name="UserImageViewer" component={UserImageViewer} />
-         <Stack.Screen name="VideoImageViewer" component={UserVideoViewer} />
+         <Stack.Screen name="UserVideoViewer" component={UserVideoViewer} />
       </Stack.Navigator>
   );
 }

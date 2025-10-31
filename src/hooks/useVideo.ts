@@ -2,13 +2,11 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-
-const API_BASE_URL = 'http://192.168.1.125:3000';
+const API_BASE_URL = 'http://192.168.65.2:3000';
 export const CURRENT_USER_ID = 'u1';
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-
   const [loading, setLoading] = useState(false);
   const [followingStatus, setFollowingStatus] = useState<Record<string, boolean>>({});
 
@@ -17,7 +15,7 @@ export const useVideo = () => {
     timeout: 10000,
   });
 
-  // 1. FETCH VIDEOS
+  // 1️⃣ FETCH VIDEOS
   const fetchVideos = useCallback(async () => {
     setLoading(true);
     try {
@@ -45,7 +43,8 @@ export const useVideo = () => {
         const status: Record<string, boolean> = {};
         enrichedVideos.forEach((video: any) => {
           if (video.user) {
-            status[video.user.id] = currentUser.followingIds?.includes(video.user.id) || false;
+            status[video.user.id] =
+              currentUser.followingIds?.includes(video.user.id) || false;
           }
         });
         setFollowingStatus(status);
@@ -61,44 +60,47 @@ export const useVideo = () => {
     fetchVideos();
   }, []);
 
-  // 2. TOGGLE LIKE
-  const toggleLike = useCallback(async (videoId: string) => {
-    const video = videos.find((v) => v.id === videoId);
-    if (!video) return;
+  // 2️⃣ TOGGLE LIKE
+  const toggleLike = useCallback(
+    async (videoId: string) => {
+      const video = videos.find((v) => v.id === videoId);
+      if (!video) return;
 
-    const isLiked = video.isLiked;
-    const updatedLikedBy = isLiked
-      ? video.likedBy.filter((id: string) => id !== CURRENT_USER_ID)
-      : [...(video.likedBy || []), CURRENT_USER_ID];
-    const updatedLikeCount = isLiked ? video.likeCount - 1 : video.likeCount + 1;
+      const isLiked = video.isLiked;
+      const updatedLikedBy = isLiked
+        ? video.likedBy.filter((id: string) => id !== CURRENT_USER_ID)
+        : [...(video.likedBy || []), CURRENT_USER_ID];
+      const updatedLikeCount = updatedLikedBy.length;
 
-    setVideos((prevVideos) =>
-      prevVideos.map((v) =>
-        v.id === videoId
-          ? {
-            ...v,
-            isLiked: !isLiked,
-            likeCount: updatedLikeCount,
-            likedBy: updatedLikedBy,
-          }
-          : v
-      )
-    );
-
-    try {
-      await api.patch(`/videos/${videoId}`, {
-        likedBy: updatedLikedBy,
-        likeCount: updatedLikeCount,
-      });
-    } catch (error) {
-      console.error('Error toggling like:', error);
       setVideos((prevVideos) =>
-        prevVideos.map((v) => (v.id === videoId ? video : v))
+        prevVideos.map((v) =>
+          v.id === videoId
+            ? {
+              ...v,
+              isLiked: !isLiked,
+              likeCount: updatedLikeCount,
+              likedBy: updatedLikedBy,
+            }
+            : v
+        )
       );
-    }
-  }, [videos]);
 
-  // 3. TOGGLE FOLLOW
+      try {
+        await api.patch(`/videos/${videoId}`, {
+          likedBy: updatedLikedBy,
+          likeCount: updatedLikeCount,
+        });
+      } catch (error) {
+        console.error('Error toggling like:', error);
+        setVideos((prevVideos) =>
+          prevVideos.map((v) => (v.id === videoId ? video : v))
+        );
+      }
+    },
+    [videos]
+  );
+
+  // 3️⃣ TOGGLE FOLLOW
   const toggleFollow = useCallback(async (userId: string) => {
     try {
       const [currentUserRes, targetUserRes] = await Promise.all([
@@ -109,7 +111,8 @@ export const useVideo = () => {
       const currentUser = currentUserRes.data;
       const targetUser = targetUserRes.data;
 
-      const isFollowing = currentUser.followingIds?.includes(userId) || false;
+      const isFollowing =
+        currentUser.followingIds?.includes(userId) || false;
 
       const updatedFollowingIds = isFollowing
         ? currentUser.followingIds.filter((id: string) => id !== userId)
@@ -143,7 +146,9 @@ export const useVideo = () => {
         }),
       ]);
 
-      console.log(`✅ ${isFollowing ? 'Unfollowed' : 'Followed'} user ${userId}`);
+      console.log(
+        `✅ ${isFollowing ? 'Unfollowed' : 'Followed'} user ${userId}`
+      );
     } catch (error) {
       console.error('Error toggling follow:', error);
       setFollowingStatus((prev) => ({
@@ -152,26 +157,80 @@ export const useVideo = () => {
       }));
     }
   }, []);
-  // 🎥 Lấy danh sách video theo userId (tách riêng giống loadImages)
+
+  // 4️⃣ Lấy danh sách video theo userId
   const loadVideosByUser = async (userId?: string) => {
     try {
       setLoading(true);
       const res = await api.get('/videos');
       const allVideos = res.data;
-      setVideos(userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos);
+      setVideos(
+        userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos
+      );
     } catch (err) {
       console.error('Error loading user videos:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // 5️⃣ LIKE VIDEO
   const likeVideo = async (videoId: string) => {
-    console.log("Liked video:", videoId);
-    // gọi API hoặc cập nhật state ở đây
+    const video = videos.find((v) => v.id === videoId);
+    if (!video) return;
+
+    const updatedLikedBy = [...(video.likedBy || []), CURRENT_USER_ID];
+    const updatedLikeCount = updatedLikedBy.length;
+
+    setVideos((prev) =>
+      prev.map((v) =>
+        v.id === videoId
+          ? { ...v, likedBy: updatedLikedBy, likeCount: updatedLikeCount, isLiked: true }
+          : v
+      )
+    );
+
+    try {
+      await api.patch(`/videos/${videoId}`, {
+        likedBy: updatedLikedBy,
+        likeCount: updatedLikeCount,
+      });
+    } catch (err) {
+      console.error('Error liking video:', err);
+    }
   };
 
+  // 6️⃣ UNLIKE VIDEO
   const unlikeVideo = async (videoId: string) => {
-    console.log("Unliked video:", videoId);
+    const video = videos.find((v) => v.id === videoId);
+    if (!video) return;
+
+    const updatedLikedBy = video.likedBy.filter(
+      (id: string) => id !== CURRENT_USER_ID
+    );
+    const updatedLikeCount = updatedLikedBy.length;
+
+    setVideos((prev) =>
+      prev.map((v) =>
+        v.id === videoId
+          ? { ...v, likedBy: updatedLikedBy, likeCount: updatedLikeCount, isLiked: false }
+          : v
+      )
+    );
+
+    try {
+      await api.patch(`/videos/${videoId}`, {
+        likedBy: updatedLikedBy,
+        likeCount: updatedLikeCount,
+      });
+    } catch (err) {
+      console.error('Error unliking video:', err);
+    }
+  };
+  // 7️⃣ GET LIKE COUNT
+  const getLikeCount = (videoId: string): number => {
+    const video = videos.find((v) => v.id === videoId);
+    return video?.likedBy?.length || 0;
   };
   return {
     videos,
@@ -183,6 +242,7 @@ export const useVideo = () => {
     refreshVideos: fetchVideos,
     loadVideosByUser,
     likeVideo,
-    unlikeVideo // 🆕 thêm vào đây
+    unlikeVideo,
+    getLikeCount
   };
 };

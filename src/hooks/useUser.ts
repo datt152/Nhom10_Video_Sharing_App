@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-const API_BASE_URL = "http://192.168.1.125:3000";
+const API_BASE_URL = "http://192.168.65.2:3000";
 const CURRENT_USER_ID = "u1"; // user hiện tại
 
 export const useUser = (userId?: string) => {
