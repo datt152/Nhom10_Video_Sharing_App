@@ -165,6 +165,14 @@ export const useVideo = () => {
       setLoading(false);
     }
   };
+  const likeVideo = async (videoId: string) => {
+    console.log("Liked video:", videoId);
+    // gọi API hoặc cập nhật state ở đây
+  };
+
+  const unlikeVideo = async (videoId: string) => {
+    console.log("Unliked video:", videoId);
+  };
   return {
     videos,
     loading,
@@ -173,6 +181,8 @@ export const useVideo = () => {
     toggleLike,
     toggleFollow,
     refreshVideos: fetchVideos,
-    loadVideosByUser, // 🆕 thêm vào đây
+    loadVideosByUser,
+    likeVideo,
+    unlikeVideo // 🆕 thêm vào đây
   };
 };

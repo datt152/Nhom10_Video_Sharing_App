@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Image,
@@ -9,12 +9,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image as ImageType } from '../../types/database.types';
+import { useImage } from '../../hooks/useImage'; // 👈 import hook để lấy getImageLikes
 
 type Props = {
     images: ImageType[];
     privacy: 'public' | 'private';
     loading: boolean;
-    onPressImage?: (img: ImageType) => void; // 👈 thêm callback khi bấm ảnh
+    onPressImage?: (img: ImageType) => void;
 };
 
 const ProfileImageList: React.FC<Props> = ({
@@ -23,12 +24,24 @@ const ProfileImageList: React.FC<Props> = ({
     loading,
     onPressImage,
 }) => {
-    // ⏳ loading
-    if (loading) {
-        return <ActivityIndicator size="small" color="#FF4EB8" />;
-    }
+    const { getImageLikes } = useImage();
+    const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
 
-    // 📭 nếu không có ảnh
+    useEffect(() => {
+        const fetchLikes = async () => {
+            const counts: Record<string, number> = {};
+            for (const img of images) {
+                const count = await getImageLikes(img.id);
+                counts[img.id] = count;
+            }
+            setLikeCounts(counts);
+        };
+
+        if (images.length) fetchLikes();
+    }, [images]);
+
+    if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
+
     if (!images.length) {
         return (
             <View style={styles.emptyBox}>
@@ -41,7 +54,7 @@ const ProfileImageList: React.FC<Props> = ({
         );
     }
 
-    // 🧩 Chia ảnh thành từng hàng 2 ảnh
+    // 🧩 chia 2 ảnh 1 hàng
     const rows: ImageType[][] = [];
     for (let i = 0; i < images.length; i += 2) {
         rows.push(images.slice(i, i + 2));
@@ -56,20 +69,24 @@ const ProfileImageList: React.FC<Props> = ({
                             key={img.id}
                             activeOpacity={0.8}
                             style={styles.imageWrapper}
-                            onPress={() => onPressImage?.(img)} // 👈 gọi callback nếu có
+                            onPress={() => onPressImage?.(img)}
                         >
                             <Image source={{ uri: img.imageUrl }} style={styles.imageBox} />
 
-                            {/* overlay hiển thị lượt xem & tym */}
+                            {/* overlay hiển thị tym & view */}
                             <View style={styles.overlay}>
                                 <View style={styles.iconRow}>
                                     <View style={styles.iconGroup}>
                                         <Ionicons name="heart" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>{img.likes}</Text>
+                                        <Text style={styles.iconText}>
+                                            {likeCounts[img.id] ?? 0}
+                                        </Text>
                                     </View>
                                     <View style={styles.iconGroup}>
                                         <Ionicons name="eye" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>{img.views}</Text>
+                                        <Text style={styles.iconText}>
+                                            {img.views ?? 0}
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
@@ -83,17 +100,17 @@ const ProfileImageList: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center', // ✅ căn giữa toàn bộ row
+        alignItems: 'center',
         paddingHorizontal: 8,
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'center', //  căn giữa khi chỉ có 1 ảnh
+        justifyContent: 'center',
         marginBottom: 12,
     },
     imageWrapper: {
         position: 'relative',
-        marginHorizontal: 6, // khoảng cách giữa các ảnh
+        marginHorizontal: 6,
     },
     imageBox: {
         width: 160,
@@ -114,7 +131,7 @@ const styles = StyleSheet.create({
     iconRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', //  cách đều 2 nhóm icon
+        justifyContent: 'space-between',
     },
     iconGroup: {
         flexDirection: 'row',

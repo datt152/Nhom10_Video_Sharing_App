@@ -2,36 +2,34 @@ import React, { useEffect, useState, useRef, memo } from 'react';
 import {
     View,
     Text,
-    Image,
     StyleSheet,
-    Dimensions,
     TouchableOpacity,
     Animated,
     Modal,
+    useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Video } from 'expo-av';
 import { Audio } from 'expo-av';
-import { Image as ImageType, Music } from '../types/database.types';
+import { Video as VideoType, Music } from '../types/database.types';
 import { useComments } from '../hooks/useComment';
-import CommentModalImage from './ComentModalImage';
-import { useImage } from "../hooks/useImage";
+import CommentModalVideo from '../components/CommentModalVideo';
+import { useVideo } from '../hooks/useVideo';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-interface ImageCardProps {
-    image: ImageType;
+interface VideoCardProps {
+    video: VideoType;
     isFollowing: boolean;
     currentUserId: string;
-    onToggleLike: (imageId: string) => void;
+    onToggleLike: (videoId: string) => void;
     onToggleFollow: (userId: string) => void;
-    isLiked: boolean; // ✅ thêm prop này
+    isLiked: boolean;
     isActive?: boolean;
     musics?: Music[];
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({
-    image,
+const VideoCard: React.FC<VideoCardProps> = ({
+    video,
     isFollowing,
     currentUserId,
     onToggleLike,
@@ -40,69 +38,55 @@ const ImageCard: React.FC<ImageCardProps> = ({
     isActive,
     musics = [],
 }) => {
+    const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(image.likes);
-    const [localCommentCount, setLocalCommentCount] = useState(image.comments);
+    const [localLikeCount, setLocalLikeCount] = useState(video.likeCount || 0);
+    const [localCommentCount, setLocalCommentCount] = useState(video.commentCount || 0);
     const likeAnimation = useRef(new Animated.Value(0)).current;
-    const [sound, setSound] = useState<Audio.Sound | null>(null);
     const spinAnim = useRef(new Animated.Value(0)).current;
+    const videoRef = useRef<Video | null>(null);
+    const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-    // ✅ Hook lấy API hình ảnh
-    const { getImageLikes } = useImage();
-
+    const { likeVideo, unlikeVideo } = useVideo();
     const { comments, fetchComments, addComment, deleteComment, likeComment } = useComments(
-        String(image.id)
+        String(video.id)
     );
 
-    // ✅ Lấy số lượt like thật từ API khi load
-    useEffect(() => {
-        const fetchLikes = async () => {
-            try {
-                const likeCount = await getImageLikes(image.id);
-                if (typeof likeCount === 'number') {
-                    setLocalLikeCount(likeCount);
-                }
-            } catch (err) {
-                console.log('Error fetching likes:', err);
-            }
-        };
-        fetchLikes();
-    }, [image.id, getImageLikes]);
+    const music = musics.find((m) => m.id === video.musicId);
 
-    // ✅ Lấy thông tin nhạc
-    const music = musics.find((m) => m.id === image.musicId);
-
-    // ✅ Phát nhạc khi active
     useEffect(() => {
         let isMounted = true;
-        async function playSound() {
-            if (!music?.audioUrl) return;
-            try {
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: music.audioUrl },
-                    { shouldPlay: true, isLooping: true }
-                );
-                if (isMounted) setSound(newSound);
-            } catch (error) {
-                console.log('Error playing sound:', error);
-            }
-        }
 
         if (isActive) {
-            playSound();
+            videoRef.current?.playAsync();
             startRotation();
+
+            if (music?.uri) {
+                (async () => {
+                    try {
+                        const { sound: newSound } = await Audio.Sound.createAsync(
+                            { uri: music.uri },
+                            { shouldPlay: true, isLooping: true }
+                        );
+                        if (isMounted) setSound(newSound);
+                    } catch (error) {
+                        console.log('Error playing sound:', error);
+                    }
+                })();
+            }
         } else {
+            videoRef.current?.pauseAsync();
             stopRotation();
-            if (sound) sound.stopAsync();
+            sound?.unloadAsync();
         }
 
         return () => {
             isMounted = false;
+            stopRotation();
             if (sound) sound.unloadAsync();
         };
-    }, [isActive, image.musicId]);
+    }, [isActive, music?.uri]);
 
-    // ✅ Animation đĩa nhạc xoay
     const startRotation = () => {
         Animated.loop(
             Animated.timing(spinAnim, {
@@ -113,27 +97,35 @@ const ImageCard: React.FC<ImageCardProps> = ({
         ).start();
     };
 
-    const stopRotation = () => {
-        spinAnim.stopAnimation();
-    };
+    const stopRotation = () => spinAnim.stopAnimation();
 
     const rotate = spinAnim.interpolate({
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
 
-    // ✅ Hàm like gọi từ component cha
-    const handleLike = () => {
-        onToggleLike(image.id);
-        Animated.sequence([
-            Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
-            Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
-        ]).start();
+    const handleLike = async () => {
+        try {
+            if (isLiked) {
+                await unlikeVideo(video.id);
+                setLocalLikeCount((prev) => Math.max(0, prev - 1));
+            } else {
+                await likeVideo(video.id);
+                setLocalLikeCount((prev) => prev + 1);
+            }
+
+            onToggleLike(video.id);
+
+            Animated.sequence([
+                Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
+                Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
+            ]).start();
+        } catch (error) {
+            console.log('Error toggling like:', error);
+        }
     };
 
-    const handleFollow = () => {
-        onToggleFollow(image.userId);
-    };
+    const handleFollow = () => onToggleFollow(video.userId);
 
     const handleOpenComments = () => {
         setShowComments(true);
@@ -163,26 +155,31 @@ const ImageCard: React.FC<ImageCardProps> = ({
     };
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity activeOpacity={0.9} style={styles.imageWrapper}>
-                <Image source={{ uri: image.imageUrl }} style={styles.image} />
+        <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
+            <TouchableOpacity activeOpacity={0.9} style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
+                <Video
+                    ref={videoRef}
+                    source={{ uri: video.url }}
+                    resizeMode="cover"
+                    isLooping
+                    style={styles.video}
+                    shouldPlay={isActive}
+                />
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
                     style={styles.gradient}
                 />
 
-                {/* Info bottom */}
                 <View style={styles.bottomContent}>
                     <View style={styles.leftContent}>
-                        {image.caption ? (
+                        {video.caption ? (
                             <Text style={styles.caption} numberOfLines={2}>
-                                {image.caption}
+                                {video.caption}
                             </Text>
                         ) : null}
                     </View>
 
                     <View style={styles.rightContent}>
-                        {/* Like */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
                                 <Ionicons
@@ -192,23 +189,20 @@ const ImageCard: React.FC<ImageCardProps> = ({
                                 />
                             </Animated.View>
                             <Text style={styles.actionText}>
-                                {formatNumber(localLikeCount + (isLiked ? 1 : 0))}
+                                {formatNumber(localLikeCount)}
                             </Text>
                         </TouchableOpacity>
 
-                        {/* Comment */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
                             <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
                         </TouchableOpacity>
 
-                        {/* View */}
                         <View style={styles.actionButton}>
                             <Ionicons name="eye-outline" size={28} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(image.views)}</Text>
+                            <Text style={styles.actionText}>{formatNumber(video.views || 0)}</Text>
                         </View>
 
-                        {/* Icon nhạc xoay */}
                         {music && (
                             <Animated.View style={[styles.musicDisc, { transform: [{ rotate }] }]}>
                                 <Ionicons name="musical-notes" size={22} color="#fff" />
@@ -217,7 +211,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
                     </View>
                 </View>
 
-                {/* Music info */}
                 {music && (
                     <View style={styles.musicInfo}>
                         <Ionicons name="musical-notes" size={16} color="#fff" />
@@ -228,15 +221,14 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 )}
             </TouchableOpacity>
 
-            {/* Comment Modal */}
             <Modal
                 visible={showComments}
                 transparent
                 animationType="slide"
                 onRequestClose={() => setShowComments(false)}
             >
-                <CommentModalImage
-                    videoId={String(image.id)}
+                <CommentModalVideo
+                    videoId={String(video.id)}
                     comments={comments}
                     currentUserId={currentUserId}
                     isVisible={showComments}
@@ -250,12 +242,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
     );
 };
 
-export default memo(ImageCard);
+export default memo(VideoCard);
 
 const styles = StyleSheet.create({
-    container: { width: SCREEN_WIDTH, height: SCREEN_HEIGHT, backgroundColor: '#000' },
-    imageWrapper: { width: '100%', height: SCREEN_HEIGHT, justifyContent: 'center', alignItems: 'center' },
-    image: { width: '100%', height: '100%', resizeMode: 'cover' },
+    container: { backgroundColor: '#000' },
+    videoWrapper: { width: '100%', justifyContent: 'center', alignItems: 'center' },
+    video: { width: '100%', height: '100%' },
     gradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%' },
     bottomContent: {
         position: 'absolute',
@@ -280,7 +272,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
     },
-    musicText: { color: '#fff', fontSize: 14, maxWidth: SCREEN_WIDTH * 0.6 },
+    musicText: { color: '#fff', fontSize: 14, maxWidth: '70%' },
     musicDisc: {
         width: 44,
         height: 44,

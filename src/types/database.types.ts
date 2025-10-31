@@ -64,6 +64,9 @@ export interface Video {
   user?: User;
   music?: Music;
   isLiked?: boolean;
+  videoUrl: string; // ✅ video link (URL)
+  caption?: string; // ✅ mô tả video
+  
 }
 
 export interface Comment {

@@ -110,10 +110,6 @@
         "u2",
         "u3"
       ],
-      "music": {
-        "id": 5,
-        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-      },
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
@@ -133,10 +129,6 @@
         "u2",
         "u3"
       ],
-      "music": {
-        "id": 5,
-        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-      },
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "userId": "u1",
@@ -155,10 +147,6 @@
         "u2",
         "u3"
       ],
-      "music": {
-        "id": 5,
-        "audioUrl": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-      },
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "userId": "u1",
@@ -298,8 +286,8 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 1,
-      "commentCount": 0,
+      "likeCount": 0,
+      "commentCount": 1,
       "shareCount": 0,
       "views": 0,
       "createdAt": "2025-10-30T16:28:21.895Z",
@@ -548,11 +536,11 @@
       "parentId": null
     },
     {
-      "id": "c1761837914246",
-      "videoId": "v3",
+      "id": "c1761917328860",
+      "videoId": "v1761563627679",
       "userId": "u1",
-      "content": "ủa",
-      "createdAt": "2025-10-30T15:25:14.246Z",
+      "content": "gggg",
+      "createdAt": "2025-10-31T13:28:48.860Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,

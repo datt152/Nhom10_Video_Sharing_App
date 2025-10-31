@@ -15,9 +15,8 @@ import FollowersScreen from "../screens/profileTab/FollowersScreen";
 import OtherProfileScreen from '../screens/profileTab/OtherProfileScreen';
 import EditVideoScreen from '../screens/EditVideoScreen';
 import CameraRecordScreen from '../screens/CameraRecordingScreen';
-import UserImageViewer from '../screens/profileTab/UserImageViewer';
-
-// Create navigators
+import UserImageViewer from '../screens/profileTab/UserImageViewer'
+import UserVideoViewer from '../screens/profileTab/UserVideoViewer'
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -121,6 +120,7 @@ export default function AppNavigator() {
           options={{ presentation: 'fullScreenModal' }}
         />
         <Stack.Screen name="UserImageViewer" component={UserImageViewer} />
+         <Stack.Screen name="VideoImageViewer" component={UserVideoViewer} />
       </Stack.Navigator>
   );
 }

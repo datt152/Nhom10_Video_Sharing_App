@@ -22,6 +22,7 @@ const ProfileScreen: React.FC = () => {
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [likedVideo, setLikedVideo] = useState<'videos' | 'images'>('images');
 
+
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const [loadingContent, setLoadingContent] = useState(false);
   const navigation: any = useNavigation();
@@ -105,14 +106,18 @@ const ProfileScreen: React.FC = () => {
 
           <View style={styles.contentBox}>
             <ProfileVideoList
-              videos={privacy === 'public' ? publicVideos : privateVideos}
+              videos={privacy === 'public' ? publicVideos : privateVideos} // ✅ Đổi từ userVideos → đúng biến filter
               privacy={privacy}
-              loading={loadingContent || videoLoading}
+              loading={loadingContent || videoLoading} // ✅ Đổi từ loading → biến đang dùng
+              onPressVideo={(video) => {
+                navigation.navigate('VideoScreen', { video }); // 👈 gửi video qua trang chi tiết
+              }}
             />
           </View>
         </>
       );
     }
+
 
     // ❤️ TAB LIKE
     if (menu === 'liked') {
