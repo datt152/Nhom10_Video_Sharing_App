@@ -17,23 +17,23 @@ import { useImage } from '../hooks/useImage';
 import ProfileImageList from './profileTab/ProfileImageList';
 import { CURRENT_USER_ID, useVideo } from '../hooks/useVideo';
 import ProfileVideoList from './profileTab/ProfileVideoList';
+
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [likedVideo, setLikedVideo] = useState<'videos' | 'images'>('images');
-
-
-  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const [loadingContent, setLoadingContent] = useState(false);
+
   const navigation: any = useNavigation();
   const { currentUser, loadUser, loading: userLoading } = useUser();
   const { followerCount, followingCount, loading: followerLoading } = useFollower();
+  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
+  const { videos, loading: videoLoading } = useVideo();
 
+  const publicVideos = videos.filter((v) => v.isPublic);
+  const privateVideos = videos.filter((v) => !v.isPublic);
   const isLoading = userLoading || followerLoading;
-  const { videos, loading: videoLoading, loadVideosByUser } = useVideo();
 
-  const publicVideos = videos.filter((v) => v.isPublic === true);
-  const privateVideos = videos.filter((v) => v.isPublic === false);
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);
@@ -53,21 +53,17 @@ const ProfileScreen: React.FC = () => {
   );
 
   const renderContent = () => {
-    // 🖼 TAB HÌNH ẢNH
     if (menu === 'images') {
       return (
         <>
           <View style={styles.privacyMenu}>
-            <TouchableOpacity onPress={() => setPrivacy('public')}>
-              <Text style={[styles.privacyText, privacy === 'public' && styles.activePrivacy]}>
-                Công khai
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setPrivacy('private')}>
-              <Text style={[styles.privacyText, privacy === 'private' && styles.activePrivacy]}>
-                Riêng tư
-              </Text>
-            </TouchableOpacity>
+            {['public', 'private'].map((type) => (
+              <TouchableOpacity key={type} onPress={() => setPrivacy(type as any)}>
+                <Text style={[styles.privacyText, privacy === type && styles.activePrivacy]}>
+                  {type === 'public' ? 'Công khai' : 'Riêng tư'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View style={styles.contentBox}>
@@ -87,41 +83,32 @@ const ProfileScreen: React.FC = () => {
       );
     }
 
-    // 🎬 TAB VIDEO
     if (menu === 'videos') {
       return (
         <>
           <View style={styles.privacyMenu}>
-            <TouchableOpacity onPress={() => setPrivacy('public')}>
-              <Text style={[styles.privacyText, privacy === 'public' && styles.activePrivacy]}>
-                Công khai
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setPrivacy('private')}>
-              <Text style={[styles.privacyText, privacy === 'private' && styles.activePrivacy]}>
-                Riêng tư
-              </Text>
-            </TouchableOpacity>
+            {['public', 'private'].map((type) => (
+              <TouchableOpacity key={type} onPress={() => setPrivacy(type as any)}>
+                <Text style={[styles.privacyText, privacy === type && styles.activePrivacy]}>
+                  {type === 'public' ? 'Công khai' : 'Riêng tư'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View style={styles.contentBox}>
             <ProfileVideoList
-              videos={privacy === 'public' ? publicVideos : privateVideos} // ✅ Đổi từ userVideos → đúng biến filter
+              videos={privacy === 'public' ? publicVideos : privateVideos}
               privacy={privacy}
-              loading={loadingContent || videoLoading} // ✅ Đổi từ loading → biến đang dùng
-              onPressVideo={(video) => {
-                navigation.navigate('VideoScreen', { video }); // 👈 gửi video qua trang chi tiết
-              }}
+              loading={loadingContent || videoLoading}
+              onPressVideo={(video) => navigation.navigate('VideoScreen', { video })}
             />
           </View>
         </>
       );
     }
 
-
-    // ❤️ TAB LIKE
     if (menu === 'liked') {
-      // lọc video & hình mà user đã like
       const likedVideos = videos.filter((v) => v.likedBy?.includes(CURRENT_USER_ID));
       const likedImages = [...publicImages, ...privateImages].filter((img) =>
         img.likeBy?.includes(CURRENT_USER_ID)
@@ -130,33 +117,26 @@ const ProfileScreen: React.FC = () => {
       return (
         <>
           <View style={styles.privacyMenu}>
-            <TouchableOpacity onPress={() => setLikedVideo('videos')}>
-              <Text style={[styles.privacyText, likedVideo === 'videos' && styles.activePrivacy]}>
-                Videos
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setLikedVideo('images')}>
-              <Text style={[styles.privacyText, likedVideo === 'images' && styles.activePrivacy]}>
-                Images
-              </Text>
-            </TouchableOpacity>
+            {['videos', 'images'].map((type) => (
+              <TouchableOpacity key={type} onPress={() => setLikedVideo(type as any)}>
+                <Text style={[styles.privacyText, likedVideo === type && styles.activePrivacy]}>
+                  {type === 'videos' ? 'Videos' : 'Images'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View style={styles.contentBox}>
             {likedVideo === 'videos' ? (
-              <ProfileVideoList
-                videos={privacy === 'public' ? publicVideos : privateVideos}
-                privacy={privacy}
-                loading={loadingContent || videoLoading}
-              />
+              <ProfileVideoList videos={likedVideos} privacy="public" loading={videoLoading} />
             ) : (
               <ProfileImageList
-                images={privacy === 'public' ? publicImages : privateImages}
-                privacy={privacy}
-                loading={loadingContent || imageLoading}
+                images={likedImages}
+                privacy="public"
+                loading={imageLoading}
                 onPressImage={(img) =>
                   navigation.navigate('UserVideoViewer', {
-                    videos: [...publicImages, ...privateImages], // hoặc images đã like
+                    videos: likedImages,
                     initialVideoId: img.id,
                   })
                 }
@@ -167,7 +147,6 @@ const ProfileScreen: React.FC = () => {
       );
     }
 
-    // 🔹 Mặc định (fallback)
     return (
       <View style={styles.contentBox}>
         <Text style={styles.contentText}>Không có nội dung hiển thị</Text>
@@ -175,17 +154,16 @@ const ProfileScreen: React.FC = () => {
     );
   };
 
-
   if (isLoading || !currentUser) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#FF4EB8" />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Thông tin người dùng */}
       <View style={styles.profileTop}>
         <View style={styles.avatarWrapper}>
@@ -195,22 +173,20 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.name} numberOfLines={1}>
-          {currentUser.fullname}
-        </Text>
+        <Text style={styles.name}>{currentUser.fullname}</Text>
         <Text style={styles.username}>@{currentUser.username}</Text>
-        <Text style={styles.username}>{currentUser.bio}</Text>
-        {/* Liên kết khác */}
+        <Text style={styles.bio}>{currentUser.bio}</Text>
+
+        {/* Liên kết */}
         {Array.isArray(currentUser.externalLinks) && currentUser.externalLinks.length > 0 && (
           <View style={styles.linkContainer}>
-
             {currentUser.externalLinks.map((link, index) => (
               <TouchableOpacity
                 key={index}
                 onPress={() => Linking.openURL(link)}
                 style={styles.linkItem}
               >
-                <Ionicons name="link-outline" size={18} color="#007AFF" style={styles.linkIcon} />
+                <Ionicons name="link-outline" size={18} color="#FF4EB8" style={styles.linkIcon} />
                 <Text style={styles.linkText} numberOfLines={1}>
                   {link}
                 </Text>
@@ -219,7 +195,7 @@ const ProfileScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Follow / Follower / Like */}
+        {/* Thống kê */}
         <View style={styles.statsRow}>
           <TouchableOpacity
             style={styles.statItem}
@@ -239,7 +215,7 @@ const ProfileScreen: React.FC = () => {
 
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{currentUser.likes}</Text>
-            <Text style={styles.statLabel}>Like</Text>
+            <Text style={styles.statLabel}>Likes</Text>
           </View>
         </View>
 
@@ -247,22 +223,20 @@ const ProfileScreen: React.FC = () => {
           style={styles.editBtn}
           onPress={() => navigation.navigate('EditProfile' as never)}
         >
-          <Ionicons name="pencil-outline" size={16} color="#333" />
+          <Ionicons name="pencil-outline" size={16} color="#FF4EB8" />
           <Text style={styles.editText}>Sửa hồ sơ</Text>
         </TouchableOpacity>
       </View>
 
       {/* Menu chính */}
       <View style={styles.menu}>
-        <TouchableOpacity onPress={() => setMenu('videos')}>
-          <Text style={[styles.menuText, menu === 'videos' && styles.activeMenu]}>Video</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setMenu('images')}>
-          <Text style={[styles.menuText, menu === 'images' && styles.activeMenu]}>Image</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setMenu('liked')}>
-          <Text style={[styles.menuText, menu === 'liked' && styles.activeMenu]}>Like</Text>
-        </TouchableOpacity>
+        {['videos', 'images', 'liked'].map((type) => (
+          <TouchableOpacity key={type} onPress={() => setMenu(type as any)}>
+            <Text style={[styles.menuText, menu === type && styles.activeMenu]}>
+              {type === 'videos' ? 'Video' : type === 'images' ? 'Image' : 'Like'}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Nội dung */}
@@ -275,114 +249,68 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   profileTop: {
     alignItems: 'center',
-    paddingTop: 25,
+    paddingVertical: 25,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingBottom: 15,
   },
   avatarWrapper: { position: 'relative' },
-  avatar: { width: 100, height: 100, borderRadius: 100 },
+  avatar: { width: 110, height: 110, borderRadius: 100, borderWidth: 2, borderColor: '#FF4EB8' },
   addIcon: {
     position: 'absolute',
     bottom: 0,
-    right: 5,
+    right: 8,
     backgroundColor: '#FF4EB8',
     borderRadius: 50,
-    padding: 3,
+    padding: 4,
   },
-  name: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 8,
-    maxWidth: '80%',
-    textAlign: 'center',
-    color: '#333',
+  name: { fontSize: 18, fontWeight: '700', marginTop: 10, color: '#333' },
+  username: { fontSize: 14, color: '#888' },
+  bio: { fontSize: 13, color: '#666', marginTop: 5, textAlign: 'center', paddingHorizontal: 20 },
+  linkContainer: {
+    width: '85%',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    paddingVertical: 6,
+    marginTop: 10,
   },
-  username: { fontSize: 14, color: '#999', marginTop: 2 },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 5,
-    gap: 30,
-  },
+  linkItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginVertical: 4 },
+  linkIcon: { marginRight: 8 },
+  linkText: { color: '#FF4EB8', fontSize: 13, textDecorationLine: 'underline' },
+  statsRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 10, gap: 30 },
   statItem: { alignItems: 'center' },
   statValue: { fontSize: 16, fontWeight: '700', color: '#333' },
   statLabel: { fontSize: 13, color: '#777' },
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginTop: 10,
+    backgroundColor: '#ffe6f3',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 12,
   },
-  editText: { fontSize: 13, color: '#333', marginLeft: 4 },
+  editText: { fontSize: 13, color: '#FF4EB8', fontWeight: '600', marginLeft: 5 },
   menu: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#eee',
     paddingVertical: 10,
+    marginTop: 10,
   },
   menuText: { fontSize: 15, color: '#777' },
-  activeMenu: { color: '#FF4EB8', fontWeight: '600' },
+  activeMenu: { color: '#FF4EB8', fontWeight: '700' },
   privacyMenu: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 8,
-    gap: 20,
+    marginTop: 12,
+    gap: 25,
   },
-  privacyText: { fontSize: 14, color: '#888' },
-  activePrivacy: { color: '#FF4EB8', fontWeight: '600' },
+  privacyText: { fontSize: 14, color: '#aaa' },
+  activePrivacy: { color: '#FF4EB8', fontWeight: '700' },
   contentBox: { alignItems: 'center', paddingVertical: 20 },
   contentText: { fontSize: 15, color: '#777', marginTop: 10 },
-  linkContainer: {
-    marginTop: 2,
-    marginLeft: 100,
-    alignSelf: 'center',
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ffffff',
-    shadowColor: '#ffffff',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    alignContent: "center"
-  },
-
-  linkTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'left', // hoặc 'center' nếu muốn canh giữa
-  },
-
-  linkItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 8,
-    marginBottom: 6,
-  },
-
-  linkIcon: {
-    marginRight: 8,
-  },
-
-  linkText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#007AFF',
-    textDecorationLine: 'underline',
-  },
-
 });
