@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Image,
@@ -10,16 +10,34 @@ import {
 import { Video as VideoType } from '../../types/database.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useComments } from '../../hooks/useComment'; // ✅ thêm import
 
 type Props = {
     videos: VideoType[];
     privacy: 'public' | 'private';
     loading: boolean;
-    onPressVideo?: (video: VideoType) => void; // ✅ thêm dòng này
+    onPressVideo?: (video: VideoType) => void;
 };
 
 const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
     const navigation = useNavigation<any>();
+    const { countCommentsByVideo } = useComments(''); // ✅ dùng hàm này
+
+    const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        const fetchCommentCounts = async () => {
+            const counts: Record<string, number> = {};
+            for (const v of videos) {
+                counts[v.id] = await countCommentsByVideo(v.id);
+            }
+            setCommentCounts(counts);
+        };
+
+        if (videos.length > 0) {
+            fetchCommentCounts();
+        }
+    }, [videos]);
 
     if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
 
@@ -57,10 +75,7 @@ const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
                             onPress={() => handlePressVideo(video)}
                             activeOpacity={0.8}
                         >
-                            <Image
-                                source={{ uri: video.thumbnail }}
-                                style={styles.imageBox}
-                            />
+                            <Image source={{ uri: video.thumbnail }} style={styles.imageBox} />
                             <View style={styles.overlay}>
                                 <View style={styles.iconRow}>
                                     <View style={styles.iconGroup}>
@@ -68,8 +83,10 @@ const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
                                         <Text style={styles.iconText}>{video.likeCount ?? 0}</Text>
                                     </View>
                                     <View style={styles.iconGroup}>
-                                        <Ionicons name="eye" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>{video.views ?? 0}</Text>
+                                        <Ionicons name="chatbubble" size={14} color="#fff" />
+                                        <Text style={styles.iconText}>
+                                            {commentCounts[video.id] ?? 0}
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
@@ -108,3 +125,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileVideoList;
+

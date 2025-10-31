@@ -282,7 +282,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 1,
       "shareCount": 0,
       "views": 0,
@@ -301,9 +301,7 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     },
     {
       "id": "v1761849039838",
@@ -312,7 +310,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 0,
       "shareCount": 0,
       "views": 0,
@@ -331,9 +329,7 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     }
   ],
   "comments": [

@@ -27,11 +27,11 @@ export const useComments = (videoId: string) => {
     setLoading(true);
     try {
       console.log('🔄 Fetching comments for video:', videoId);
-      
+
       // 1️⃣ Fetch tất cả comments
       const commentsRes = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
       const allComments = commentsRes.data;
-      
+
       console.log('📋 Raw comments:', allComments);
 
       // 2️⃣ Lấy danh sách unique userIds
@@ -39,7 +39,7 @@ export const useComments = (videoId: string) => {
       console.log('👥 Unique user IDs:', userIds);
 
       // 3️⃣ Fetch tất cả users cùng lúc
-      const usersPromises = userIds.map(userId => 
+      const usersPromises = userIds.map(userId =>
         axios.get(`${API_BASE_URL}/users/${userId}`)
           .then(res => res.data)
           .catch(err => {
@@ -208,6 +208,19 @@ export const useComments = (videoId: string) => {
     }
   }, []);
 
+  // 🔢 Đếm số lượng comment thật theo videoId
+  const countCommentsByVideo = useCallback(async (videoId: string) => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
+      return res.data.length; // ✅ Số comment thực tế
+    } catch (err) {
+      console.error('Error counting comments:', err);
+      return 0;
+    }
+  }, []);
+
+
+
   return {
     comments,
     loading,
@@ -215,5 +228,6 @@ export const useComments = (videoId: string) => {
     addComment,
     deleteComment,
     likeComment,
+    countCommentsByVideo,
   };
 };

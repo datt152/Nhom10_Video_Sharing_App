@@ -17,13 +17,18 @@ import { useComments } from '../hooks/useComment';
 import CommentModalVideo from '../components/CommentModalVideo';
 import { useVideo } from '../hooks/useVideo';
 
+import { useNavigation } from '@react-navigation/native';
+
 interface VideoCardProps {
     video: VideoType;
     isFollowing: boolean;
     currentUserId: string;
+    onToggleLike: (userId: string) => void;
     onToggleFollow: (userId: string) => void;
     isActive?: boolean;
     musics?: Music[];
+    isLiked?: boolean;
+
 }
 
 const VideoCard: React.FC<VideoCardProps> = ({
@@ -42,11 +47,11 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const spinAnim = useRef(new Animated.Value(0)).current;
     const videoRef = useRef<Video | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-
+    //const { countCommentsByVideo } = useComments('');
     // 🧩 Lấy hàm từ useVideo
     const { likeVideo, unlikeVideo, getLikeCount } = useVideo();
-    const { comments, fetchComments, addComment, deleteComment, likeComment } = useComments(String(video.id));
-
+    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByVideo } = useComments(String(video.id));
+    const navigation = useNavigation();
     const music = musics.find((m) => m.id === video.musicId);
     const likeCount = getLikeCount(video.id);
 
@@ -157,6 +162,13 @@ const VideoCard: React.FC<VideoCardProps> = ({
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
             <TouchableOpacity activeOpacity={0.9} style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
+                {/* 🔙 Nút quay lại */}
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={28} color="#fff" />
+                </TouchableOpacity>
                 <Video
                     ref={videoRef}
                     source={{ uri: video.url }}
@@ -195,7 +207,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                         {/* 💬 Bình luận */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
+                            <Text style={styles.actionText}>{formatNumber(getLikeCount(video.id))}</Text>
                         </TouchableOpacity>
 
                         {/* 👁 Lượt xem */}
@@ -284,5 +296,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 10,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 40,         // tuỳ chỉnh cao thấp
+        left: 16,
+        zIndex: 10,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderRadius: 30,
+        padding: 6,
     },
 });
