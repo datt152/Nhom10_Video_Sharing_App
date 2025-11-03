@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.65.2:3000';
+const API_BASE_URL = 'http://192.168.1.166:3000';
 export const CURRENT_USER_ID = 'u1';
 
 export const useVideo = () => {
@@ -19,20 +19,17 @@ export const useVideo = () => {
   const fetchVideos = useCallback(async () => {
     setLoading(true);
     try {
-      const [videosRes, usersRes, musicRes] = await Promise.all([
+      const [videosRes, usersRes] = await Promise.all([
         api.get('/videos'),
         api.get('/users'),
-        api.get('/music'),
       ]);
 
       const videosData = videosRes.data;
       const usersData = usersRes.data;
-      const musicData = musicRes.data;
 
       const enrichedVideos = videosData.map((video: any) => ({
         ...video,
         user: usersData.find((u: any) => u.id === video.userId),
-        music: musicData.find((m: any) => m.id === video.musicId),
         isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
       }));
 
@@ -245,19 +242,45 @@ export const useVideo = () => {
       return 0;
     }
   };
+  // 8️⃣ GET VIDEO BY ID
+const getVideoById = async (id: string): Promise<Video | null> => {
+  try {
+    const [videoRes, userRes] = await Promise.all([
+      api.get(`/videos/${id}`),
+      api.get(`/users`),
+    ]);
+
+    const video = videoRes.data;
+    const users = userRes.data;
+
+    const enrichedVideo = {
+      ...video,
+      user: users.find((u: any) => u.id === video.userId),
+      isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+    };
+
+    return enrichedVideo;
+  } catch (error) {
+    console.error("Error fetching video by id:", error);
+    return null;
+  }
+};
+
 
   return {
-    videos,
-    loading,
-    followingStatus,
-    currentUserId: CURRENT_USER_ID,
-    toggleLike,
-    toggleFollow,
-    refreshVideos: fetchVideos,
-    loadVideosByUser,
-    likeVideo,
-    unlikeVideo,
-    getLikeCount,
-    countCommentsByVideo
-  };
+  videos,
+  loading,
+  followingStatus,
+  currentUserId: CURRENT_USER_ID,
+  toggleLike,
+  toggleFollow,
+  refreshVideos: fetchVideos,
+  loadVideosByUser,
+  likeVideo,
+  unlikeVideo,
+  getLikeCount,
+  countCommentsByVideo,
+  getVideoById, 
+};
+
 };

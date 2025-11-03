@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
-import ExploreScreen from '../screens/ExploreScreen';
+import FriendScreen from '../screens/FriendScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
@@ -15,13 +15,14 @@ import FollowersScreen from "../screens/profileTab/FollowersScreen";
 import OtherProfileScreen from '../screens/profileTab/OtherProfileScreen';
 import EditVideoScreen from '../screens/EditVideoScreen';
 import CameraRecordScreen from '../screens/CameraRecordingScreen';
-import UserImageViewer from '../screens/profileTab/UserImageViewer'
-import UserVideoViewer from '../screens/profileTab/UserVideoViewer'
+import UserImageViewer from '../screens/profileTab/UserImageViewer';
+import UserVideoViewer from '../screens/profileTab/UserVideoViewer';
+import EditImageScreen from '../screens/EditImageScreen';
+import VideoCard from '../components/VideoCard'; // ✅ thêm import
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-
-// ✅ Custom Upload Button (giống TikTok)
 function UploadButton() {
   const navigation = useNavigation();
   return (
@@ -33,7 +34,7 @@ function UploadButton() {
         backgroundColor: '#FF4EB8',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20, // nâng nút lên một chút
+        marginBottom: 20,
         shadowColor: '#FF4EB8',
         shadowOpacity: 0.4,
         shadowRadius: 10,
@@ -46,7 +47,6 @@ function UploadButton() {
   );
 }
 
-// ✅ Bottom Tabs (4 tab, không có Upload)
 function BottomTabs() {
   return (
     <Tab.Navigator
@@ -70,19 +70,16 @@ function BottomTabs() {
           tabBarIcon: ({ color }) => <Ionicons name="search" size={26} color={color} />,
         }}
       />
-
-      {/* Nút Upload ở giữa */}
       <Tab.Screen
         name="UploadButton"
-        component={View} // không có màn hình thật
+        component={View}
         options={{
-          tabBarButton: () => <UploadButton />, // custom button
+          tabBarButton: () => <UploadButton />,
         }}
       />
-
       <Tab.Screen
-        name="Explore"
-        component={ExploreScreen}
+        name="Fiend"
+        component={FriendScreen}
         options={{
           tabBarIcon: ({ color }) => <Ionicons name="compass" size={26} color={color} />,
         }}
@@ -98,29 +95,34 @@ function BottomTabs() {
   );
 }
 
-// ✅ Stack Navigator
 export default function AppNavigator() {
   return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main" component={BottomTabs} />
-        <Stack.Screen name="Notification" component={NotificationScreen} />
-        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        <Stack.Screen name="Followers" component={FollowersScreen} />
-        <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={BottomTabs} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="Followers" component={FollowersScreen} />
+      <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} />
+      <Stack.Screen
+        name="CameraRecord"
+        component={CameraRecordScreen}
+        options={{ presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
+        name="EditVideo"
+        component={EditVideoScreen}
+        options={{ presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen name="UserImageViewer" component={UserImageViewer} />
+      <Stack.Screen name="UserVideoViewer" component={UserVideoViewer} />
+      <Stack.Screen name="EditImage" component={EditImageScreen} />
 
-        {/* Camera và EditVideo — ẩn tab bar */}
-        <Stack.Screen
-          name="CameraRecord"
-          component={CameraRecordScreen}
-          options={{ presentation: 'fullScreenModal' }}
-        />
-        <Stack.Screen
-          name="EditVideo"
-          component={EditVideoScreen}
-          options={{ presentation: 'fullScreenModal' }}
-        />
-        <Stack.Screen name="UserImageViewer" component={UserImageViewer} />
-         <Stack.Screen name="UserVideoViewer" component={UserVideoViewer} />
-      </Stack.Navigator>
+      {/* ✅ Thêm màn hình VideoCard để xem chi tiết video */}
+      <Stack.Screen
+        name="VideoCard"
+        component={VideoCard}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 }

@@ -7,19 +7,12 @@ import {
   Dimensions,
   StatusBar,
   Alert,
-  Modal,
-  FlatList,
-  Image,
-  TextInput,
-  _View
 } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
 import { CameraView, CameraType, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { Audio, Video } from 'expo-av';
+import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { useMusic } from '../hooks/useMusic';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -34,8 +27,10 @@ const CameraRecordScreen: React.FC = () => {
   const [cameraType, setCameraType] = useState<CameraType>('back');
   const [torchEnabled, setTorchEnabled] = useState(false);
 
+  // ✅ State cho chế độ: 'video' hoặc 'photo'
+  const [mode, setMode] = useState<'video' | 'photo'>('video');
+
   const [isRecording, setIsRecording] = useState(false);
-  const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
 
   const [musicUri, setMusicUri] = useState<string | null>(null);
@@ -47,58 +42,10 @@ const CameraRecordScreen: React.FC = () => {
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isRecordingRef = useRef<boolean>(false);
 
-  const { musicList, selectedMusic, fetchMusic, selectMusic } = useMusic();
-  const [showMusicModal, setShowMusicModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('ForYou');
-  const [searchText, setSearchText] = useState('');
-
-  useEffect(() => {
-    fetchMusic(); // Lấy danh sách nhạc khi mở màn hình
-  }, []);
-
-  // 🎧 Khi user chọn nhạc, tự khởi tạo Audio.Sound để phát khi quay
-  useEffect(() => {
-    const setupSound = async () => {
-      try {
-        if (selectedMusic?.uri) {
-          console.log('🎧 [setupSound] Tạo mới sound object cho:', selectedMusic.title);
-
-          // Dừng và hủy sound cũ nếu có
-          if (sound) {
-            await sound.stopAsync();
-            await sound.unloadAsync();
-            console.log('🧹 [setupSound] Đã dọn sound cũ');
-          }
-
-          // Tạo sound mới
-          const { sound: newSound } = await Audio.Sound.createAsync(
-            { uri: selectedMusic.uri },
-            { shouldPlay: false }
-          );
-
-          setSound(newSound);
-          setMusicUri(selectedMusic.uri);
-          console.log('✅ [setupSound] Sound object created & ready');
-        } else {
-          console.log('🚫 [setupSound] Không có selectedMusic.uri — bỏ qua');
-          setSound(null);
-        }
-      } catch (err) {
-        console.error('❌ [setupSound] Lỗi khi tạo sound:', err);
-        setSound(null);
-      }
-    };
-
-    setupSound();
-  }, [selectedMusic]);
-
-
-
   useFocusEffect(
     React.useCallback(() => {
       console.log('📱 [useFocusEffect] Screen focused');
       isScreenActiveRef.current = true;
-      setRecordedVideo(null);
       setRecordingTime(0);
       setIsRecording(false);
       setTorchEnabled(false);
@@ -121,7 +68,6 @@ const CameraRecordScreen: React.FC = () => {
         if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
         if (countdownRef.current) clearInterval(countdownRef.current);
 
-        // stop music nếu đang phát
         if (sound) {
           sound.stopAsync();
           sound.unloadAsync();
@@ -159,7 +105,49 @@ const CameraRecordScreen: React.FC = () => {
     setTorchEnabled((prev) => !prev);
   };
 
+  // ✅ Chụp ảnh
+  const takePicture = async () => {
+    if (!cameraRef.current) return;
 
+    if (timerDelay) {
+      setCountdown(timerDelay);
+      let timeLeft = timerDelay;
+      countdownRef.current = setInterval(() => {
+        timeLeft -= 1;
+        if (timeLeft > 0) setCountdown(timeLeft);
+        else {
+          clearInterval(countdownRef.current!);
+          setCountdown(null);
+          takePictureNow();
+        }
+      }, 1000);
+      return;
+    }
+
+    takePictureNow();
+  };
+
+  const takePictureNow = async () => {
+    try {
+      console.log('📸 [takePictureNow] Chụp ảnh...');
+      const photo = await cameraRef.current!.takePictureAsync({
+        quality: 1,
+        exif: false,
+      });
+
+      if (photo && isScreenActiveRef.current) {
+        console.log('✅ [takePictureNow] Ảnh đã chụp:', photo.uri);
+        navigation.navigate('EditImage' as never, {
+          imageUri: photo.uri,
+        } as never);
+      }
+    } catch (error) {
+      console.error('❌ [takePictureNow] Error:', error);
+      Alert.alert('Error', 'Failed to take picture');
+    }
+  };
+
+  // ✅ Quay video
   const startRecording = async () => {
     if (!cameraRef.current || isRecordingRef.current) return;
 
@@ -188,22 +176,15 @@ const CameraRecordScreen: React.FC = () => {
       setRecordingTime(0);
 
       console.log('🎬 [startRecordingNow] Bắt đầu quay...');
-      console.log('🎧 [Debug] musicUri =', musicUri);
-      console.log('🎧 [Debug] selectedMusic =', selectedMusic);
-      console.log('🎧 [Debug] sound =', sound ? '✅ Có sound object' : '❌ Không có sound');
 
       if (musicUri && sound) {
         try {
-          console.log('🎵 [startRecordingNow] Phát nhạc từ đầu...');
           await sound.setPositionAsync(0);
           await sound.playAsync();
         } catch (err) {
           console.log('⚠️ [startRecordingNow] Lỗi khi phát nhạc:', err);
         }
-      } else {
-        console.log('🚫 [startRecordingNow] Không có nhạc được chọn hoặc sound chưa khởi tạo.');
       }
-
 
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
@@ -221,7 +202,6 @@ const CameraRecordScreen: React.FC = () => {
 
         navigation.navigate('EditVideo' as never, {
           videoUri: video.uri,
-          musicUri: musicUri || null,
         } as never);
       }
     } catch (error) {
@@ -237,20 +217,14 @@ const CameraRecordScreen: React.FC = () => {
     console.log('🛑 [stopRecording] Đang dừng quay...');
     if (cameraRef.current && isRecordingRef.current) {
       try {
-        console.log('📹 [stopRecording] Gọi stopRecording() của camera...');
         cameraRef.current.stopRecording();
       } catch (e) {
         console.log('⚠️ [stopRecording] Lỗi khi dừng camera:', e);
       }
     }
 
-
     if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-    if (sound) {
-      console.log('🔇 [stopRecording] Dừng nhạc phát cùng video...');
-      await sound.stopAsync();
-    }
-
+    if (sound) await sound.stopAsync();
 
     isRecordingRef.current = false;
     setIsRecording(false);
@@ -259,21 +233,28 @@ const CameraRecordScreen: React.FC = () => {
   const handleUpload = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         quality: 1,
         videoMaxDuration: 60,
       });
+
       if (!result.canceled && result.assets[0]) {
-        const uri = result.assets[0].uri;
-        navigation.navigate('EditVideo' as never, {
-          videoUri: uri,
-          musicUri: musicUri || null,
-        } as never);
+        const asset = result.assets[0];
+
+        if (asset.type === 'video') {
+          navigation.navigate('EditVideo' as never, {
+            videoUri: asset.uri,
+          } as never);
+        } else if (asset.type === 'image') {
+          navigation.navigate('EditImage' as never, {
+            imageUri: asset.uri,
+          } as never);
+        }
       }
     } catch (error) {
       console.error('❌ [handleUpload] Error:', error);
-      Alert.alert('Error', 'Failed to pick video');
+      Alert.alert('Error', 'Failed to pick media');
     }
   };
 
@@ -283,8 +264,21 @@ const CameraRecordScreen: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // ✅ Handle capture/record based on mode
+  const handleCapturePress = () => {
+    if (mode === 'photo') {
+      takePicture();
+    } else {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    }
+  };
+
   if (!cameraPermission || !micPermission) return <View style={styles.container} />;
-  if (!cameraPermission?.granted || !micPermission?.granted) return;
+  if (!cameraPermission?.granted || !micPermission?.granted) return null;
 
   return (
     <View style={styles.container}>
@@ -295,8 +289,8 @@ const CameraRecordScreen: React.FC = () => {
         style={styles.camera}
         facing={cameraType}
         enableTorch={torchEnabled}
-        mode="video"
-        videoQuality='480p'
+        mode={mode === 'video' ? 'video' : 'picture'}
+        videoQuality="480p"
       >
         {countdown !== null && (
           <View style={styles.countdownOverlay}>
@@ -310,15 +304,6 @@ const CameraRecordScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.centerTop}>
-            {selectedMusic && (
-              <View style={styles.selectedMusicLabel}>
-                <Ionicons name="musical-notes" size={16} color="#fff" style={{ marginRight: 6 }} />
-                <Text style={styles.selectedMusicText} numberOfLines={1}>
-                  {selectedMusic?.title ?? 'Add audio'}
-
-                </Text>
-              </View>
-            )}
             {isRecording && (
               <View style={styles.recordingIndicator}>
                 <View style={styles.recordingDot} />
@@ -336,16 +321,6 @@ const CameraRecordScreen: React.FC = () => {
             <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
             <Text style={styles.toolText}>Flip</Text>
           </TouchableOpacity>
-
-          {/* 🎵 Replace Filter with Music */}
-          <TouchableOpacity
-            style={styles.tool}
-            onPress={() => setShowMusicModal(true)}
-          >
-            <Ionicons name="musical-notes" size={28} color="#fff" />
-
-          </TouchableOpacity>
-
 
           <TouchableOpacity
             style={styles.tool}
@@ -374,23 +349,50 @@ const CameraRecordScreen: React.FC = () => {
 
         {/* Bottom controls */}
         <View style={styles.bottomControls}>
-          <TouchableOpacity style={styles.bottomButton}>
-            <View style={styles.effectButton}>
-              <Ionicons name="happy-outline" size={24} color="#fff" />
-            </View>
-            <Text style={styles.bottomButtonText}>Effect</Text>
-          </TouchableOpacity>
+          <View style={styles.effectButton} />
 
-          <View style={styles.recordButtonContainer}>
-            {isRecording ? (
-              <TouchableOpacity style={styles.recordButton} onPress={stopRecording}>
-                <View style={styles.stopButton} />
+          {/* ✅ Tab selector + Capture button */}
+          <View style={styles.captureWrapper}>
+            {/* Tab selector trên nút */}
+            <View style={styles.modeTabContainer}>
+              <TouchableOpacity
+                style={[styles.modeTab, mode === 'photo' && styles.modeTabActive]}
+                onPress={() => setMode('photo')}
+              >
+                <Text style={[styles.modeTabText, mode === 'photo' && styles.modeTabTextActive]}>
+                  Photo
+                </Text>
               </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
-                <View style={styles.recordInner} />
+
+              <TouchableOpacity
+                style={[styles.modeTab, mode === 'video' && styles.modeTabActive]}
+                onPress={() => setMode('video')}
+              >
+                <Text style={[styles.modeTabText, mode === 'video' && styles.modeTabTextActive]}>
+                  Video
+                </Text>
               </TouchableOpacity>
-            )}
+            </View>
+
+            {/* Capture/Record button */}
+            <TouchableOpacity
+              style={styles.recordButtonContainer}
+              onPress={handleCapturePress}
+            >
+              {mode === 'video' ? (
+                <View style={[styles.recordButton, isRecording && styles.recordingButton]}>
+                  {isRecording ? (
+                    <View style={styles.stopButton} />
+                  ) : (
+                    <View style={styles.recordInner} />
+                  )}
+                </View>
+              ) : (
+                <View style={styles.captureButton}>
+                  <View style={styles.captureInner} />
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.bottomButton} onPress={handleUpload}>
@@ -401,75 +403,6 @@ const CameraRecordScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </CameraView>
-      <Modal
-        visible={showMusicModal}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowMusicModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {/* Header */}
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add audio</Text>
-              <TouchableOpacity onPress={() => setShowMusicModal(false)}>
-                <Ionicons name="close" size={24} color="#555" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Ô tìm kiếm */}
-            <View style={styles.searchRow}>
-              <Ionicons name="search" size={20} color="#777" style={{ marginRight: 8 }} />
-              <TextInput
-                placeholder="Search music..."
-                placeholderTextColor="#888"
-                style={styles.searchInput}
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-            </View>
-
-            {/* Danh sách nhạc */}
-            <FlatList
-              data={musicList.filter(m =>
-                m.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                m.artist.toLowerCase().includes(searchText.toLowerCase())
-              )}
-              keyExtractor={(item, index) => item?.id ?? index.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.musicItem}>
-                  <TouchableOpacity
-                    style={[
-                      styles.useButton,
-                      selectedMusic?.id === item.id && { borderColor: '#FF4EB8', borderWidth: 2 },
-                    ]}
-                    onPress={() => {
-                      selectMusic(item);
-                    }}
-                  >
-                    <Image source={{ uri: item.cover }} style={styles.musicCover} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.musicTitle} numberOfLines={1}>{item.title}</Text>
-                      <Text style={styles.musicArtist}>{item.artist}</Text>
-                    </View>
-                    <Ionicons
-                      name={
-                        selectedMusic?.id === item.id
-                          ? 'checkmark-circle'
-                          : 'musical-notes-outline'
-                      }
-                      size={22}
-                      color={selectedMusic?.id === item.id ? '#FF4EB8' : '#888'}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
-
-
     </View>
   );
 };
@@ -481,23 +414,6 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-  },
-  permissionText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  permissionButton: {
-    backgroundColor: '#FF4EB8',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  permissionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   topBar: {
     flexDirection: 'row',
@@ -557,7 +473,11 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+  },
+  effectButton: {
+    width: 44,
+    height: 44,
   },
   bottomButton: {
     alignItems: 'center',
@@ -566,16 +486,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     marginTop: 8,
-  },
-  effectButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   uploadButton: {
     width: 44,
@@ -586,6 +496,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  // ✅ Capture wrapper với tab
+  captureWrapper: {
+    alignItems: 'center',
+  },
+  modeTabContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 20,
+    padding: 3,
+    marginBottom: 12,
+    gap: 4,
+  },
+  modeTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  modeTabActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  modeTabText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  modeTabTextActive: {
+    color: '#FF3B5C',
   },
   recordButtonContainer: {
     width: 80,
@@ -603,6 +541,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  recordingButton: {
+    borderColor: '#fff',
+  },
   recordInner: {
     width: 60,
     height: 60,
@@ -615,22 +556,21 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#FF3B5C',
   },
-  preview: {
-    flex: 1,
-  },
-  nextButton: {
-    flexDirection: 'row',
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'transparent',
+    borderWidth: 5,
+    borderColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF3B5C',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
-    gap: 6,
   },
-  nextText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  captureInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FF3B5C',
   },
   countdownOverlay: {
     position: 'absolute',
@@ -646,94 +586,6 @@ const styles = StyleSheet.create({
     fontSize: 120,
     color: '#fff',
     fontWeight: '700',
-  },
-  selectMusicButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginBottom: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: '70%',
-    padding: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: { fontSize: 18, fontWeight: 'bold' },
-  tabRow: { flexDirection: 'row', marginBottom: 15 },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabButtonActive: { borderBottomColor: '#FF4EB8' },
-  tabText: { color: '#888' },
-  tabTextActive: { color: '#FF4EB8', fontWeight: 'bold' },
-  musicItem: {
-    alignItems: 'center',
-    marginBottom: 15,
-    borderColor: 'white'
-  },
-  musicCover: { width: 50, height: 50, borderRadius: 50, marginRight: 20 },
-  musicTitle: { fontWeight: '600' },
-  musicArtist: { color: '#999', fontSize: 12 },
-  useButton: {
-    borderWidth: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    flexDirection: 'row',
-    borderColor: '#FF4EB8',
-    alignItems: 'center'
-
-  },
-  useButtonText: { color: '#FF4EB8', fontWeight: 'bold' },
-  selectedMusicLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 6,
-    maxWidth: '80%',
-  },
-  selectedMusicText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 15,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#333',
   },
 });
 

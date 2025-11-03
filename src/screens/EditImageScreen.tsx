@@ -1,115 +1,60 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
   TextInput,
-  ScrollView,
+  TouchableOpacity,
   Image,
+  StyleSheet,
   Alert,
+  ScrollView,
   ActivityIndicator,
   Switch,
   Modal,
-  FlatList,
 } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-import { useUser } from '../hooks/useUser';
 
 const API_BASE_URL = 'http://192.168.1.166:3000';
 const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
 const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
-const CURRENT_USER_ID = 'u1';
+const CURRENT_USER_ID = 'u4';
 
-interface TaggedUser {
-  id: string;
-  username: string;
-  fullname: string;
-  avatar: string;
-}
-
-const EditVideoScreen: React.FC = () => {
+const EditImageScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { videoUri } = route.params as { videoUri: string };
-  const videoRef = useRef<Video>(null);
-
-  const { fetchFriendsList } = useUser();
+  const { imageUri } = route.params as { imageUri: string };
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [hashtagInput, setHashtagInput] = useState('');
-  const [taggedPeople, setTaggedPeople] = useState<TaggedUser[]>([]);
+  const [taggedPeople, setTaggedPeople] = useState<any[]>([]);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
   const [whoCanWatch, setWhoCanWatch] = useState('Công khai');
   const [shareToFacebook, setShareToFacebook] = useState(false);
   const [shareToTwitter, setShareToTwitter] = useState(false);
   const [shareToInstagram, setShareToInstagram] = useState(false);
-
+  
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showTagModal, setShowTagModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  const [friendsList, setFriendsList] = useState<TaggedUser[]>([]);
-  const [loadingFriends, setLoadingFriends] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    if (showTagModal) {
-      loadFriends();
-    }
-  }, [showTagModal]);
-
-  const loadFriends = async () => {
-    setLoadingFriends(true);
-    try {
-      const friends = await fetchFriendsList();
-      setFriendsList(friends);
-    } catch (error) {
-      console.error('Error loading friends:', error);
-    } finally {
-      setLoadingFriends(false);
-    }
-  };
-
-  const toggleTagUser = (user: TaggedUser) => {
-    const isTagged = taggedPeople.some(p => p.id === user.id);
-    
-    if (isTagged) {
-      setTaggedPeople(taggedPeople.filter(p => p.id !== user.id));
-    } else {
-      setTaggedPeople([...taggedPeople, user]);
-    }
-  };
-
-  const removeTag = (userId: string) => {
-    setTaggedPeople(taggedPeople.filter(p => p.id !== userId));
-  };
-
-  const filteredFriends = friendsList.filter(friend =>
-    friend.fullname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    friend.username?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const uploadToCloudinary = async (uri: string): Promise<string> => {
     const formData = new FormData();
-    const uriParts = uri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
+    const fileType = uri.split('.').pop() || 'jpg';
 
     formData.append('file', {
       uri,
-      type: `video/${fileType}`,
-      name: `video_${Date.now()}.${fileType}`,
+      type: `image/${fileType}`,
+      name: `image_${Date.now()}.${fileType}`,
     } as any);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
     const response = await axios.post(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`,
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -118,6 +63,7 @@ const EditVideoScreen: React.FC = () => {
         },
       }
     );
+
     return response.data.secure_url;
   };
 
@@ -139,82 +85,38 @@ const EditVideoScreen: React.FC = () => {
     }
 
     setUploading(true);
+
     try {
-      const cloudinaryUrl = await uploadToCloudinary(videoUri);
+      const imageUrl = await uploadToCloudinary(imageUri);
 
-      const db = await axios.get(`${API_BASE_URL}/users`);
-      const currentUser = db.data.find((u: any) => u.id === CURRENT_USER_ID);
-
-      const newVideo = {
-        id: `v${Date.now()}`,
-        userId: CURRENT_USER_ID,
+      const newImagePost = {
+        id: `i${Date.now()}`,
+        imageUrl,
         title: title.trim(),
         caption: description.trim(),
         tags: hashtags,
         taggedUsers: taggedPeople.map(p => p.id),
         commentsEnabled,
         privacy: whoCanWatch,
-        url: cloudinaryUrl,
-        thumbnail: cloudinaryUrl.replace('.mp4', '.jpg'),
-        likeCount: 0,
-        commentCount: 0,
-        shareCount: 0,
-        views: 0,
         createdAt: new Date().toISOString(),
-        isPublic: whoCanWatch === 'Công khai',
-        user: {
-          id: currentUser.id,
-          username: currentUser.username,
-          fullname: currentUser.fullname,
-          avatar: currentUser.avatar,
-        },
-        likedBy: [],
+        userId: CURRENT_USER_ID,
       };
 
-      await axios.post(`${API_BASE_URL}/videos`, newVideo);
-      Alert.alert('Thành công! 🎉', 'Video của bạn đã được đăng!', [
+      await axios.post(`${API_BASE_URL}/images`, newImagePost);
+
+      Alert.alert('Thành công 🎉', 'Ảnh của bạn đã được đăng!', [
         { text: 'OK', onPress: () => navigation.navigate('Main' as never) },
       ]);
     } catch (error) {
       console.error('Upload error:', error);
-      Alert.alert('Lỗi', 'Không thể tải video lên');
+      Alert.alert('Lỗi', 'Không thể tải ảnh lên');
     } finally {
       setUploading(false);
     }
   };
 
   const handleSaveDraft = () => {
-    Alert.alert('Đã lưu bản nháp', 'Video của bạn đã được lưu dưới dạng bản nháp');
-  };
-
-  const renderFriendItem = ({ item }: { item: TaggedUser }) => {
-    const isTagged = taggedPeople.some(p => p.id === item.id);
-
-    return (
-      <TouchableOpacity
-        style={styles.friendItem}
-        onPress={() => toggleTagUser(item)}
-      >
-        <View style={styles.friendLeft}>
-          <Image
-            source={{ uri: item.avatar || 'https://via.placeholder.com/50' }}
-            style={styles.friendAvatar}
-          />
-          <View style={styles.friendInfo}>
-            <Text style={styles.friendName}>{item.fullname || item.username}</Text>
-            <Text style={styles.friendUsername}>@{item.username}</Text>
-          </View>
-        </View>
-        
-        <View style={styles.friendRight}>
-          {isTagged ? (
-            <Ionicons name="checkmark-circle" size={24} color="#FF3B5C" />
-          ) : (
-            <View style={styles.uncheckedCircle} />
-          )}
-        </View>
-      </TouchableOpacity>
-    );
+    Alert.alert('Đã lưu bản nháp', 'Bài đăng của bạn đã được lưu dưới dạng bản nháp');
   };
 
   return (
@@ -224,23 +126,15 @@ const EditVideoScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Đăng video</Text>
+        <Text style={styles.headerTitle}>Đăng bài</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Video Preview */}
-        <View style={styles.videoContainer}>
-          <Video
-            ref={videoRef}
-            source={{ uri: videoUri }}
-            style={styles.videoPreview}
-            useNativeControls
-            shouldPlay={false}
-            isLooping={false}
-            resizeMode={ResizeMode.CONTAIN}
-          />
-          
+        {/* Image Preview */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+         
         </View>
 
         {/* Title */}
@@ -300,6 +194,8 @@ const EditVideoScreen: React.FC = () => {
           </View>
         </View>
 
+      
+
         {/* Comments */}
         <View style={styles.row}>
           <Text style={styles.rowLabel}>Bình luận</Text>
@@ -335,6 +231,7 @@ const EditVideoScreen: React.FC = () => {
 
       {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
+        
         <TouchableOpacity
           style={[styles.postButton, uploading && { opacity: 0.5 }]}
           onPress={handlePost}
@@ -357,37 +254,7 @@ const EditVideoScreen: React.FC = () => {
                 <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
-
-            <View style={styles.searchContainer}>
-              <Ionicons name="search" size={20} color="#999" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Tìm kiếm bạn bè..."
-                placeholderTextColor="#999"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-            </View>
-
-            {loadingFriends ? (
-              <ActivityIndicator size="large" color="#FF3B5C" style={{ marginTop: 40 }} />
-            ) : (
-              <FlatList
-                data={filteredFriends}
-                renderItem={renderFriendItem}
-                keyExtractor={(item) => item.id}
-                style={styles.friendsList}
-                ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <Ionicons name="people-outline" size={60} color="#ccc" />
-                    <Text style={styles.emptyText}>
-                      {searchQuery ? 'Không tìm thấy' : 'Chưa có bạn bè'}
-                    </Text>
-                  </View>
-                }
-              />
-            )}
-
+            <Text style={styles.modalSubtext}>Tìm kiếm và chọn người để gắn thẻ</Text>
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => setShowTagModal(false)}
@@ -454,15 +321,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
-  videoContainer: {
+  imageContainer: {
     alignItems: 'center',
     marginVertical: 20,
   },
-  videoPreview: {
+  imagePreview: {
     width: 200,
     height: 280,
     borderRadius: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#f0f0f0',
   },
   changeCoverButton: {
     marginTop: 12,
@@ -549,32 +416,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FF3B5C',
   },
-  taggedList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  taggedChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFE4EC',
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    gap: 6,
-  },
-  taggedAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  taggedName: {
-    color: '#FF3B5C',
-    fontSize: 14,
-    fontWeight: '500',
-  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
@@ -651,7 +492,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: '80%',
+    minHeight: 300,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -664,81 +505,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#333',
-  },
-  friendsList: {
-    maxHeight: 400,
-  },
-  friendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  friendLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  friendAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 12,
-  },
-  friendInfo: {
-    flex: 1,
-  },
-  friendName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  friendUsername: {
+  modalSubtext: {
     fontSize: 14,
     color: '#999',
-    marginTop: 2,
-  },
-  friendRight: {
-    marginLeft: 8,
-  },
-  uncheckedCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#ddd',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999',
-    marginTop: 12,
+    marginBottom: 20,
   },
   modalButton: {
     backgroundColor: '#FF3B5C',
     borderRadius: 25,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
   },
   modalButtonText: {
     color: '#fff',
@@ -759,4 +536,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditVideoScreen;
+export default EditImageScreen;

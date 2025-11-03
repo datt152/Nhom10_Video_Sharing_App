@@ -15,8 +15,7 @@
         "u4"
       ],
       "followingIds": [
-        "u4",
-        "u3"
+        "u2"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
@@ -37,7 +36,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
+      ],
+      "followerCount": 1
     },
     {
       "id": "u3",
@@ -54,7 +54,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
+      ],
+      "followerCount": 0
     },
     {
       "id": "u4",
@@ -70,30 +71,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
-    }
-  ],
-  "music": [
-    {
-      "id": "m1",
-      "title": "Quay đi quay lại",
-      "artist": "HIEUTHUHAI",
-      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
-      "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-    },
-    {
-      "id": "m2",
-      "title": "Night Drive",
-      "artist": "Zayne",
-      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
-      "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-    },
-    {
-      "id": "m3",
-      "title": "Chill Beats",
-      "artist": "Lowkey",
-      "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
-      "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
+      ],
+      "followerCount": 0
     }
   ],
   "images": [
@@ -158,6 +137,31 @@
       "userId": "u1",
       "location": "Hội An",
       "isPublic": false
+    },
+    {
+      "id": "i1762175658889",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762175658/mhynyife5dj833semze4.jpg",
+      "caption": "Ẻm thất tình",
+      "tags": [
+        "Meowww"
+      ],
+      "createdAt": "2025-11-03T13:14:18.889Z",
+      "userId": "u4"
+    },
+    {
+      "id": "i1762186851210",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762186850/ulzw2xre0bky4i1zlxkb.jpg",
+      "title": "Con dàng con ngọc",
+      "caption": "Mẻ ngủ mà nết dị không đó",
+      "tags": [
+        "Meow",
+        "MyDieu"
+      ],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "privacy": "Friends",
+      "createdAt": "2025-11-03T16:20:51.210Z",
+      "userId": "u4"
     }
   ],
   "videos": [
@@ -167,8 +171,8 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "musicId": "m1",
       "likeCount": 2,
+
       "commentCount": 14,
       "shareCount": 89,
       "views": 25002,
@@ -179,13 +183,6 @@
         "username": "linhnguyen",
         "fullname": "Linh Nguyễn",
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      },
-      "music": {
-        "id": "m1",
-        "title": "Quay đi quay lại",
-        "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
         "u2",
@@ -230,8 +227,8 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
-      "likeCount": 0,
-      "commentCount": 1,
+      "likeCount": 1,
+      "commentCount": 0,
       "shareCount": 156,
       "views": 36000,
       "createdAt": "2025-10-12T08:00:00Z",
@@ -259,7 +256,7 @@
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
       "likeCount": 2,
-      "commentCount": 0,
+      "commentCount": 1,
       "shareCount": 43,
       "views": 21000,
       "createdAt": "2025-10-15T09:30:00Z",
@@ -290,7 +287,7 @@
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
       "likeCount": 1,
-      "commentCount": 1,
+      "commentCount": 6,
       "shareCount": 0,
       "views": 0,
       "createdAt": "2025-10-30T16:28:21.895Z",
@@ -358,98 +355,424 @@
       "parentId": null
     },
     {
-      "id": "c1762160411770",
-      "imageId": "i1",
+      "id": "c1762159400144",
+      "videoId": "v1",
       "userId": "u1",
-      "content": "ttttt",
-      "createdAt": "2025-11-03T09:00:11.770Z",
+      "content": "fffff",
+      "createdAt": "2025-11-03T08:43:20.144Z",
       "likeCount": 1,
       "likedBy": [
         "u1"
       ],
-      "replyCount": 2,
+      "replyCount": 0,
       "parentId": null
     },
     {
-      "id": "c1762183402208",
+      "id": "c1762159414885",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "fffff",
+      "createdAt": "2025-11-03T08:43:34.885Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762159445054",
+      "videoId": "v4",
+      "userId": "u1",
+      "content": "eo ou sap dien mat",
+      "createdAt": "2025-11-03T08:44:05.054Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762159498596",
       "videoId": "v1",
+      "userId": "u1",
+      "content": "fffffhhh",
+      "createdAt": "2025-11-03T08:44:58.596Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762159510806",
+      "videoId": "v4",
       "userId": "u1",
       "content": "hhhh",
-      "createdAt": "2025-11-03T15:23:22.208Z",
+      "createdAt": "2025-11-03T08:45:10.806Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 1,
+      "parentId": null
+    },
+    {
+      "id": "c1762159517351",
+      "videoId": "v4",
+      "userId": "u1",
+      "content": "gggg",
+      "createdAt": "2025-11-03T08:45:17.351Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
-      "parentId": "c1762149724273"
+      "parentId": "c1762159510806"
     },
     {
-      "id": "c1762183416086",
+      "id": "c1762179545751",
       "videoId": "v1",
       "userId": "u1",
-      "content": "ffff",
-      "createdAt": "2025-11-03T15:23:36.086Z",
+      "content": "Có tăng đâ",
+      "createdAt": "2025-11-03T14:19:05.751Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
       "parentId": null
     },
     {
-      "id": "c1762183420277",
+      "id": "c1762179630656",
       "videoId": "v1",
       "userId": "u1",
-      "content": "yyyyyyyyyyyyyyyyyyyyyyyyyy",
-      "createdAt": "2025-11-03T15:23:40.277Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762184562521",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "ggggg",
-      "createdAt": "2025-11-03T15:42:42.521Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762185008241",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "ffff",
-      "createdAt": "2025-11-03T15:50:08.241Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
-      "replyCount": 0,
-      "parentId": "c1762160411770"
-    },
-    {
-      "id": "c1762186077561",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "dddd",
-      "createdAt": "2025-11-03T16:07:57.561Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762186083581",
-      "imageId": "i2",
-      "userId": "u1",
-      "content": "ddddd",
-      "createdAt": "2025-11-03T16:08:03.581Z",
+      "content": "Hi",
+      "createdAt": "2025-11-03T14:20:30.656Z",
       "likeCount": 1,
       "likedBy": [
         "u1"
       ],
       "replyCount": 0,
       "parentId": null
+    },
+    {
+      "id": "c1762179840854",
+      "videoId": "v3",
+      "userId": "u1",
+      "content": "Hiing",
+      "createdAt": "2025-11-03T14:24:00.854Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "You",
+        "fullname": "You",
+        "avatar": "https://via.placeholder.com/40"
+      },
+      "isLiked": false,
+      "replies": [],
+      "_local": true
+    },
+    {
+      "id": "c1762179986533",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "Mệt",
+      "createdAt": "2025-11-03T14:26:26.533Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762180202805",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "Ho",
+      "createdAt": "2025-11-03T14:30:02.805Z",
+
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762180303214",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "Ê",
+      "createdAt": "2025-11-03T14:31:43.214Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181117018",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "Gjj",
+      "createdAt": "2025-11-03T14:45:17.018Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181120423",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "Dhah",
+      "createdAt": "2025-11-03T14:45:20.423Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181123530",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "Dbaj",
+      "createdAt": "2025-11-03T14:45:23.530Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181125529",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "Sjsbs",
+      "createdAt": "2025-11-03T14:45:25.529Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181129224",
+      "videoId": "v1761841701895",
+      "userId": "u1",
+      "content": "Sgiabs",
+      "createdAt": "2025-11-03T14:45:29.224Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
+    },
+    {
+      "id": "c1762181283442",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "fasdf",
+      "createdAt": "2025-11-03T14:48:03.442Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [
