@@ -10,11 +10,10 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { Video, Audio } from 'expo-av';
+import { Video, Audio, ResizeMode } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { useMusic } from '../hooks/useMusic';
 
 const API_BASE_URL = 'http://192.168.1.125:3000';
 const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
@@ -34,74 +33,12 @@ const EditVideoScreen: React.FC = () => {
   const route = useRoute();
   const { videoUri, musicUri: passedMusicUri } = route.params as { videoUri: string; musicUri?: string };
   const videoRef = useRef<Video>(null);
-  const { musicList, fetchMusic } = useMusic();
 
   const [title, setTitle] = useState('');
-  const [selectedMusic, setSelectedMusic] = useState<MusicOption | null>(null);
   const [showMusicPicker, setShowMusicPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
-
-  // Fetch music list
-  useEffect(() => {
-    fetchMusic();
-  }, []);
-
-  // Set selectedMusic if passedMusicUri exists
-  useEffect(() => {
-    if (passedMusicUri && musicList.length > 0) {
-      const found = musicList.find((m) => m.uri === passedMusicUri);
-      if (found) setSelectedMusic(found);
-      else setSelectedMusic({ id: 'custom', title: 'Custom Audio', artist: '', cover: '', uri: passedMusicUri });
-    }
-  }, [passedMusicUri, musicList]);
-
-  // Setup Audio.Sound with looping
-  useEffect(() => {
-    if (!selectedMusic?.uri) return;
-
-    let isUnmounted = false;
-    const setupSound = async () => {
-      try {
-        if (sound) await sound.unloadAsync();
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: selectedMusic.uri },
-          { shouldPlay: false, isLooping: true } // loop nhạc
-        );
-        setSound(newSound);
-      } catch (err) {
-        console.error('❌ Error creating sound:', err);
-      }
-    };
-
-    setupSound();
-
-    return () => {
-      isUnmounted = true;
-      if (sound) sound.unloadAsync();
-    };
-  }, [selectedMusic]);
-
-  // Sync video & music
-  const handlePlaybackStatusUpdate = async (status: any) => {
-    if (!sound) return;
-
-    if (status.isPlaying) {
-      const musicStatus = await sound.getStatusAsync();
-      if (!musicStatus.isPlaying) {
-        // sync nhạc theo vị trí video
-        if (musicStatus.durationMillis) {
-          const pos = status.positionMillis % musicStatus.durationMillis;
-          await sound.setPositionAsync(pos);
-        }
-        await sound.playAsync();
-      }
-    } else if (!status.isPlaying) {
-      const musicStatus = await sound.getStatusAsync();
-      if (musicStatus.isPlaying) await sound.pauseAsync();
-    }
-  };
 
   const uploadToCloudinary = async (uri: string): Promise<string> => {
     const formData = new FormData();
@@ -133,10 +70,7 @@ const EditVideoScreen: React.FC = () => {
       Alert.alert('Error', 'Please enter a title');
       return;
     }
-    if (!selectedMusic?.uri) {
-      Alert.alert('Error', 'Please select music before posting');
-      return;
-    }
+
 
     setUploading(true);
     try {
@@ -151,7 +85,6 @@ const EditVideoScreen: React.FC = () => {
         title: title.trim(),
         url: cloudinaryUrl,
         thumbnail: cloudinaryUrl.replace('.mp4', '.jpg'),
-        musicId: selectedMusic.id,
         likeCount: 0,
         commentCount: 0,
         shareCount: 0,
@@ -163,13 +96,6 @@ const EditVideoScreen: React.FC = () => {
           username: currentUser.username,
           fullname: currentUser.fullname,
           avatar: currentUser.avatar,
-        },
-        music: {
-          id: selectedMusic.id,
-          title: selectedMusic.title,
-          artist: selectedMusic.artist,
-          cover: selectedMusic.cover,
-          uri: selectedMusic.uri,
         },
         likedBy: [],
       };
@@ -202,19 +128,17 @@ const EditVideoScreen: React.FC = () => {
 
       <ScrollView style={styles.content}>
         {/* Video Preview */}
-        <View style={styles.videoPreview}>
-          <Video
-            ref={videoRef}
-            source={{ uri: videoUri }}
-            style={styles.video}
-            useNativeControls
-            shouldPlay={false}
-            isLooping={false}
-            isMuted={!!selectedMusic?.uri}
-            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-            resizeMode="contain"
-          />
-        </View>
+  <View style={styles.videoPreview}>
+    <Video
+      ref={videoRef}
+      source={{ uri: videoUri }}
+      style={styles.video}
+      useNativeControls
+      shouldPlay={false}
+      isLooping={false}
+      resizeMode={ResizeMode.CONTAIN}
+    />
+  </View>
 
         {/* Caption */}
         <View style={styles.section}>
@@ -229,56 +153,6 @@ const EditVideoScreen: React.FC = () => {
             editable={!uploading}
           />
           <Text style={styles.charCount}>{title.length}/100</Text>
-        </View>
-
-        {/* Music Selection */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Music</Text>
-          {selectedMusic ? (
-            <View style={styles.musicSelector}>
-              {selectedMusic.cover ? (
-                <Image source={{ uri: selectedMusic.cover }} style={styles.musicCover} />
-              ) : (
-                <Ionicons name="musical-notes" size={30} color="#FF4EB8" style={{ marginRight: 12 }} />
-              )}
-              <View style={styles.musicInfo}>
-                <Text style={styles.musicTitle}>{selectedMusic.title}</Text>
-                <Text style={styles.musicArtist}>{selectedMusic.artist}</Text>
-              </View>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.musicSelector}
-              onPress={() => !uploading && setShowMusicPicker(!showMusicPicker)}
-            >
-              <Text style={{ color: '#666' }}>Select music...</Text>
-              <Ionicons name="chevron-forward" size={24} color="#666" />
-            </TouchableOpacity>
-          )}
-
-          {showMusicPicker && (
-            <View style={[styles.musicList, { maxHeight: 300 }]}>
-              {musicList.map((music) => (
-                <TouchableOpacity
-                  key={music.id}
-                  style={styles.musicItem}
-                  onPress={() => {
-                    setSelectedMusic(music);
-                    setShowMusicPicker(false);
-                  }}
-                >
-                  <Image source={{ uri: music.cover }} style={styles.musicCover} />
-                  <View style={styles.musicInfo}>
-                    <Text style={styles.musicTitle}>{music.title}</Text>
-                    <Text style={styles.musicArtist}>{music.artist}</Text>
-                  </View>
-                  {selectedMusic?.id === music.id && (
-                    <Ionicons name="checkmark-circle" size={24} color="#FF4EB8" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
         </View>
 
         {uploading && (

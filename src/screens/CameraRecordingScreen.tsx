@@ -19,8 +19,6 @@ import { Audio, Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { useMusic } from '../hooks/useMusic';
-
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CameraRecordScreen: React.FC = () => {
@@ -47,52 +45,9 @@ const CameraRecordScreen: React.FC = () => {
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isRecordingRef = useRef<boolean>(false);
 
-  const { musicList, selectedMusic, fetchMusic, selectMusic } = useMusic();
   const [showMusicModal, setShowMusicModal] = useState(false);
   const [activeTab, setActiveTab] = useState('ForYou');
   const [searchText, setSearchText] = useState('');
-
-  useEffect(() => {
-    fetchMusic(); // Lấy danh sách nhạc khi mở màn hình
-  }, []);
-
-  // 🎧 Khi user chọn nhạc, tự khởi tạo Audio.Sound để phát khi quay
-  useEffect(() => {
-    const setupSound = async () => {
-      try {
-        if (selectedMusic?.uri) {
-          console.log('🎧 [setupSound] Tạo mới sound object cho:', selectedMusic.title);
-
-          // Dừng và hủy sound cũ nếu có
-          if (sound) {
-            await sound.stopAsync();
-            await sound.unloadAsync();
-            console.log('🧹 [setupSound] Đã dọn sound cũ');
-          }
-
-          // Tạo sound mới
-          const { sound: newSound } = await Audio.Sound.createAsync(
-            { uri: selectedMusic.uri },
-            { shouldPlay: false }
-          );
-
-          setSound(newSound);
-          setMusicUri(selectedMusic.uri);
-          console.log('✅ [setupSound] Sound object created & ready');
-        } else {
-          console.log('🚫 [setupSound] Không có selectedMusic.uri — bỏ qua');
-          setSound(null);
-        }
-      } catch (err) {
-        console.error('❌ [setupSound] Lỗi khi tạo sound:', err);
-        setSound(null);
-      }
-    };
-
-    setupSound();
-  }, [selectedMusic]);
-
-
 
   useFocusEffect(
     React.useCallback(() => {
@@ -189,7 +144,6 @@ const CameraRecordScreen: React.FC = () => {
 
       console.log('🎬 [startRecordingNow] Bắt đầu quay...');
       console.log('🎧 [Debug] musicUri =', musicUri);
-      console.log('🎧 [Debug] selectedMusic =', selectedMusic);
       console.log('🎧 [Debug] sound =', sound ? '✅ Có sound object' : '❌ Không có sound');
 
       if (musicUri && sound) {
@@ -221,7 +175,6 @@ const CameraRecordScreen: React.FC = () => {
 
         navigation.navigate('EditVideo' as never, {
           videoUri: video.uri,
-          musicUri: musicUri || null,
         } as never);
       }
     } catch (error) {
@@ -257,25 +210,35 @@ const CameraRecordScreen: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-        quality: 1,
-        videoMaxDuration: 60,
-      });
-      if (!result.canceled && result.assets[0]) {
-        const uri = result.assets[0].uri;
+  try {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All, // hỗ trợ cả Video + Image
+      allowsEditing: true,
+      quality: 1,
+      videoMaxDuration: 60,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+
+      if (asset.type === 'video') {
+        // nếu là video
         navigation.navigate('EditVideo' as never, {
-          videoUri: uri,
-          musicUri: musicUri || null,
+          videoUri: asset.uri,
+        } as never);
+      } else if (asset.type === 'image') {
+        // nếu là ảnh, có thể mở màn hình EditImage (nếu có) hoặc xử lý trực tiếp
+        navigation.navigate('EditImage' as never, {
+          imageUri: asset.uri,
         } as never);
       }
-    } catch (error) {
-      console.error('❌ [handleUpload] Error:', error);
-      Alert.alert('Error', 'Failed to pick video');
     }
-  };
+  } catch (error) {
+    console.error('❌ [handleUpload] Error:', error);
+    Alert.alert('Error', 'Failed to pick media');
+  }
+};
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -310,15 +273,6 @@ const CameraRecordScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.centerTop}>
-            {selectedMusic && (
-              <View style={styles.selectedMusicLabel}>
-                <Ionicons name="musical-notes" size={16} color="#fff" style={{ marginRight: 6 }} />
-                <Text style={styles.selectedMusicText} numberOfLines={1}>
-                  {selectedMusic?.title ?? 'Add audio'}
-
-                </Text>
-              </View>
-            )}
             {isRecording && (
               <View style={styles.recordingIndicator}>
                 <View style={styles.recordingDot} />
@@ -429,42 +383,7 @@ const CameraRecordScreen: React.FC = () => {
               />
             </View>
 
-            {/* Danh sách nhạc */}
-            <FlatList
-              data={musicList.filter(m =>
-                m.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                m.artist.toLowerCase().includes(searchText.toLowerCase())
-              )}
-              keyExtractor={(item, index) => item?.id ?? index.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.musicItem}>
-                  <TouchableOpacity
-                    style={[
-                      styles.useButton,
-                      selectedMusic?.id === item.id && { borderColor: '#FF4EB8', borderWidth: 2 },
-                    ]}
-                    onPress={() => {
-                      selectMusic(item);
-                    }}
-                  >
-                    <Image source={{ uri: item.cover }} style={styles.musicCover} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.musicTitle} numberOfLines={1}>{item.title}</Text>
-                      <Text style={styles.musicArtist}>{item.artist}</Text>
-                    </View>
-                    <Ionicons
-                      name={
-                        selectedMusic?.id === item.id
-                          ? 'checkmark-circle'
-                          : 'musical-notes-outline'
-                      }
-                      size={22}
-                      color={selectedMusic?.id === item.id ? '#FF4EB8' : '#888'}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
+  
           </View>
         </View>
       </Modal>
