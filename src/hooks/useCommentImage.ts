@@ -19,7 +19,7 @@ interface Comment {
     replies?: Comment[];
 }
 
-export const useImageComments = (imageId: string) => {
+export const useImageComments = (imageId?: string) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -27,11 +27,9 @@ export const useImageComments = (imageId: string) => {
         if (!imageId) return;
         setLoading(true);
         try {
-            // ✅ chỉ lấy comment của ảnh hiện tại
             const res = await axios.get(`${API_BASE_URL}/comments`);
             const allComments = res.data.filter((c: any) => c.imageId === imageId);
 
-            // lấy danh sách user
             const userIds = [...new Set(allComments.map((c: any) => c.userId))];
             const users = await Promise.all(
                 userIds.map(async (uid) => {
@@ -91,7 +89,6 @@ export const useImageComments = (imageId: string) => {
             try {
                 await axios.post(`${API_BASE_URL}/comments`, newComment);
 
-                // nếu là reply thì tăng replyCount cho cha
                 if (parentId) {
                     const parent = await axios.get(`${API_BASE_URL}/comments/${parentId}`);
                     await axios.patch(`${API_BASE_URL}/comments/${parentId}`, {
@@ -99,7 +96,6 @@ export const useImageComments = (imageId: string) => {
                     });
                 }
 
-                // tăng commentCount trong ảnh
                 const imgRes = await axios.get(`${API_BASE_URL}/images/${imageId}`);
                 await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
                     commentCount: (imgRes.data.commentCount || 0) + 1,
@@ -175,5 +171,25 @@ export const useImageComments = (imageId: string) => {
         }
     }, []);
 
-    return { comments, loading, fetchComments, addComment, deleteComment, likeComment };
+    // ✅ Tổng số comment (bao gồm reply)
+    const countCommentsByImage = useCallback(async (imageId: string) => {
+        try {
+            const res = await axios.get(`${API_BASE_URL}/comments`);
+            const allComments = res.data.filter((c: any) => c.imageId === imageId);
+            return allComments.length;
+        } catch (err) {
+            console.error('Error counting comments by image:', err);
+            return 0;
+        }
+    }, []);
+
+    return {
+        comments,
+        loading,
+        fetchComments,
+        addComment,
+        deleteComment,
+        likeComment,
+        countCommentsByImage,
+    };
 };

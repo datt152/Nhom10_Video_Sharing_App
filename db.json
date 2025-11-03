@@ -115,7 +115,7 @@
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 3
+      "commentCount": 5
     },
     {
       "id": "i2",
@@ -135,7 +135,7 @@
       "userId": "u1",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
-      "commentCount": 3
+      "commentCount": 4
     },
     {
       "id": "i3",
@@ -359,9 +359,11 @@
       "userId": "u1",
       "content": "ttttt",
       "createdAt": "2025-11-03T09:00:11.770Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 1,
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 2,
       "parentId": null
     },
     {
@@ -405,6 +407,43 @@
       "createdAt": "2025-11-03T15:42:42.521Z",
       "likeCount": 0,
       "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762185008241",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "ffff",
+      "createdAt": "2025-11-03T15:50:08.241Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
+      "replyCount": 0,
+      "parentId": "c1762160411770"
+    },
+    {
+      "id": "c1762186077561",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "dddd",
+      "createdAt": "2025-11-03T16:07:57.561Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762186083581",
+      "imageId": "i2",
+      "userId": "u1",
+      "content": "ddddd",
+      "createdAt": "2025-11-03T16:08:03.581Z",
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
       "replyCount": 0,
       "parentId": null
     }
