@@ -14,10 +14,7 @@
         "u3",
         "u4"
       ],
-      "followingIds": [
-        "u4",
-        "u3"
-      ],
+      "followingIds": [],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
@@ -37,7 +34,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
+      ],
+      "followerCount": 0
     },
     {
       "id": "u3",
@@ -54,7 +52,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
+      ],
+      "followerCount": 0
     },
     {
       "id": "u4",
@@ -70,7 +69,8 @@
       ],
       "followingIds": [
         "u1"
-      ]
+      ],
+      "followerCount": 0
     }
   ],
   "images": [
