@@ -14,111 +14,83 @@ import {
 import { ResizeMode, Video, AVPlaybackStatus } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { Video as VideoType } from "../types/database.types";
+import { useRoute, useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import CommentModal from "./CommentModal";
 import { useComments } from "../hooks/useComment";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useVideo } from "../hooks/useVideo";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-interface VideoCardProps {
-  video: VideoType;
-  isActive: boolean; 
-  isFollowing: boolean;
-  currentUserId: string;
-  onToggleLike: (videoId: string) => void;
-  onToggleFollow: (userId: string) => void;
-}
-
-function VideoCard({
-  video,
-  isActive,
-  isFollowing,
-  currentUserId,
-  onToggleLike,
-  onToggleFollow,
-}: VideoCardProps) {
+function VideoCard() {
+  const route = useRoute();
+  const { id } = route.params as any;
+  const navigation = useNavigation();
+  const { getVideoById, toggleLike, toggleFollow, currentUserId } = useVideo();
+  const [video, setVideo] = useState<any>(null);
   const videoRef = useRef<Video>(null);
-
   const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showPlayButton, setShowPlayButton] = useState(false);
-  const [isScreenFocused, setIsScreenFocused] = useState(true);
-
-  const playButtonOpacity = useRef(new Animated.Value(0)).current;
-const isFocused = useIsFocused();
-  // Comments
   const [showComments, setShowComments] = useState(false);
-  const [localCommentCount, setLocalCommentCount] = useState(
-    video.commentCount
-  );
-  const {
-    comments,
-    fetchComments,
-    addComment,
-    deleteComment,
-    likeComment,
-  } = useComments(video.id);
+  const [localCommentCount, setLocalCommentCount] = useState(0);
+  const playButtonOpacity = useRef(new Animated.Value(0)).current;
+  const likeAnimation = useRef(new Animated.Value(0)).current;
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    setLocalCommentCount(video.commentCount);
-  }, [video.commentCount]);
+    const fetchVideo = async () => {
+      const data = await getVideoById(id);
+      setVideo(data);
+      setLocalCommentCount(data?.commentCount || 0);
+    };
+    fetchVideo();
+  }, [id]);
 
-  // Focus / background handling
+  const { comments, fetchComments, addComment, deleteComment, likeComment } =
+    useComments(video?.id);
+
+  useEffect(() => {
+    setLocalCommentCount(video?.commentCount || 0);
+  }, [video?.commentCount]);
+
+  // Pause video khi rời khỏi màn hình
   useFocusEffect(
     React.useCallback(() => {
-      setIsScreenFocused(true);
+      videoRef.current?.playAsync().catch(() => {});
       return () => {
-        setIsScreenFocused(false);
         videoRef.current?.pauseAsync().catch(() => {});
       };
-    }, [video.id])
+    }, [video?.id])
   );
-  useEffect(() => {
-  if (!isFocused) {
-    videoRef.current?.pauseAsync().catch(() => {});
-    videoRef.current?.unloadAsync().catch(() => {});
-  }
-}, [isFocused]);
+
+  // App background handling
   useEffect(() => {
     const subscription = AppState.addEventListener(
       "change",
       (nextAppState: AppStateStatus) => {
-        if (!isActive) return;
         if (nextAppState === "background" || nextAppState === "inactive") {
           videoRef.current?.pauseAsync().catch(() => {});
-        } else if (nextAppState === "active") {
-          videoRef.current?.playAsync().catch(() => {});
         }
       }
     );
     return () => subscription.remove();
-  }, [isActive]);
+  }, []);
 
-  // Play/pause video based on active
   useEffect(() => {
-    const managePlayback = async () => {
-      if (!isActive || !isScreenFocused) {
-        await videoRef.current?.pauseAsync();
-        return;
-      }
+    if (video?.id) fetchComments();
+  }, [video?.id]);
 
-      try {
-        const status = await videoRef.current?.getStatusAsync();
-        if (status?.isLoaded) {
-          await videoRef.current?.playAsync();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    managePlayback();
-  }, [isActive, isScreenFocused]);
+  // Pause khi mất focus
+  useEffect(() => {
+    if (!isFocused) {
+      videoRef.current?.pauseAsync().catch(() => {});
+      videoRef.current?.unloadAsync().catch(() => {});
+    }
+  }, [isFocused]);
 
-  const handlePlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (!status.isLoaded) return;
-
     const videoPos = status.positionMillis;
     setCurrentTime(videoPos / 1000);
     setDuration(status.durationMillis ? status.durationMillis / 1000 : 0);
@@ -128,7 +100,6 @@ const isFocused = useIsFocused();
     if (isPaused) {
       await videoRef.current?.playAsync();
       setIsPaused(false);
-      setShowPlayButton(false);
       Animated.timing(playButtonOpacity, {
         toValue: 0,
         duration: 300,
@@ -137,7 +108,6 @@ const isFocused = useIsFocused();
     } else {
       await videoRef.current?.pauseAsync();
       setIsPaused(true);
-      setShowPlayButton(true);
       Animated.spring(playButtonOpacity, {
         toValue: 1,
         useNativeDriver: true,
@@ -156,18 +126,58 @@ const isFocused = useIsFocused();
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const likeAnimation = useRef(new Animated.Value(0)).current;
   const likeScale = likeAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 1.3],
   });
 
+  const handleLike = async () => {
+    if (!video) return;
+    await toggleLike(video.id);
+
+    setVideo((prev: any) => ({
+      ...prev,
+      isLiked: !prev.isLiked,
+      likeCount: prev.isLiked ? prev.likeCount - 1 : prev.likeCount + 1,
+    }));
+  };
+
+  // ✅ Wrapper để cập nhật UI ngay lập tức khi thêm comment
+  const handleAddComment = async (content: string, parentId: string | null = null) => {
+    await addComment(content, parentId);
+    // Cập nhật count ngay lập tức
+    setLocalCommentCount(prev => prev + 1);
+  };
+
+  // ✅ Wrapper để cập nhật UI ngay lập tức khi xóa comment
+  const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+    const success = await deleteComment(commentId, parentId);
+    if (success) {
+      // Cập nhật count ngay lập tức
+      setLocalCommentCount(prev => Math.max(0, prev - 1));
+    }
+    return success;
+  };
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const isOwnVideo = video.user?.id === currentUserId;
+
+  if (!video) {
+    return (
+      <View style={{ flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "#fff" }}>Đang tải video...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       {/* Video */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={28} color="black" />
+      </TouchableOpacity>
       <View style={styles.videoWrapper}>
         <TouchableOpacity
           style={styles.videoContainer}
@@ -176,11 +186,11 @@ const isFocused = useIsFocused();
         >
           <Video
             ref={videoRef}
-            source={{ uri: video.url }}
+            source={{ uri: video?.url }}
             style={styles.video}
             resizeMode={ResizeMode.CONTAIN}
             isLooping
-            shouldPlay={isActive && isScreenFocused && !isPaused}
+            shouldPlay={!isPaused && isFocused}
             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
           />
 
@@ -207,50 +217,35 @@ const isFocused = useIsFocused();
       <View style={styles.bottomContent}>
         {/* Left info */}
         <View style={styles.leftContent}>
-          <Text style={styles.username}>
-            @{video.user?.username || "Unknown"}
-          </Text>
+          <Text style={styles.username}>@{video?.user?.username || "Unknown"}</Text>
           <Text style={styles.title} numberOfLines={2}>
-            {video.title || ""}
+            {video?.title || ""}
           </Text>
         </View>
 
-        {/* Right buttons */}
+        {/* Right actions */}
         <View style={styles.rightContent}>
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: video.user?.avatar || "https://via.placeholder.com/50" }}
+              source={{
+                uri: video?.user?.avatar || "https://via.placeholder.com/50",
+              }}
               style={styles.avatar}
             />
-            {!isOwnVideo && !isFollowing && (
-              <TouchableOpacity
-                style={styles.followButton}
-                onPress={() => onToggleFollow(video.user?.id || "")}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="add" size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
           </View>
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => onToggleLike(video.id)}
-          >
+          <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
               <Ionicons
-                name={video.isLiked ? "heart" : "heart-outline"}
+                name={video?.isLiked ? "heart" : "heart-outline"}
                 size={35}
-                color={video.isLiked ? "#FF3B5C" : "#fff"}
+                color={video?.isLiked ? "#FF3B5C" : "#fff"}
               />
             </Animated.View>
-            <Text style={styles.actionText}>{video.likeCount}</Text>
+            <Text style={styles.actionText}>{video?.likeCount || 0}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleOpenComments}
-          >
+          <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
             <Ionicons name="chatbubble-outline" size={32} color="#fff" />
             <Text style={styles.actionText}>{localCommentCount}</Text>
           </TouchableOpacity>
@@ -275,13 +270,13 @@ const isFocused = useIsFocused();
         onRequestClose={() => setShowComments(false)}
       >
         <CommentModal
-          videoId={video.id}
+          videoId={video?.id}
           comments={comments}
           currentUserId={currentUserId}
           isVisible={showComments}
           onClose={() => setShowComments(false)}
-          onAddComment={addComment}
-          onDeleteComment={deleteComment}
+          onAddComment={handleAddComment}
+          onDeleteComment={handleDeleteComment}
           onLikeComment={likeComment}
         />
       </Modal>
@@ -289,43 +284,37 @@ const isFocused = useIsFocused();
   );
 }
 
-export default memo(VideoCard, (prevProps, nextProps) => {
-  return (
-    prevProps.isActive === nextProps.isActive &&
-    prevProps.video.id === nextProps.video.id &&
-    prevProps.isFollowing === nextProps.isFollowing &&
-    prevProps.video.isLiked === nextProps.video.isLiked &&
-    prevProps.video.likeCount === nextProps.video.likeCount
-  );
-});
-
+export default memo(VideoCard);
 const styles = StyleSheet.create({
   container: {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    backgroundColor: "#000",
+    backgroundColor: "#dcc6c6ff",
     position: "relative",
   },
   videoWrapper: {
+    position: "absolute", // ✅ Thêm absolute
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#000",
+    bottom: 80, // ✅ Thêm bottom
+    backgroundColor: "#dec3c3ff",
     justifyContent: "center",
     alignItems: "center",
   },
   videoContainer: {
     width: "100%",
-    height: SCREEN_HEIGHT - 140,
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
-  video: { width: "100%", height: "100%", backgroundColor: "#000" },
+  video: { 
+    width: "100%", 
+    height: "100%", 
+    backgroundColor: "#f9e9e9ff" 
+  },
   centerPlayButton: {
     position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -50 }, { translateY: -50 }],
     justifyContent: "center",
     alignItems: "center",
   },
@@ -430,4 +419,15 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   progressFill: { height: "100%", backgroundColor: "#FF3B5C", borderRadius: 2 },
+  backButton: {
+  position: "absolute",
+  top: 16,
+  left: 16,
+  zIndex: 1000,
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: "center",
+  alignItems: "center",
+},
 });

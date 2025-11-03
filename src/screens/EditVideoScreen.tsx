@@ -15,18 +15,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.1.125:3000';
+const API_BASE_URL = 'http://192.168.1.166:3000';
 const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
 const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
 const CURRENT_USER_ID = 'u4';
-
-interface MusicOption {
-  id: string;
-  title: string;
-  artist: string;
-  cover: string;
-  uri?: string;
-}
 
 const EditVideoScreen: React.FC = () => {
   const navigation = useNavigation();

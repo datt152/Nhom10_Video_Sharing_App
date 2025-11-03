@@ -242,19 +242,45 @@ export const useVideo = () => {
       return 0;
     }
   };
+  // 8️⃣ GET VIDEO BY ID
+const getVideoById = async (id: string): Promise<Video | null> => {
+  try {
+    const [videoRes, userRes] = await Promise.all([
+      api.get(`/videos/${id}`),
+      api.get(`/users`),
+    ]);
+
+    const video = videoRes.data;
+    const users = userRes.data;
+
+    const enrichedVideo = {
+      ...video,
+      user: users.find((u: any) => u.id === video.userId),
+      isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+    };
+
+    return enrichedVideo;
+  } catch (error) {
+    console.error("Error fetching video by id:", error);
+    return null;
+  }
+};
+
 
   return {
-    videos,
-    loading,
-    followingStatus,
-    currentUserId: CURRENT_USER_ID,
-    toggleLike,
-    toggleFollow,
-    refreshVideos: fetchVideos,
-    loadVideosByUser,
-    likeVideo,
-    unlikeVideo,
-    getLikeCount,
-    countCommentsByVideo
-  };
+  videos,
+  loading,
+  followingStatus,
+  currentUserId: CURRENT_USER_ID,
+  toggleLike,
+  toggleFollow,
+  refreshVideos: fetchVideos,
+  loadVideosByUser,
+  likeVideo,
+  unlikeVideo,
+  getLikeCount,
+  countCommentsByVideo,
+  getVideoById, 
+};
+
 };
