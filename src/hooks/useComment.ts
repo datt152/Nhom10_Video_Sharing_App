@@ -19,7 +19,7 @@ interface Comment {
   replies?: Comment[];
 }
 
-export const useComments = (videoId: string) => {
+export const useComments = (videoId?: string) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -208,14 +208,64 @@ export const useComments = (videoId: string) => {
     }
   }, []);
 
-  // 🔢 Đếm số lượng comment thật theo videoId
-  const countCommentsByVideo = useCallback(async (videoId: string) => {
+  const countCommentsByVideo = useCallback(async (videoId: string | number) => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
+      const res = await axios.get(`${API_BASE_URL}/comments`);
+      const list = res.data || [];
+
+      // Đảm bảo so sánh theo kiểu string
+      const filtered = list.filter(
+        (c: any) => String(c.videoId) === String(videoId)
+      );
+
+      console.log(
+        `[countCommentsByVideo] videoId=${videoId}, matched=${filtered.length}`
+      );
+
+      return filtered.length;
+    } catch (err) {
+      console.error("Error counting comments:", err);
+      return 0;
+    }
+  }, []);
+
+
+  // 🔢 Đếm số lượng comment thật theo ImageId
+  const countCommentsByImage = useCallback(async (imageId: string) => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/comments?imageId=${imageId}`);
       return res.data.length; // ✅ Số comment thực tế
     } catch (err) {
       console.error('Error counting comments:', err);
       return 0;
+    }
+  }, []);
+  const getCommentsByVideo = useCallback(async (videoId: string) => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
+      let data = res.data || [];
+
+      // ✅ Lấy thêm thông tin user cho mỗi comment
+      const commentsWithUser = await Promise.all(
+        data.map(async (comment: Comment) => {
+          try {
+            const userRes = await axios.get(`${API_BASE_URL}/users/${comment.userId}`);
+            return { ...comment, user: userRes.data };
+          } catch {
+            return { ...comment, user: { name: 'Unknown' } };
+          }
+        })
+      );
+
+      const sorted = commentsWithUser.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setComments(sorted);
+      return sorted;
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      return [];
     }
   }, []);
 
@@ -229,5 +279,10 @@ export const useComments = (videoId: string) => {
     deleteComment,
     likeComment,
     countCommentsByVideo,
+    getCommentsByVideo
   };
 };
+
+
+
+

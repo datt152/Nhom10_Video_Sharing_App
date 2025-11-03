@@ -71,10 +71,10 @@ const ProfileScreen: React.FC = () => {
               images={privacy === 'public' ? publicImages : privateImages}
               privacy={privacy}
               loading={loadingContent || imageLoading}
-              onPressImage={(img) =>
+              onPressImage={(img, index) =>
                 navigation.navigate('UserImageViewer', {
                   images: privacy === 'public' ? publicImages : privateImages,
-                  initialImageId: img.id,
+                  initialIndex: index, // ✅ truyền index thay vì id
                 })
               }
             />

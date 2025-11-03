@@ -15,7 +15,7 @@ type Props = {
     images: ImageType[];
     privacy: 'public' | 'private';
     loading: boolean;
-    onPressImage?: (img: ImageType) => void;
+    onPressImage?: (img: ImageType, index: number) => void; // ✅ thêm index
 };
 
 const ProfileImageList: React.FC<Props> = ({
@@ -64,38 +64,42 @@ const ProfileImageList: React.FC<Props> = ({
         <View style={styles.container}>
             {rows.map((row, index) => (
                 <View key={index} style={styles.row}>
-                    {row.map((img) => (
-                        <TouchableOpacity
-                            key={img.id}
-                            activeOpacity={0.8}
-                            style={styles.imageWrapper}
-                            onPress={() => onPressImage?.(img)}
-                        >
-                            <Image source={{ uri: img.imageUrl }} style={styles.imageBox} />
+                    {row.map((img, idx) => {
+                        const realIndex = index * 2 + idx; // vì mỗi hàng có 2 ảnh
+                        return (
+                            <TouchableOpacity
+                                key={img.id}
+                                activeOpacity={0.8}
+                                style={styles.imageWrapper}
+                                onPress={() => onPressImage?.(img, realIndex)} // ✅ truyền index thật
+                            >
+                                <Image source={{ uri: img.imageUrl }} style={styles.imageBox} />
 
-                            {/* overlay hiển thị tym & view */}
-                            <View style={styles.overlay}>
-                                <View style={styles.iconRow}>
-                                    <View style={styles.iconGroup}>
-                                        <Ionicons name="heart" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>
-                                            {likeCounts[img.id] ?? 0}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.iconGroup}>
-                                        <Ionicons name="eye" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>
-                                            {img.views ?? 0}
-                                        </Text>
+                                {/* overlay hiển thị tym & view */}
+                                <View style={styles.overlay}>
+                                    <View style={styles.iconRow}>
+                                        <View style={styles.iconGroup}>
+                                            <Ionicons name="heart" size={14} color="#fff" />
+                                            <Text style={styles.iconText}>
+                                                {likeCounts[img.id] ?? 0}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.iconGroup}>
+                                            <Ionicons name="eye" size={14} color="#fff" />
+                                            <Text style={styles.iconText}>
+                                                {img.views ?? 0}
+                                            </Text>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
+                            </TouchableOpacity>
+                        );
+                    })}
                 </View>
             ))}
         </View>
     );
+
 };
 
 const styles = StyleSheet.create({

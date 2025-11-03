@@ -11,6 +11,7 @@ import { Video as VideoType } from '../../types/database.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useComments } from '../../hooks/useComment'; // ✅ thêm import
+import { useVideo } from '../../hooks/useVideo';
 
 type Props = {
     videos: VideoType[];
@@ -21,16 +22,18 @@ type Props = {
 
 const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
     const navigation = useNavigation<any>();
-    const { countCommentsByVideo } = useComments(''); // ✅ dùng hàm này
-
+    const { countCommentsByVideo } = useComments(); // ✅ dùng hàm này
+    const {getLikeCount} = useVideo();
     const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
 
     useEffect(() => {
         const fetchCommentCounts = async () => {
             const counts: Record<string, number> = {};
             for (const v of videos) {
-                counts[v.id] = await countCommentsByVideo(v.id);
+                const count = await countCommentsByVideo(v.id);
+                counts[String(v.id)] = count;
             }
+            console.log("Fetched counts:", counts);
             setCommentCounts(counts);
         };
 
@@ -80,12 +83,12 @@ const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
                                 <View style={styles.iconRow}>
                                     <View style={styles.iconGroup}>
                                         <Ionicons name="heart" size={14} color="#fff" />
-                                        <Text style={styles.iconText}>{video.likeCount ?? 0}</Text>
+                                        <Text style={styles.iconText}>{getLikeCount(video.id)}</Text>
                                     </View>
                                     <View style={styles.iconGroup}>
                                         <Ionicons name="chatbubble" size={14} color="#fff" />
                                         <Text style={styles.iconText}>
-                                            {commentCounts[video.id] ?? 0}
+                                            {commentCounts[String(video.id)] ?? 0}
                                         </Text>
                                     </View>
                                 </View>

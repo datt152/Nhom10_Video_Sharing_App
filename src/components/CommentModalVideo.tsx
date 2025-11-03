@@ -69,12 +69,20 @@ export default function CommentModalVideo({
 
     useEffect(() => {
         if (isVisible) {
+            // Đảm bảo animation chạy lại mỗi khi mở modal
+            slideAnim.stopAnimation();
             slideAnim.setValue(SCREEN_HEIGHT);
-            Animated.spring(slideAnim, {
+            Animated.timing(slideAnim, {
                 toValue: 0,
+                duration: 250,
                 useNativeDriver: true,
-                tension: 50,
-                friction: 8,
+            }).start();
+        } else {
+            // Khi đóng thì trượt xuống
+            Animated.timing(slideAnim, {
+                toValue: SCREEN_HEIGHT,
+                duration: 200,
+                useNativeDriver: true,
             }).start();
         }
     }, [isVisible]);

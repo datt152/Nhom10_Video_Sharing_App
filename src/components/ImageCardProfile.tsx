@@ -13,9 +13,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { Image as ImageType, Music } from '../types/database.types';
-import { useComments } from '../hooks/useComment';
 import CommentModalImage from './CommentModalImage';
 import { useImage } from '../hooks/useImage';
+import { useNavigation } from '@react-navigation/native';
+import { useImageComments } from '../hooks/useCommentImage';
 
 interface ImageCardProps {
     image: ImageType;
@@ -46,9 +47,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
     const spinAnim = useRef(new Animated.Value(0)).current;
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const { getImageLikes } = useImage();
-    const { comments, fetchComments, addComment, deleteComment, likeComment } = useComments(
+    const { comments, fetchComments, addComment, deleteComment, likeComment } = useImageComments(
         String(image.id)
     );
+    const navigation = useNavigation();
 
     useEffect(() => {
         const fetchLikes = async () => {
@@ -148,6 +150,13 @@ const ImageCard: React.FC<ImageCardProps> = ({
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
             <TouchableOpacity activeOpacity={0.9} style={[styles.imageWrapper, { height: SCREEN_HEIGHT }]}>
+                {/* 🔙 Nút quay lại */}
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={28} color="#fff" />
+                </TouchableOpacity>
                 <Image source={{ uri: image.imageUrl }} style={styles.image} />
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
@@ -219,7 +228,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 onRequestClose={() => setShowComments(false)}
             >
                 <CommentModalImage
-                    videoId={String(image.id)}
+                    imageId={String(image.id)}
                     comments={comments}
                     currentUserId={currentUserId}
                     isVisible={showComments}
@@ -273,5 +282,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 10,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 40,         // tuỳ chỉnh cao thấp
+        left: 16,
+        zIndex: 10,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderRadius: 30,
+        padding: 6,
     },
 });

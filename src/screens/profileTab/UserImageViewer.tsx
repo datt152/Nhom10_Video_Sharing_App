@@ -29,7 +29,10 @@ export default function UserImageViewer() {
     const [isReady, setIsReady] = useState(false); // ✅ đảm bảo FlatList mount xong mới scroll
 
     const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 80 }).current;
-
+    useEffect(() => {
+        console.log("🖼 Received images:", images.length);
+        console.log("📍 Start index:", initialIndex);
+    }, [images, initialIndex]);
     // ✅ Khi list mount xong, scroll chính xác 1 lần
     useEffect(() => {
         if (images.length === 0) return;

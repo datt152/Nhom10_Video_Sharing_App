@@ -16,7 +16,6 @@ import { Video as VideoType, Music } from '../types/database.types';
 import { useComments } from '../hooks/useComment';
 import CommentModalVideo from '../components/CommentModalVideo';
 import { useVideo } from '../hooks/useVideo';
-
 import { useNavigation } from '@react-navigation/native';
 
 interface VideoCardProps {
@@ -28,7 +27,6 @@ interface VideoCardProps {
     isActive?: boolean;
     musics?: Music[];
     isLiked?: boolean;
-
 }
 
 const VideoCard: React.FC<VideoCardProps> = ({
@@ -42,24 +40,48 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
     const [localCommentCount, setLocalCommentCount] = useState(video.commentCount || 0);
-    const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
+
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const videoRef = useRef<Video | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-    //const { countCommentsByVideo } = useComments('');
-    // 🧩 Lấy hàm từ useVideo
-    const { likeVideo, unlikeVideo, getLikeCount } = useVideo();
-    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByVideo } = useComments(String(video.id));
+
+    const { likeVideo, unlikeVideo, getLikeCount, videos } = useVideo();
+    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
     const navigation = useNavigation();
     const music = musics.find((m) => m.id === video.musicId);
-    const likeCount = getLikeCount(video.id);
 
-    // ✅ Cập nhật lại localIsLiked khi video thay đổi (ví dụ khi lướt sang video khác)
+    const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+
     useEffect(() => {
-        setLocalIsLiked(video.isLiked || false);
-    }, [video]);
+        const fetchCommentCounts = async () => {
+            const counts: Record<string, number> = {};
+            for (const v of videos) {
+                const count = await countCommentsByVideo(v.id);
+                counts[String(v.id)] = count;
+            }
+            console.log("Fetched counts:", counts);
+            setCommentCounts(counts);
+        };
 
+        if (videos.length > 0) {
+            fetchCommentCounts();
+        }
+    }, [videos]);
+
+    // ❤️ Local like state (đồng bộ với dữ liệu từ useVideo)
+    const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
+    const [likeCount, setLikeCount] = useState(video.likeCount || 0);
+
+    useEffect(() => {
+        const updated = videos.find((v) => v.id === video.id);
+        if (updated) {
+            setLocalIsLiked(updated.isLiked || false);
+            setLikeCount(updated.likeCount || 0);
+        }
+    }, [videos, video.id]);
+
+    // ✅ Xử lý phát video và nhạc
     useEffect(() => {
         let isMounted = true;
 
@@ -110,15 +132,17 @@ const VideoCard: React.FC<VideoCardProps> = ({
         outputRange: ['0deg', '360deg'],
     });
 
-    // ❤️ Xử lý tym
+    // ❤️ Toggle like
     const handleLike = async () => {
         try {
             if (localIsLiked) {
                 await unlikeVideo(video.id);
                 setLocalIsLiked(false);
+                setLikeCount((prev) => Math.max(0, prev - 1));
             } else {
                 await likeVideo(video.id);
                 setLocalIsLiked(true);
+                setLikeCount((prev) => prev + 1);
             }
 
             Animated.sequence([
@@ -132,10 +156,27 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
     const handleFollow = () => onToggleFollow(video.userId);
 
-    const handleOpenComments = () => {
-        setShowComments(true);
-        fetchComments();
+    const handleOpenComments = async (videoId: string) => {
+        try {
+            // Gọi API lấy danh sách bình luận
+            const fetchedComments = await getCommentsByVideo(videoId);
+
+            console.log("Fetched comments:", fetchedComments);
+
+            // ✅ Cập nhật danh sách bình luận vào state ngay lập tức
+            if (fetchedComments && fetchedComments.length >= 0) {
+                // Gán trực tiếp vào state comments trong useComments nếu chưa tự làm
+                // Nếu useComments không có setComments public, có thể tạm dùng fetchComments(videoId)
+                await fetchComments();
+            }
+
+            // ✅ Sau khi dữ liệu đã có, mới bật modal
+            setShowComments(true);
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
     };
+
 
     const handleAddComment = async (content: string, parentId: string | null = null) => {
         await addComment(content, parentId);
@@ -169,6 +210,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 >
                     <Ionicons name="arrow-back" size={28} color="#fff" />
                 </TouchableOpacity>
+
                 <Video
                     ref={videoRef}
                     source={{ uri: video.url }}
@@ -177,6 +219,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     style={styles.video}
                     shouldPlay={isActive}
                 />
+
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
                     style={styles.gradient}
@@ -205,9 +248,9 @@ const VideoCard: React.FC<VideoCardProps> = ({
                         </TouchableOpacity>
 
                         {/* 💬 Bình luận */}
-                        <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenComments(video.id)}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(getLikeCount(video.id))}</Text>
+                            <Text style={styles.actionText}>{commentCounts[String(video.id)] ?? 0}</Text>
                         </TouchableOpacity>
 
                         {/* 👁 Lượt xem */}
@@ -215,30 +258,14 @@ const VideoCard: React.FC<VideoCardProps> = ({
                             <Ionicons name="eye-outline" size={28} color="#fff" />
                             <Text style={styles.actionText}>{formatNumber(video.views || 0)}</Text>
                         </View>
-
-                        {/* 🎵 Nhạc */}
-                        {music && (
-                            <Animated.View style={[styles.musicDisc, { transform: [{ rotate }] }]}>
-                                <Ionicons name="musical-notes" size={22} color="#fff" />
-                            </Animated.View>
-                        )}
                     </View>
                 </View>
-
-                {music && (
-                    <View style={styles.musicInfo}>
-                        <Ionicons name="musical-notes" size={16} color="#fff" />
-                        <Text style={styles.musicText} numberOfLines={1}>
-                            {music.title} - {music.artist}
-                        </Text>
-                    </View>
-                )}
             </TouchableOpacity>
 
             <Modal
                 visible={showComments}
-                transparent
-                animationType="slide"
+                animationType="none" // ✅ để animation bên trong CommentModalVideo xử lý
+                transparent={true}
                 onRequestClose={() => setShowComments(false)}
             >
                 <CommentModalVideo
@@ -278,28 +305,9 @@ const styles = StyleSheet.create({
     rightContent: { alignItems: 'center', gap: 18 },
     actionButton: { alignItems: 'center', gap: 4 },
     actionText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-    musicInfo: {
-        position: 'absolute',
-        bottom: 20,
-        left: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    musicText: { color: '#fff', fontSize: 14, maxWidth: '70%' },
-    musicDisc: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        borderWidth: 2,
-        borderColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 10,
-    },
     backButton: {
         position: 'absolute',
-        top: 40,         // tuỳ chỉnh cao thấp
+        top: 40,
         left: 16,
         zIndex: 10,
         backgroundColor: 'rgba(0,0,0,0.4)',

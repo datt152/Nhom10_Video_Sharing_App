@@ -232,8 +232,20 @@ export const useVideo = () => {
     const video = videos.find((v) => v.id === videoId);
     return video?.likedBy?.length || 0;
   };
+  // 🔢 Đếm số lượng comment theo videoId (fetch thật từ API)
+  const countCommentsByVideo = async (videoId: string): Promise<number> => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
+      if (Array.isArray(res.data)) {
+        return res.data.length; // ✅ Trả về số lượng bình luận
+      }
+      return 0;
+    } catch (err) {
+      console.error('Error counting comments:', err);
+      return 0;
+    }
+  };
 
-  
   return {
     videos,
     loading,
@@ -245,6 +257,7 @@ export const useVideo = () => {
     loadVideosByUser,
     likeVideo,
     unlikeVideo,
-    getLikeCount
+    getLikeCount,
+    countCommentsByVideo
   };
 };

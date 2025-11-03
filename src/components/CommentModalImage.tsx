@@ -22,7 +22,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 interface Comment {
   id: string;
-  videoId: string;
+  imageId: string;
   userId: string;
   content: string;
   createdAt: string;
@@ -42,7 +42,7 @@ interface Comment {
 }
 
 interface CommentModalProps {
-  videoId: string;
+  imageId: string;
   comments: Comment[];
   currentUserId: string;
   isVisible: boolean;
@@ -53,7 +53,7 @@ interface CommentModalProps {
 }
 
 export default function CommentModalImage({
-  videoId,
+  imageId,
   comments,
   currentUserId,
   isVisible,
