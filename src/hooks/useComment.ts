@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.65.2:3000';
 const CURRENT_USER_ID = 'u1';
-
+import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
 interface Comment {
   id: string;
   videoId: string;
@@ -21,8 +21,9 @@ interface Comment {
 
 export const useComments = (videoId?: string) => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [videoComments, setVideoComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const { currentUser } = useUser();
   const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
@@ -242,32 +243,70 @@ export const useComments = (videoId?: string) => {
   }, []);
   const getCommentsByVideo = useCallback(async (videoId: string) => {
     try {
+      console.log("🔄 Fetching comments for video:", videoId);
+
+      // 1️⃣ Lấy tất cả comment có videoId (có thể trả về dư)
       const res = await axios.get(`${API_BASE_URL}/comments?videoId=${videoId}`);
-      let data = res.data || [];
+      let data = Array.isArray(res.data) ? res.data : [];
 
-      // ✅ Lấy thêm thông tin user cho mỗi comment
-      const commentsWithUser = await Promise.all(
-        data.map(async (comment: Comment) => {
-          try {
-            const userRes = await axios.get(`${API_BASE_URL}/users/${comment.userId}`);
-            return { ...comment, user: userRes.data };
-          } catch {
-            return { ...comment, user: { name: 'Unknown' } };
-          }
-        })
-      );
+      // 🔧 Lọc chắc chắn: chỉ lấy comment có videoId đúng và KHÔNG có imageId
+      data = data.filter((c) => c.videoId === videoId && !c.imageId);
 
-      const sorted = commentsWithUser.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      // 2️⃣ Lấy danh sách userId duy nhất
+      const userIds = [...new Set(data.map((c) => c.userId))];
 
-      setComments(sorted);
-      return sorted;
+      // 3️⃣ Lấy thông tin user song song
+      const userPromises = userIds.map(async (userId) => {
+        if (userId === CURRENT_USER_ID && currentUser) return currentUser;
+        try {
+          const userRes = await axios.get(`${API_BASE_URL}/users/${userId}`);
+          return userRes.data;
+        } catch {
+          return {
+            id: userId,
+            username: "Unknown",
+            avatar: "https://via.placeholder.com/40",
+          };
+        }
+      });
+
+      const users = await Promise.all(userPromises);
+      const userMap = new Map(users.map((u) => [u.id, u]));
+
+      // 4️⃣ Gắn user cho từng comment
+      const enrichComment = (comment: any) => ({
+        ...comment,
+        user:
+          userMap.get(comment.userId) || {
+            id: comment.userId,
+            username: "Unknown",
+            avatar: "https://via.placeholder.com/40",
+          },
+      });
+
+      // 5️⃣ Phân chia cha - con
+      const parentComments = data.filter((c) => !c.parentId).map(enrichComment);
+      const replies = data.filter((c) => c.parentId).map(enrichComment);
+
+      // 6️⃣ Gắn replies vào comment cha
+      const commentsWithReplies = parentComments.map((parent) => ({
+        ...parent,
+        replies: replies.filter((r) => r.parentId === parent.id),
+      }));
+
+      console.log("✅ Final structured comments:", commentsWithReplies);
+
+      setVideoComments(commentsWithReplies);
+      return commentsWithReplies;
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      console.error("❌ Error fetching comments by video:", error);
       return [];
     }
-  }, []);
+  }, [currentUser]);
+
+
+
+
 
 
 

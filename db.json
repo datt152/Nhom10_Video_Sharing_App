@@ -115,7 +115,7 @@
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 2
+      "commentCount": 3
     },
     {
       "id": "i2",
@@ -165,7 +165,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 2,
-      "commentCount": 3,
+      "commentCount": 14,
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -226,7 +226,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 1,
       "shareCount": 156,
       "views": 36000,
@@ -245,9 +245,7 @@
         "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     },
     {
       "id": "v3",
@@ -343,124 +341,16 @@
   ],
   "comments": [
     {
-      "id": "c1762149734273",
+      "id": "c1762149724273",
       "videoId": "v1",
       "userId": "u1",
       "content": "dddd",
       "createdAt": "2025-11-03T06:02:14.273Z",
-      "likeCount": 0,
-      "likedBy": [],
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
       "replyCount": 1,
-      "parentId": null
-    },
-    {
-      "id": "c1762159400144",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "fffff",
-      "createdAt": "2025-11-03T08:43:20.144Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159414885",
-      "videoId": "v1761841701895",
-      "userId": "u1",
-      "content": "fffff",
-      "createdAt": "2025-11-03T08:43:34.885Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159435643",
-      "videoId": "v2",
-      "userId": "u1",
-      "content": "cho dep qua",
-      "createdAt": "2025-11-03T08:43:55.643Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159445054",
-      "videoId": "v4",
-      "userId": "u1",
-      "content": "eo ou sap dien mat",
-      "createdAt": "2025-11-03T08:44:05.054Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159498596",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "fffffhhh",
-      "createdAt": "2025-11-03T08:44:58.596Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159510806",
-      "videoId": "v4",
-      "userId": "u1",
-      "content": "hhhh",
-      "createdAt": "2025-11-03T08:45:10.806Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 1,
-      "parentId": null
-    },
-    {
-      "id": "c1762159517351",
-      "videoId": "v4",
-      "userId": "u1",
-      "content": "gggg",
-      "createdAt": "2025-11-03T08:45:17.351Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": "c1762159510806"
-    },
-    {
-      "id": "c1762160385975",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "ffff",
-      "createdAt": "2025-11-03T08:59:45.975Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762160393208",
-      "imageId": "i2",
-      "userId": "u1",
-      "content": "ffff",
-      "createdAt": "2025-11-03T08:59:53.208Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762160405507",
-      "imageId": "i2",
-      "userId": "u1",
-      "content": "gggggtttt",
-      "createdAt": "2025-11-03T09:00:05.507Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
       "parentId": null
     },
     {
@@ -469,6 +359,50 @@
       "userId": "u1",
       "content": "ttttt",
       "createdAt": "2025-11-03T09:00:11.770Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 1,
+      "parentId": null
+    },
+    {
+      "id": "c1762183402208",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "hhhh",
+      "createdAt": "2025-11-03T15:23:22.208Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": "c1762149724273"
+    },
+    {
+      "id": "c1762183416086",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "ffff",
+      "createdAt": "2025-11-03T15:23:36.086Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762183420277",
+      "videoId": "v1",
+      "userId": "u1",
+      "content": "yyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "createdAt": "2025-11-03T15:23:40.277Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762184562521",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "ggggg",
+      "createdAt": "2025-11-03T15:42:42.521Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
