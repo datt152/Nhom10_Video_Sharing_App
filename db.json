@@ -94,7 +94,7 @@
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 2
+      "commentCount": 5
     },
     {
       "id": "i2",
@@ -114,7 +114,7 @@
       "userId": "u1",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
-      "commentCount": 3
+      "commentCount": 4
     },
     {
       "id": "i3",
@@ -168,7 +168,8 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "likeCount": 2,
-      "commentCount": 9,
+
+      "commentCount": 14,
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -241,9 +242,7 @@
         "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     },
     {
       "id": "v3",
@@ -339,13 +338,15 @@
   ],
   "comments": [
     {
-      "id": "c1762149734273",
+      "id": "c1762149724273",
       "videoId": "v1",
       "userId": "u1",
       "content": "dddd",
       "createdAt": "2025-11-03T06:02:14.273Z",
-      "likeCount": 0,
-      "likedBy": [],
+      "likeCount": 1,
+      "likedBy": [
+        "u1"
+      ],
       "replyCount": 1,
       "parentId": null
     },
@@ -482,6 +483,7 @@
       "userId": "u1",
       "content": "Ho",
       "createdAt": "2025-11-03T14:30:02.805Z",
+
       "likeCount": 1,
       "likedBy": [
         "u1"
@@ -507,7 +509,7 @@
           "u3"
         ],
         "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma",
           "https://coccoc.com/search?query=figma"
         ]
       },

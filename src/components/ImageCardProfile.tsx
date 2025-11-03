@@ -42,14 +42,13 @@ const ImageCard: React.FC<ImageCardProps> = ({
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
     const [localLikeCount, setLocalLikeCount] = useState(image.likes);
-    const [localCommentCount, setLocalCommentCount] = useState(image.comments);
+    const [totalCommentCount, setTotalCommentCount] = useState(0);
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const { getImageLikes } = useImage();
-    const { comments, fetchComments, addComment, deleteComment, likeComment } = useImageComments(
-        String(image.id)
-    );
+    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByImage } =
+        useImageComments(String(image.id));
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -64,9 +63,17 @@ const ImageCard: React.FC<ImageCardProps> = ({
         fetchLikes();
     }, [image.id]);
 
+    // ✅ Lấy tổng số comment (bao gồm reply)
+    useEffect(() => {
+        const loadCount = async () => {
+            const count = await countCommentsByImage(String(image.id));
+            setTotalCommentCount(count);
+        };
+        loadCount();
+    }, [comments, image.id]);
+
     const music = musics.find((m) => m.id === image.musicId);
 
-    // ✅ Play nhạc chỉ khi isActive = true (sau khi đã scroll tới)
     useEffect(() => {
         let isMounted = true;
         if (!isActive || !music?.uri) return;
@@ -127,12 +134,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
 
     const handleAddComment = async (content: string, parentId: string | null = null) => {
         await addComment(content, parentId);
-        setLocalCommentCount((prev) => prev + 1);
     };
 
     const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
         await deleteComment(commentId, parentId);
-        setLocalCommentCount((prev) => Math.max(0, prev - 1));
     };
 
     const likeScale = likeAnimation.interpolate({
@@ -150,11 +155,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
             <TouchableOpacity activeOpacity={0.9} style={[styles.imageWrapper, { height: SCREEN_HEIGHT }]}>
-                {/* 🔙 Nút quay lại */}
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                >
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#fff" />
                 </TouchableOpacity>
                 <Image source={{ uri: image.imageUrl }} style={styles.image} />
@@ -191,7 +192,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                         {/* Comment */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(localCommentCount)}</Text>
+                            <Text style={styles.actionText}>{totalCommentCount}</Text>
                         </TouchableOpacity>
 
                         {/* View */}
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 40,         // tuỳ chỉnh cao thấp
+        top: 40,
         left: 16,
         zIndex: 10,
         backgroundColor: 'rgba(0,0,0,0.4)',

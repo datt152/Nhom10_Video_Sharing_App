@@ -17,7 +17,7 @@ import { useComments } from '../hooks/useComment';
 import CommentModalVideo from '../components/CommentModalVideo';
 import { useVideo } from '../hooks/useVideo';
 import { useNavigation } from '@react-navigation/native';
-
+import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
 interface VideoCardProps {
     video: VideoType;
     isFollowing: boolean;
@@ -45,6 +45,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const spinAnim = useRef(new Animated.Value(0)).current;
     const videoRef = useRef<Video | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [videoCommentsList, setVideoCommentsList] = useState<any[]>([]);
 
     const { likeVideo, unlikeVideo, getLikeCount, videos } = useVideo();
     const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
@@ -158,29 +159,34 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
     const handleOpenComments = async (videoId: string) => {
         try {
-            // Gọi API lấy danh sách bình luận
+            console.log("🔍 Lấy bình luận của video:", videoId);
             const fetchedComments = await getCommentsByVideo(videoId);
 
-            console.log("Fetched comments:", fetchedComments);
+            console.log("✅ Fetched comments:", fetchedComments);
 
-            // ✅ Cập nhật danh sách bình luận vào state ngay lập tức
-            if (fetchedComments && fetchedComments.length >= 0) {
-                // Gán trực tiếp vào state comments trong useComments nếu chưa tự làm
-                // Nếu useComments không có setComments public, có thể tạm dùng fetchComments(videoId)
-                await fetchComments();
-            }
-
-            // ✅ Sau khi dữ liệu đã có, mới bật modal
+            setVideoCommentsList(fetchedComments || []);
             setShowComments(true);
         } catch (error) {
-            console.error("Error fetching comments:", error);
+            console.error("❌ Lỗi khi lấy bình luận:", error);
         }
     };
 
 
+
+
     const handleAddComment = async (content: string, parentId: string | null = null) => {
-        await addComment(content, parentId);
-        setLocalCommentCount((prev) => prev + 1);
+        try {
+            await addComment(content, parentId);
+            setLocalCommentCount(prev => prev + 1);
+
+            // ✅ Sau khi thêm bình luận, load lại danh sách bình luận của video này
+            const updatedComments = await getCommentsByVideo(video.id);
+            setVideoCommentsList(updatedComments);
+
+            // (tuỳ chọn) cuộn modal về cuối cùng nếu cần
+        } catch (error) {
+            console.error("❌ Lỗi khi thêm bình luận:", error);
+        }
     };
 
     const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
@@ -270,7 +276,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
             >
                 <CommentModalVideo
                     videoId={String(video.id)}
-                    comments={comments}
+                    comments={videoCommentsList}
                     currentUserId={currentUserId}
                     isVisible={showComments}
                     onClose={() => setShowComments(false)}

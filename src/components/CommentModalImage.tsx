@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useImageComments } from '../hooks/useCommentImage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -66,11 +67,11 @@ export default function CommentModalImage({
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const slideAnim = React.useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-
+ 
   useEffect(() => {
     console.log('🎬 CommentModal isVisible:', isVisible);
     console.log('📊 Comments count:', comments.length);
-    
+
     if (isVisible) {
       slideAnim.setValue(SCREEN_HEIGHT);
       Animated.spring(slideAnim, {
@@ -117,16 +118,16 @@ export default function CommentModalImage({
     const commentDate = new Date(dateString);
     const diffInMs = now.getTime() - commentDate.getTime();
     const diffInMins = Math.floor(diffInMs / 60000);
-    
+
     if (diffInMins < 1) return 'Just now';
     if (diffInMins < 60) return `${diffInMins} mins ago`;
-    
+
     const diffInHours = Math.floor(diffInMins / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7) return `${diffInDays}d ago`;
-    
+
     return commentDate.toLocaleDateString();
   };
 
@@ -229,13 +230,13 @@ export default function CommentModalImage({
 
   return (
     <SafeAreaView style={styles.fullScreen}>
-      <TouchableOpacity 
-        style={styles.backdrop} 
-        activeOpacity={1} 
+      <TouchableOpacity
+        style={styles.backdrop}
+        activeOpacity={1}
         onPress={onClose}
       />
-      
-      <Animated.View 
+
+      <Animated.View
         style={[
           styles.modalContent,
           { transform: [{ translateY: slideAnim }] }
