@@ -9,8 +9,11 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  Switch,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.1.166:3000';
@@ -23,10 +26,21 @@ const EditImageScreen: React.FC = () => {
   const route = useRoute();
   const { imageUri } = route.params as { imageUri: string };
 
-  const [caption, setCaption] = useState('');
-  const [tagsText, setTagsText] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [hashtags, setHashtags] = useState<string[]>([]);
+  const [hashtagInput, setHashtagInput] = useState('');
+  const [taggedPeople, setTaggedPeople] = useState<any[]>([]);
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [whoCanWatch, setWhoCanWatch] = useState('Công khai');
+  const [shareToFacebook, setShareToFacebook] = useState(false);
+  const [shareToTwitter, setShareToTwitter] = useState(false);
+  const [shareToInstagram, setShareToInstagram] = useState(false);
+  
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const uploadToCloudinary = async (uri: string): Promise<string> => {
     const formData = new FormData();
@@ -53,9 +67,20 @@ const EditImageScreen: React.FC = () => {
     return response.data.secure_url;
   };
 
+  const addHashtag = () => {
+    if (hashtagInput.trim() && !hashtags.includes(hashtagInput.trim())) {
+      setHashtags([...hashtags, hashtagInput.trim()]);
+      setHashtagInput('');
+    }
+  };
+
+  const removeHashtag = (tag: string) => {
+    setHashtags(hashtags.filter((h) => h !== tag));
+  };
+
   const handlePost = async () => {
-    if (!caption.trim()) {
-      Alert.alert('Error', 'Please enter a caption');
+    if (!title.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập tiêu đề');
       return;
     }
 
@@ -67,120 +92,447 @@ const EditImageScreen: React.FC = () => {
       const newImagePost = {
         id: `i${Date.now()}`,
         imageUrl,
-        caption: caption.trim(),
-        tags: tagsText.split(',').map((t) => t.trim()).filter((t) => t),
+        title: title.trim(),
+        caption: description.trim(),
+        tags: hashtags,
+        taggedUsers: taggedPeople.map(p => p.id),
+        commentsEnabled,
+        privacy: whoCanWatch,
         createdAt: new Date().toISOString(),
         userId: CURRENT_USER_ID,
       };
 
       await axios.post(`${API_BASE_URL}/images`, newImagePost);
 
-      Alert.alert('Success 🎉', 'Your image has been posted!', [
+      Alert.alert('Thành công 🎉', 'Ảnh của bạn đã được đăng!', [
         { text: 'OK', onPress: () => navigation.navigate('Main' as never) },
       ]);
     } catch (error) {
       console.error('Upload error:', error);
-      Alert.alert('Error', 'Failed to upload image');
+      Alert.alert('Lỗi', 'Không thể tải ảnh lên');
     } finally {
       setUploading(false);
     }
   };
 
+  const handleSaveDraft = () => {
+    Alert.alert('Đã lưu bản nháp', 'Bài đăng của bạn đã được lưu dưới dạng bản nháp');
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-
-      <View style={styles.section}>
-        <Text style={styles.label}>Caption</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Add a caption..."
-          value={caption}
-          onChangeText={setCaption}
-          multiline
-          editable={!uploading}
-        />
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Đăng bài</Text>
+        <View style={{ width: 24 }} />
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Tags (comma separated)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. portrait, smile, people"
-          value={tagsText}
-          onChangeText={setTagsText}
-          editable={!uploading}
-        />
-      </View>
-
-      {uploading && (
-        <View style={styles.uploadingContainer}>
-          <ActivityIndicator size="large" color="#FF4EB8" />
-          <Text style={styles.uploadingText}>Uploading... {uploadProgress}%</Text>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Image Preview */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+         
         </View>
-      )}
 
-      <TouchableOpacity
-        style={[styles.postButton, uploading && { opacity: 0.5 }]}
-        onPress={handlePost}
-        disabled={uploading}
-      >
-        <Text style={styles.postButtonText}>{uploading ? 'Posting...' : 'Post'}</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Title */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Tiêu đề</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập tiêu đề"
+            placeholderTextColor="#ccc"
+            value={title}
+            onChangeText={setTitle}
+            editable={!uploading}
+          />
+        </View>
+
+        {/* Description */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Mô tả</Text>
+          <TextInput
+            style={[styles.input, styles.descriptionInput]}
+            placeholder="Nhập mô tả"
+            placeholderTextColor="#ccc"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+            editable={!uploading}
+          />
+        </View>
+
+        {/* Add Hashtag */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Thêm hashtag</Text>
+          <View style={styles.hashtagInputContainer}>
+            <TextInput
+              style={styles.hashtagInput}
+              placeholder="Nhập hashtag và nhấn thêm"
+              placeholderTextColor="#ccc"
+              value={hashtagInput}
+              onChangeText={setHashtagInput}
+              onSubmitEditing={addHashtag}
+              editable={!uploading}
+            />
+            <TouchableOpacity onPress={addHashtag} style={styles.addHashtagButton}>
+              <Ionicons name="add" size={20} color="#FF3B5C" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.hashtagList}>
+            {hashtags.map((tag) => (
+              <View key={tag} style={styles.hashtagChip}>
+                <Text style={styles.hashtagChipText}>{tag}</Text>
+                <TouchableOpacity onPress={() => removeHashtag(tag)}>
+                  <Ionicons name="close" size={16} color="#FF3B5C" />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </View>
+
+      
+
+        {/* Comments */}
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>Bình luận</Text>
+          <Switch
+            value={commentsEnabled}
+            onValueChange={setCommentsEnabled}
+            trackColor={{ false: '#E0E0E0', true: '#FFB3C6' }}
+            thumbColor={commentsEnabled ? '#FF3B5C' : '#f4f3f4'}
+            disabled={uploading}
+          />
+        </View>
+
+        {/* Who Can Watch */}
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setShowPrivacyModal(true)}
+          disabled={uploading}
+        >
+          <Text style={styles.rowLabel}>Ai có thể xem</Text>
+          <View style={styles.rowRight}>
+            <Text style={styles.rowValue}>{whoCanWatch}</Text>
+            <Ionicons name="chevron-down" size={20} color="#999" />
+          </View>
+        </TouchableOpacity>
+
+        {uploading && (
+          <View style={styles.uploadingContainer}>
+            <ActivityIndicator size="large" color="#FF3B5C" />
+            <Text style={styles.uploadingText}>Đang tải lên... {uploadProgress}%</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Bottom Buttons */}
+      <View style={styles.bottomButtons}>
+        
+        <TouchableOpacity
+          style={[styles.postButton, uploading && { opacity: 0.5 }]}
+          onPress={handlePost}
+          disabled={uploading}
+        >
+          <Ionicons name="paper-plane" size={20} color="#fff" />
+          <Text style={styles.postButtonText}>
+            {uploading ? 'Đang đăng...' : 'Đăng bài'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Tag People Modal */}
+      <Modal visible={showTagModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Gắn thẻ người khác</Text>
+              <TouchableOpacity onPress={() => setShowTagModal(false)}>
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtext}>Tìm kiếm và chọn người để gắn thẻ</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowTagModal(false)}
+            >
+              <Text style={styles.modalButtonText}>Xong</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Privacy Modal */}
+      <Modal visible={showPrivacyModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Ai có thể xem?</Text>
+              <TouchableOpacity onPress={() => setShowPrivacyModal(false)}>
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            {['Công khai', 'Riêng tư'].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.privacyOption}
+                onPress={() => {
+                  setWhoCanWatch(option);
+                  setShowPrivacyModal(false);
+                }}
+              >
+                <Text style={styles.privacyOptionText}>{option}</Text>
+                {whoCanWatch === option && (
+                  <Ionicons name="checkmark" size={24} color="#FF3B5C" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    flex: 1,
     backgroundColor: '#fff',
-    flexGrow: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
   },
   imagePreview: {
-    width: '100%',
-    height: 300,
-    borderRadius: 12,
-    marginBottom: 16,
-    backgroundColor: '#ddd',
+    width: 200,
+    height: 280,
+    borderRadius: 16,
+    backgroundColor: '#f0f0f0',
+  },
+  changeCoverButton: {
+    marginTop: 12,
+  },
+  changeCoverText: {
+    color: '#FF3B5C',
+    fontSize: 15,
+    fontWeight: '500',
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 6,
+    color: '#333',
+    marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 50,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 15,
+    color: '#333',
+  },
+  descriptionInput: {
+    minHeight: 100,
     textAlignVertical: 'top',
   },
-  postButton: {
-    backgroundColor: '#FF4EB8',
-    paddingVertical: 14,
-    borderRadius: 25,
+  hashtagInputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+  },
+  hashtagInput: {
+    flex: 1,
+    paddingVertical: 16,
+    fontSize: 15,
+    color: '#333',
+  },
+  addHashtagButton: {
+    padding: 4,
+  },
+  hashtagList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    gap: 8,
+  },
+  hashtagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5FF',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  hashtagChipText: {
+    color: '#FF3B5C',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  rowLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  rowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  rowValue: {
+    fontSize: 15,
+    color: '#FF3B5C',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  socialLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  uploadingContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  uploadingText: {
+    marginTop: 12,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FF3B5C',
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    gap: 12,
+  },
+  saveDraftButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#FF3B5C',
+    borderRadius: 25,
+    paddingVertical: 14,
+    gap: 6,
+  },
+  saveDraftText: {
+    color: '#FF3B5C',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  postButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF3B5C',
+    borderRadius: 25,
+    paddingVertical: 14,
+    gap: 6,
   },
   postButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-  uploadingContainer: {
-    marginVertical: 16,
-    alignItems: 'center',
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
-  uploadingText: {
-    marginTop: 8,
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: 300,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  modalSubtext: {
     fontSize: 14,
+    color: '#999',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#FF3B5C',
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
+  },
+  privacyOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  privacyOptionText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 

@@ -14,7 +14,9 @@
         "u3",
         "u4"
       ],
-      "followingIds": [],
+      "followingIds": [
+        "u2"
+      ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
@@ -35,7 +37,7 @@
       "followingIds": [
         "u1"
       ],
-      "followerCount": 0
+      "followerCount": 1
     },
     {
       "id": "u3",
@@ -140,6 +142,21 @@
         "Meowww"
       ],
       "createdAt": "2025-11-03T13:14:18.889Z",
+      "userId": "u4"
+    },
+    {
+      "id": "i1762186851210",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762186850/ulzw2xre0bky4i1zlxkb.jpg",
+      "title": "Con dàng con ngọc",
+      "caption": "Mẻ ngủ mà nết dị không đó",
+      "tags": [
+        "Meow",
+        "MyDieu"
+      ],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "privacy": "Friends",
+      "createdAt": "2025-11-03T16:20:51.210Z",
       "userId": "u4"
     }
   ],
