@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
 
-const API_BASE_URL = 'http://192.168.65.2:3000'; // ⚠️ nhớ kiểm tra IP này
+const API_BASE_URL = 'http://192.168.65.2:3000'; // ⚠️ nhớ đổi IP cho đúng
 export const CURRENT_USER_ID = 'u1';
 
 export const useImage = () => {
@@ -11,21 +11,17 @@ export const useImage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // 🧩 Lấy danh sách ảnh
     const fetchImages = useCallback(async () => {
         console.log("🚀 Gọi API lấy danh sách ảnh...");
         setLoading(true);
         try {
             const res = await axios.get(`${API_BASE_URL}/images`);
-            console.log("✅ Kết quả API:", res.data);
-
             const data = res.data;
 
             if (Array.isArray(data)) {
                 const publicList = data.filter((img) => img.isPublic === true);
                 const privateList = data.filter((img) => img.isPublic === false);
-
-                console.log(`📸 Public: ${publicList.length} ảnh`);
-                console.log(`🔒 Private: ${privateList.length} ảnh`);
 
                 setPublicImages(publicList);
                 setPrivateImages(privateList);
@@ -39,37 +35,24 @@ export const useImage = () => {
             setError(err.message || 'Error fetching images');
         } finally {
             setLoading(false);
-            console.log("✅ Hoàn tất tải ảnh.\n");
         }
     }, []);
 
     useEffect(() => {
         fetchImages();
     }, [fetchImages]);
+
+    // 🧩 Lấy số lượt like của ảnh
     const getImageLikes = async (imageId: string): Promise<number> => {
         try {
-            console.log("🔍 Gọi API lấy lượt like:", `${API_BASE_URL}/images/${imageId}`);
-            const response = await fetch(`${API_BASE_URL}/images/${imageId}`);
-
-            if (!response.ok) {
-                console.error("❌ Lỗi response:", response.status);
-                return 0;
-            }
-
-            const image = await response.json();
-            console.log("✅ Dữ liệu ảnh:", image);
-
-            // 🔥 Nếu có likedBy là mảng, trả về độ dài
+            const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
+            const image = res.data;
             if (Array.isArray(image.likedBy)) {
                 return image.likedBy.length;
             }
-
-            // Nếu có trường likes (phòng khi cũ vẫn còn)
             if (typeof image.likes === "number") {
                 return image.likes;
             }
-
-            console.warn("⚠️ Không có likedBy hoặc likes trong image:", image);
             return 0;
         } catch (error) {
             console.error("🔥 Lỗi khi lấy lượt like:", error);
@@ -77,16 +60,15 @@ export const useImage = () => {
         }
     };
 
-    const toggleLike = async (imageId: string, userId: string) => {
+    // ❤️ LIKE IMAGE
+    const likeImage = async (imageId: string) => {
         try {
             const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
             const image = res.data;
 
             let updatedLikedBy = image.likedBy || [];
-            if (updatedLikedBy.includes(userId)) {
-                updatedLikedBy = updatedLikedBy.filter((id: string) => id !== userId);
-            } else {
-                updatedLikedBy.push(userId);
+            if (!updatedLikedBy.includes(CURRENT_USER_ID)) {
+                updatedLikedBy.push(CURRENT_USER_ID);
             }
 
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
@@ -94,9 +76,33 @@ export const useImage = () => {
                 likes: updatedLikedBy.length,
             });
 
-            return updatedLikedBy.length; // trả về số lượt like mới
-        } catch (err) {
-            console.error("🔥 Lỗi cập nhật like:", err);
+            console.log(`❤️ Like ảnh ${imageId}`);
+            return updatedLikedBy.length;
+        } catch (error) {
+            console.error("🔥 Lỗi khi like ảnh:", error);
+            return null;
+        }
+    };
+
+    // 💔 UNLIKE IMAGE
+    const unlikeImage = async (imageId: string) => {
+        try {
+            const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
+            const image = res.data;
+
+            let updatedLikedBy = (image.likedBy || []).filter(
+                (id: string) => id !== CURRENT_USER_ID
+            );
+
+            await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
+                likedBy: updatedLikedBy,
+                likes: updatedLikedBy.length,
+            });
+
+            console.log(`💔 Bỏ like ảnh ${imageId}`);
+            return updatedLikedBy.length;
+        } catch (error) {
+            console.error("🔥 Lỗi khi bỏ like ảnh:", error);
             return null;
         }
     };
@@ -108,6 +114,7 @@ export const useImage = () => {
         error,
         refresh: fetchImages,
         getImageLikes,
-        toggleLike // ✅ thêm dòng này
+        likeImage,   // ✅ sửa lại chuẩn
+        unlikeImage, // ✅ thêm đầy đủ
     };
 };

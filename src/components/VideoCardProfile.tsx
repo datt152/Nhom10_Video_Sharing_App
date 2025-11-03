@@ -47,8 +47,8 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [videoCommentsList, setVideoCommentsList] = useState<any[]>([]);
 
-    const { likeVideo, unlikeVideo, getLikeCount, videos } = useVideo();
-    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
+    const { likeVideo, unlikeVideo,  videos } = useVideo();
+    const { addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
     const navigation = useNavigation();
     const music = musics.find((m) => m.id === video.musicId);
 
@@ -136,22 +136,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
     // ❤️ Toggle like
     const handleLike = async () => {
         try {
+            // Gọi API hiện tại của video
+            const res = await likeVideo(video.id);
+           
+
+            // Nếu video đã được like trước đó → unlike
             if (localIsLiked) {
                 await unlikeVideo(video.id);
                 setLocalIsLiked(false);
                 setLikeCount((prev) => Math.max(0, prev - 1));
+                console.log(`💔 Bỏ like video ${video.id}`);
             } else {
+                // Nếu chưa like → like
                 await likeVideo(video.id);
                 setLocalIsLiked(true);
                 setLikeCount((prev) => prev + 1);
+                console.log(`❤️ Like video ${video.id}`);
             }
 
+            // 🔄 Làm animation nhẹ
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
                 Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
             ]).start();
         } catch (error) {
-            console.log('Error toggling like:', error);
+            console.log('🔥 Lỗi khi toggle like:', error);
         }
     };
 

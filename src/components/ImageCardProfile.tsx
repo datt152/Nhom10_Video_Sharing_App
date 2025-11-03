@@ -1,3 +1,4 @@
+// components/ImageCard.tsx (fixed likedBy key)
 import React, { useEffect, useState, useRef, memo } from 'react';
 import {
     View,
@@ -41,33 +42,102 @@ const ImageCard: React.FC<ImageCardProps> = ({
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(image.likes);
+
+    // ✅ dùng likedBy (đúng key)
+    const initialLikes = Number(image?.likes ?? (Array.isArray(image.likeBy) ? image.likeBy.length : 0)) || 0;
+    const [localLikeCount, setLocalLikeCount] = useState<number>(initialLikes);
     const [totalCommentCount, setTotalCommentCount] = useState(0);
+    const [localIsLiked, setLocalIsLiked] = useState<boolean>(
+        Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false
+    );
+
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const { getImageLikes } = useImage();
-    const { comments, fetchComments, addComment, deleteComment, likeComment, countCommentsByImage } =
-        useImageComments(String(image.id));
+
+    const { publicImages, getImageLikes, likeImage, unlikeImage } = useImage();
+    const {
+        comments,
+        fetchComments,
+        addComment,
+        deleteComment,
+        likeComment,
+        countCommentsByImage,
+    } = useImageComments(String(image.id));
     const navigation = useNavigation();
 
+    // DEBUG
     useEffect(() => {
-        const fetchLikes = async () => {
-            try {
-                const likeCount = await getImageLikes(image.id);
-                if (typeof likeCount === 'number') setLocalLikeCount(likeCount);
-            } catch (err) {
-                console.log('Error fetching likes:', err);
-            }
-        };
-        fetchLikes();
+        console.log('[ImageCard] mount/update for image.id=', image.id);
+        console.log(' image.likes prop:', image.likes);
+        console.log(' image.likedBy prop (len):', Array.isArray(image.likeBy) ? image.likeBy.length : image.likeBy);
+        console.log(' initial localLikeCount:', localLikeCount);
+        console.log(' localIsLiked initial:', localIsLiked);
     }, [image.id]);
 
-    // ✅ Lấy tổng số comment (bao gồm reply)
+    // ✅ Sync lại khi likedBy thay đổi
+    useEffect(() => {
+        const likeByLen = Array.isArray(image.likeBy) ? image.likeBy.length : undefined;
+        const likedNow = Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false;
+
+        console.log('[ImageCard] syncing from image.likedBy ->', { likeByLen, likedNow });
+
+        setLocalIsLiked(!!likedNow);
+
+        const newCount = typeof likeByLen === 'number' ? likeByLen : (Number(image.likes) || 0);
+        if (!Number.isNaN(newCount) && newCount !== localLikeCount) {
+            setLocalLikeCount(newCount);
+        }
+    }, [image.likeBy, image.likes, currentUserId]);
+
+    // cập nhật khi publicImages thay đổi
+    useEffect(() => {
+        if (!publicImages || !image?.id) return;
+        const updated = publicImages.find((img) => img.id === image.id);
+        if (updated) {
+            const liked = Array.isArray(updated.likeBy) ? updated.likeBy.includes(currentUserId) : false;
+            const likeCountFromUpdated = Array.isArray(updated.likeBy)
+                ? updated.likeBy.length
+                : (Number(updated.likes) || 0);
+
+            console.log('[ImageCard] publicImages update ->', { liked, likeCountFromUpdated });
+
+            if (liked !== localIsLiked) setLocalIsLiked(!!liked);
+            if (!Number.isNaN(likeCountFromUpdated) && likeCountFromUpdated !== localLikeCount) {
+                setLocalLikeCount(likeCountFromUpdated);
+            }
+        }
+    }, [publicImages?.length]);
+
+    // lấy count chính xác từ DB
+    useEffect(() => {
+        let mounted = true;
+        const fetch = async () => {
+            try {
+                if (typeof getImageLikes === 'function') {
+                    const count = await getImageLikes(image.id);
+                    console.log('[ImageCard] getImageLikes result:', count);
+                    if (mounted && typeof count === 'number' && count !== localLikeCount) {
+                        setLocalLikeCount(count);
+                    }
+                }
+            } catch (e) {
+                console.log('[ImageCard] getImageLikes error', e);
+            }
+        };
+        fetch();
+        return () => { mounted = false; };
+    }, [image.id]);
+
+    // đếm bình luận
     useEffect(() => {
         const loadCount = async () => {
-            const count = await countCommentsByImage(String(image.id));
-            setTotalCommentCount(count);
+            try {
+                const count = await countCommentsByImage(String(image.id));
+                setTotalCommentCount(count ?? 0);
+            } catch (e) {
+                console.log('[ImageCard] countCommentsByImage error', e);
+            }
         };
         loadCount();
     }, [comments, image.id]);
@@ -75,26 +145,9 @@ const ImageCard: React.FC<ImageCardProps> = ({
     const music = musics.find((m) => m.id === image.musicId);
 
     useEffect(() => {
-        let isMounted = true;
         if (!isActive || !music?.uri) return;
-
-        async function playSound() {
-            try {
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: music?.uri },
-                    { shouldPlay: true, isLooping: true }
-                );
-                if (isMounted) setSound(newSound);
-            } catch (error) {
-                console.log('Error playing sound:', error);
-            }
-        }
-
-        playSound();
         startRotation();
-
         return () => {
-            isMounted = false;
             stopRotation();
             if (sound) sound.unloadAsync();
         };
@@ -109,47 +162,53 @@ const ImageCard: React.FC<ImageCardProps> = ({
             })
         ).start();
     };
-
     const stopRotation = () => spinAnim.stopAnimation();
+    const rotate = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+    useEffect(() => {
+        console.log('[ImageCard] syncing from image.likeBy ->', {
+            likeByLen: image?.likeBy?.length,
+            likedNow: image?.likeBy?.includes(currentUserId),
+        });
 
-    const rotate = spinAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg'],
-    });
+        if (image) {
+            setLocalLikeCount(image.likeBy?.length || 0);
+            setLocalIsLiked(image.likeBy?.includes(currentUserId) || false);
+        }
+    }, [image]);
 
-    const handleLike = () => {
-        onToggleLike(image.id);
-        Animated.sequence([
-            Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
-            Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
-        ]).start();
+    const handleLike = async () => {
+        try {
+            const newLiked = !localIsLiked;
+            setLocalIsLiked(newLiked);
+            setLocalLikeCount((prev) => Math.max(0, prev + (newLiked ? 1 : -1)));
+
+            if (newLiked) await likeImage(image.id);
+            else await unlikeImage(image.id);
+
+            Animated.sequence([
+                Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
+                Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
+            ]).start();
+
+            console.log('[ImageCard] toggled like ->', { newLiked, localLikeCount });
+        } catch (error) {
+            console.log('🔥 Lỗi khi toggle like:', error);
+        }
     };
 
     const handleFollow = () => onToggleFollow(image.userId);
+    const handleOpenComments = () => { setShowComments(true); fetchComments(); };
+    const handleAddComment = async (content: string, parentId: string | null = null) => { await addComment(content, parentId); };
+    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => { await deleteComment(commentId, parentId); };
 
-    const handleOpenComments = () => {
-        setShowComments(true);
-        fetchComments();
-    };
+    const likeScale = likeAnimation.interpolate({ inputRange: [0, 1], outputRange: [1, 1.3] });
 
-    const handleAddComment = async (content: string, parentId: string | null = null) => {
-        await addComment(content, parentId);
-    };
-
-    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
-        await deleteComment(commentId, parentId);
-    };
-
-    const likeScale = likeAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 1.3],
-    });
-
-    const formatNumber = (num: number) => {
-        if (!num) return '0';
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-        return num.toString();
+    const formatNumber = (num?: number) => {
+        if (num === undefined || num === null || Number.isNaN(num)) return '0';
+        const n = Number(num);
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+        return n.toString();
     };
 
     return (
@@ -158,50 +217,37 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#fff" />
                 </TouchableOpacity>
-                <Image source={{ uri: image.imageUrl }} style={styles.image} />
-                <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
-                    style={styles.gradient}
-                />
 
-                {/* Info bottom */}
+                <Image source={{ uri: image.imageUrl }} style={styles.image} />
+                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']} style={styles.gradient} />
+
                 <View style={styles.bottomContent}>
                     <View style={styles.leftContent}>
-                        {image.caption ? (
-                            <Text style={styles.caption} numberOfLines={2}>
-                                {image.caption}
-                            </Text>
-                        ) : null}
+                        {image.caption ? <Text style={styles.caption} numberOfLines={2}>{image.caption}</Text> : null}
                     </View>
 
                     <View style={styles.rightContent}>
-                        {/* Like */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
                                 <Ionicons
-                                    name={isLiked ? 'heart' : 'heart-outline'}
+                                    name={localIsLiked ? 'heart' : 'heart-outline'}
                                     size={32}
-                                    color={isLiked ? '#FF3B5C' : '#fff'}
+                                    color={localIsLiked ? '#FF3B5C' : '#fff'}
                                 />
                             </Animated.View>
-                            <Text style={styles.actionText}>
-                                {formatNumber(localLikeCount + (isLiked ? 1 : 0))}
-                            </Text>
+                            <Text style={styles.actionText}>{formatNumber(localLikeCount ?? 0)}</Text>
                         </TouchableOpacity>
 
-                        {/* Comment */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                            <Text style={styles.actionText}>{totalCommentCount}</Text>
+                            <Text style={styles.actionText}>{totalCommentCount ?? 0}</Text>
                         </TouchableOpacity>
 
-                        {/* View */}
                         <View style={styles.actionButton}>
                             <Ionicons name="eye-outline" size={28} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(image.views)}</Text>
+                            <Text style={styles.actionText}>{formatNumber(Number(image.views) || 0)}</Text>
                         </View>
 
-                        {/* Music spinning */}
                         {music && (
                             <Animated.View style={[styles.musicDisc, { transform: [{ rotate }] }]}>
                                 <Ionicons name="musical-notes" size={22} color="#fff" />
@@ -210,7 +256,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
                     </View>
                 </View>
 
-                {/* Music info */}
                 {music && (
                     <View style={styles.musicInfo}>
                         <Ionicons name="musical-notes" size={16} color="#fff" />
@@ -221,13 +266,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 )}
             </TouchableOpacity>
 
-            {/* Comment Modal */}
-            <Modal
-                visible={showComments}
-                transparent
-                animationType="slide"
-                onRequestClose={() => setShowComments(false)}
-            >
+            <Modal visible={showComments} transparent animationType="slide" onRequestClose={() => setShowComments(false)}>
                 <CommentModalImage
                     imageId={String(image.id)}
                     comments={comments}
@@ -265,32 +304,8 @@ const styles = StyleSheet.create({
     rightContent: { alignItems: 'center', gap: 18 },
     actionButton: { alignItems: 'center', gap: 4 },
     actionText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-    musicInfo: {
-        position: 'absolute',
-        bottom: 20,
-        left: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
+    musicInfo: { position: 'absolute', bottom: 20, left: 16, flexDirection: 'row', alignItems: 'center', gap: 6 },
     musicText: { color: '#fff', fontSize: 14, maxWidth: '70%' },
-    musicDisc: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        borderWidth: 2,
-        borderColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    backButton: {
-        position: 'absolute',
-        top: 40,
-        left: 16,
-        zIndex: 10,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        borderRadius: 30,
-        padding: 6,
-    },
+    musicDisc: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#fff', justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+    backButton: { position: 'absolute', top: 40, left: 16, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 30, padding: 6 },
 });

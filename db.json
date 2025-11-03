@@ -108,14 +108,16 @@
       ],
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ],
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 5
+      "commentCount": 5,
+      "likes": 3
     },
     {
       "id": "i2",
@@ -128,14 +130,16 @@
       ],
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "userId": "u1",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
-      "commentCount": 4
+      "commentCount": 4,
+      "likes": 3
     },
     {
       "id": "i3",
