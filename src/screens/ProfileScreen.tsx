@@ -28,7 +28,10 @@ const ProfileScreen: React.FC = () => {
 
   const navigation: any = useNavigation();
   const { currentUser, loadUser, loading: userLoading } = useUser();
-  const { followerCount, followingCount, loading: followerLoading } = useFollower();
+  const { followerCount, followingCount, loading: followerLoading, refreshFollowers, refreshFollowing } = useFollower();
+
+  const [loadingFollowers, setLoadingFollowers] = useState(false);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const { loading: videoLoading, loadVideosByUser } = useVideo();
 
@@ -53,7 +56,31 @@ const ProfileScreen: React.FC = () => {
 
     loadData();
   }, [currentUser?.id]);
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refreshFollowers(), refreshFollowing()]);
+  }, [refreshFollowers, refreshFollowing]);
+  useFocusEffect(
+    useCallback(() => {
+      if (!currentUser?.id) return;
 
+      const refetch = async () => {
+        console.log('🔁 Refetching Profile Data...');
+        try {
+          await Promise.all([
+            loadVideosByUser(currentUser.id).then((vids) =>
+              setUserVideos(Array.isArray(vids) ? vids : [])
+            ),
+            loadImages(),
+            refreshAll(), // ✅ cập nhật follower/following luôn
+          ]);
+        } catch (err) {
+          console.error('❌ Refetch error:', err);
+        }
+      };
+
+      refetch();
+    }, [currentUser?.id, refreshAll])
+  );
   // ⚡ Chỉ refetch khi focus màn hình (ví dụ quay lại từ tab khác)
   useFocusEffect(
     useCallback(() => {
@@ -157,7 +184,7 @@ const ProfileScreen: React.FC = () => {
       // ✅ Sửa thành:
       const likedVideos = publicVideos.filter(v => v.likedBy?.includes(CURRENT_USER_ID));
       const likedImages = publicImages.filter(img => img.isLiked === true);
-      console.log("danh sach image like" + likedImages+ "danh sach video"+ likedVideos)
+      console.log("danh sach image like" + likedImages + "danh sach video" + likedVideos)
       return (
         <>
           <View style={styles.privacyMenu}>
