@@ -28,12 +28,14 @@ const ProfileScreen: React.FC = () => {
   const { currentUser, loadUser, loading: userLoading } = useUser();
   const { followerCount, followingCount, loading: followerLoading } = useFollower();
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
-  const { videos, loading: videoLoading } = useVideo();
+  const { videos, loading: videoLoading, loadVideosByUser } = useVideo();
 
   const publicVideos = videos.filter((v) => v.isPublic);
   const privateVideos = videos.filter((v) => !v.isPublic);
   const isLoading = userLoading || followerLoading;
+  
 
+ 
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);

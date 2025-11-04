@@ -25,10 +25,10 @@ const ProfileImageList: React.FC<Props> = ({
     loading,
     onPressImage,
 }) => {
-    // const { getImageLikes } = useImage();
+  
     const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
     const { countCommentsByImage } = useImageComments();
-    // const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+   
     useEffect(() => {
         const fetchLikes = async () => {
             const counts: Record<string, number> = {};
