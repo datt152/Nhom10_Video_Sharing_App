@@ -50,6 +50,7 @@ interface CommentModalVideoProps {
     onAddComment: (content: string, parentId?: string | null) => void;
     onDeleteComment: (commentId: string, parentId?: string | null) => void;
     onLikeComment: (commentId: string) => void;
+    onCommentsUpdated?: () => void; // ✅ thêm callback mới
 }
 
 export default function CommentModalVideo({

@@ -156,11 +156,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
             if (localIsLiked) {
                 await unlikeVideo(video.id);
                 setLocalIsLiked(false);
-                setLikeCount((prev) => Math.max(0, prev - 1));
             } else {
                 await likeVideo(video.id);
                 setLocalIsLiked(true);
-                setLikeCount((prev) => prev + 1);
+                triggerHeartAnimation();
             }
 
             Animated.sequence([
@@ -171,36 +170,19 @@ const VideoCard: React.FC<VideoCardProps> = ({
             console.log('🔥 Lỗi khi toggle like:', error);
         }
     };
-
-    // 💕 Double-tap để thả tym
-    const handleDoubleTap = async () => {
-        if (!localIsLiked) {
-            await likeVideo(video.id);
-            setLocalIsLiked(true);
-            setLikeCount((prev) => prev + 1);
-        }
-        triggerHeartAnimation();
+    const handleAddComment = async (content: string, parentId: string | null = null) => {
+        const newComment = await addComment(content, parentId);
+        const updatedComments = await getCommentsByVideo(video.id);
+        // onCommentsUpdated?.(); // ✅ báo ra ngoài để cập nhật lại
+        setVideoCommentsList(updatedComments || []);
+    };
+    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+        await deleteComment(commentId, parentId);
     };
 
-    const handleTap = async () => {
-        const now = Date.now();
-        if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-            handleDoubleTap();
-        } else {
-            lastTap.current = now;
-            if (videoRef.current) {
-                if (isPlaying) {
-                    await videoRef.current.pauseAsync();
-                    setIsPlaying(false);
-                    stopRotation();
-                } else {
-                    await videoRef.current.playAsync();
-                    setIsPlaying(true);
-                    startRotation();
-                }
-            }
-        }
-    };
+
+
+
 
     const handleOpenComments = async (videoId: string) => {
         try {
@@ -211,17 +193,26 @@ const VideoCard: React.FC<VideoCardProps> = ({
             console.error("❌ Lỗi khi lấy bình luận:", error);
         }
     };
+    const handleRefreshComments = async () => {
+        const updatedComments = await getCommentsByVideo(video.id);
+        setVideoCommentsList(updatedComments || []);
 
+        // ✅ Cập nhật lại số comment hiển thị trên icon chat
+        setCommentCounts(prev => ({
+            ...prev,
+            [video.id]: updatedComments.length,
+        }));
+    };
     const formatNumber = (num: number) => {
         if (!num) return '0';
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
         return num.toString();
     };
-    
+
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
-            <Pressable onPress={handleTap} style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
+            <Pressable style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
@@ -327,11 +318,28 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     comments={videoCommentsList}
                     currentUserId={currentUserId}
                     isVisible={showComments}
-                    onClose={() => setShowComments(false)}
-                    onAddComment={() => { }}
-                    onDeleteComment={() => { }}
+                    onClose={() => {
+                        setShowComments(false);
+                        handleRefreshComments(); // nếu bạn muốn reload lại khi tắt modal
+                    }}
+                    onAddComment={handleAddComment}
                     onLikeComment={likeComment}
+                    onCommentsUpdated={() => {
+                        handleRefreshComments(); // ✅ gọi hàm refresh khi comment thay đổi
+                    }}
+                    onDeleteComment={handleDeleteComment}   // ✅ thêm dòng này
                 />
+                {/* <CommentModalVideo
+                    videoId={video.id}
+                    comments={comments}
+                    currentUserId={currentUser.id}
+                    isVisible={isCommentModalVisible}
+                    onClose={() => setCommentModalVisible(false)}
+                    onAddComment={handleAddComment}
+                    onDeleteComment={handleDeleteComment}
+                    onLikeComment={handleLikeComment}
+                /> */}
+
             </Modal>
         </View>
     );

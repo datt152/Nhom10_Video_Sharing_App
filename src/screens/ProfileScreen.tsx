@@ -34,12 +34,45 @@ const ProfileScreen: React.FC = () => {
 
   const [userVideos, setUserVideos] = useState<any[]>([]);
 
+  // ⚡ Trong ProfileScreen
   useEffect(() => {
-    if (currentUser?.id) {
-      loadVideosByUser(currentUser.id).then(setUserVideos);
-    }
+    if (!currentUser?.id) return;
+
+    const loadData = async () => {
+      setLoadingContent(true);
+      try {
+        const vids = await loadVideosByUser(currentUser.id);
+        setUserVideos(Array.isArray(vids) ? vids : []);
+        await loadImages();
+      } catch (err) {
+        console.error('❌ Error loading profile data:', err);
+      } finally {
+        setLoadingContent(false);
+      }
+    };
+
+    loadData();
   }, [currentUser?.id]);
 
+  // ⚡ Chỉ refetch khi focus màn hình (ví dụ quay lại từ tab khác)
+  useFocusEffect(
+    useCallback(() => {
+      if (!currentUser?.id) return;
+
+      const refetch = async () => {
+        console.log('🔁 Refetching Profile Data...');
+        try {
+          const vids = await loadVideosByUser(currentUser.id);
+          setUserVideos(Array.isArray(vids) ? vids : []);
+          await loadImages();
+        } catch (err) {
+          console.error('❌ Refetch error:', err);
+        }
+      };
+
+      refetch();
+    }, [currentUser?.id])
+  );
   const publicVideos = userVideos.filter((v) => v.isPublic);
   const privateVideos = userVideos.filter((v) => !v.isPublic);
   const isLoading = userLoading || followerLoading;
@@ -121,11 +154,10 @@ const ProfileScreen: React.FC = () => {
     }
 
     if (menu === 'liked') {
-      // Chỉ lấy video và ảnh công khai mà user đã like
-      const likedVideos = publicVideos;
-      console.log("danh sach video public da duoc tym " + likedVideos)
-      const likedImages = publicImages;
-      console.log("danh sach image public da  duoc tym" + likedImages)
+      // ✅ Sửa thành:
+      const likedVideos = publicVideos.filter(v => v.likedBy?.includes(CURRENT_USER_ID));
+      const likedImages = publicImages.filter(img => img.isLiked === true);
+      console.log("danh sach image like" + likedImages+ "danh sach video"+ likedVideos)
       return (
         <>
           <View style={styles.privacyMenu}>
