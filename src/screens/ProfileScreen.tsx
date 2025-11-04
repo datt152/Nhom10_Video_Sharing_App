@@ -29,7 +29,7 @@ const ProfileScreen: React.FC = () => {
   const { currentUser, loadUser, loading: userLoading } = useUser();
   const { followerCount, followingCount, loading: followerLoading } = useFollower();
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
-  const { videos, loading: videoLoading, loadVideosByUser } = useVideo();
+  const { loading: videoLoading, loadVideosByUser } = useVideo();
 
   const [userVideos, setUserVideos] = useState<any[]>([]);
 
@@ -120,11 +120,11 @@ const ProfileScreen: React.FC = () => {
     }
 
     if (menu === 'liked') {
-      const likedVideos = videos.filter((v) => v.likedBy?.includes(CURRENT_USER_ID));
-      const likedImages = [...publicImages, ...privateImages].filter((img) =>
-        img.likeBy?.includes(CURRENT_USER_ID)
-      );
-
+      // Chỉ lấy video và ảnh công khai mà user đã like
+      const likedVideos = publicVideos;
+      console.log("danh sach video public da duoc tym " + likedVideos)
+      const likedImages = publicImages;
+      console.log("danh sach image public da  duoc tym"+likedImages)
       return (
         <>
           <View style={styles.privacyMenu}>
@@ -139,16 +139,21 @@ const ProfileScreen: React.FC = () => {
 
           <View style={styles.contentBox}>
             {likedVideo === 'videos' ? (
-              <ProfileVideoList videos={likedVideos} privacy="public" loading={videoLoading} />
+              <ProfileVideoList
+                videos={likedVideos}
+                privacy="public"
+                loading={videoLoading}
+                onPressVideo={(video) => navigation.navigate('VideoScreen', { video })}
+              />
             ) : (
               <ProfileImageList
                 images={likedImages}
                 privacy="public"
                 loading={imageLoading}
-                onPressImage={(img) =>
-                  navigation.navigate('UserVideoViewer', {
-                    videos: likedImages,
-                    initialVideoId: img.id,
+                onPressImage={(img, index) =>
+                  navigation.navigate('UserImageViewer', {
+                    images: likedImages,     // ✅ đúng prop name
+                    initialIndex: index,     // ✅ đúng dạng index
                   })
                 }
               />
@@ -158,13 +163,7 @@ const ProfileScreen: React.FC = () => {
       );
     }
 
-    return (
-      <View style={styles.contentBox}>
-        <Text style={styles.contentText}>Không có nội dung hiển thị</Text>
-      </View>
-    );
-  };
-
+  }
   if (isLoading || !currentUser) {
     return (
       <View style={styles.center}>

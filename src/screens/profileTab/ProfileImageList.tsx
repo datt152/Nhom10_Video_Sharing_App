@@ -25,21 +25,28 @@ const ProfileImageList: React.FC<Props> = ({
     loading,
     onPressImage,
 }) => {
-  
+
     const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
     const { countCommentsByImage } = useImageComments();
-   
+    const { getImageLikes } = useImage()
+    const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
     useEffect(() => {
-        const fetchLikes = async () => {
-            const counts: Record<string, number> = {};
+        const fetchStats = async () => {
+            const likeMap: Record<string, number> = {};
+            const commentMap: Record<string, number> = {};
+
             for (const img of images) {
-                const count = await countCommentsByImage(img.id);
-                counts[img.id] = count;
+                // lấy số like
+                likeMap[img.id] = await getImageLikes(img.id);
+                // lấy số comment
+                commentMap[img.id] = await countCommentsByImage(img.id);
             }
-            setLikeCounts(counts);
+
+            setLikeCounts(likeMap);
+            setCommentCounts(commentMap);
         };
 
-        if (images.length) fetchLikes();
+        if (images.length) fetchStats();
     }, [images]);
 
     if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
@@ -82,15 +89,11 @@ const ProfileImageList: React.FC<Props> = ({
                                     <View style={styles.iconRow}>
                                         <View style={styles.iconGroup}>
                                             <Ionicons name="heart" size={14} color="#fff" />
-                                            <Text style={styles.iconText}>
-                                                {likeCounts[img.id] ?? 0}
-                                            </Text>
+                                            <Text style={styles.iconText}>{likeCounts[img.id] ?? 0}</Text>
                                         </View>
                                         <View style={styles.iconGroup}>
                                             <Ionicons name="chatbubble-outline" size={14} color="#fff" />
-                                            <Text style={styles.iconText}>
-                                                {likeCounts[String(img.id)]}
-                                            </Text>
+                                            <Text style={styles.iconText}>{commentCounts[img.id] ?? 0}</Text>
                                         </View>
                                     </View>
                                 </View>

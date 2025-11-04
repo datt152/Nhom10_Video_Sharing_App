@@ -96,7 +96,7 @@
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
-      "isPublic": true,
+      "isPublic": false,
       "commentCount": 5,
       "likes": 3
     },
@@ -182,7 +182,7 @@
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": false,
+      "isPublic": true,
       "user": {
         "id": "u1",
         "username": "linhnguyen",
