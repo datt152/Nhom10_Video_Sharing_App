@@ -66,17 +66,18 @@ export const useImage = () => {
             const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
             const image = res.data;
 
-            let updatedLikedBy = image.likedBy || [];
-            if (!updatedLikedBy.includes(CURRENT_USER_ID)) {
-                updatedLikedBy.push(CURRENT_USER_ID);
-            }
+            const updatedLikedBy = [
+                ...(image.likedBy || []),
+                CURRENT_USER_ID,
+            ];
 
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
                 likedBy: updatedLikedBy,
                 likes: updatedLikedBy.length,
+                isLiked: true, // 👈 Thêm dòng này để set về true luôn
             });
 
-            console.log(`❤️ Like ảnh ${imageId}`);
+            console.log(`❤️ Đã like ảnh ${imageId}`);
             return updatedLikedBy.length;
         } catch (error) {
             console.error("🔥 Lỗi khi like ảnh:", error);
@@ -90,13 +91,16 @@ export const useImage = () => {
             const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
             const image = res.data;
 
-            let updatedLikedBy = (image.likedBy || []).filter(
+            // Lọc bỏ user hiện tại khỏi danh sách like
+            const updatedLikedBy = (image.likedBy || []).filter(
                 (id: string) => id !== CURRENT_USER_ID
             );
 
+            // Cập nhật DB: bỏ tym + set isLiked = false
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
                 likedBy: updatedLikedBy,
                 likes: updatedLikedBy.length,
+                isLiked: false, // 👈 Thêm dòng này để set về false luôn
             });
 
             console.log(`💔 Bỏ like ảnh ${imageId}`);

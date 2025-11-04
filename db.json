@@ -90,6 +90,7 @@
         "u3",
         "u1"
       ],
+      "isLiked": true,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u1",
@@ -117,8 +118,9 @@
       "userId": "u1",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
-      "commentCount": 4,
-      "likes": 3
+      "commentCount": 1,
+      "likes": 3,
+      "isLiked": true
     },
     {
       "id": "i3",
@@ -130,13 +132,16 @@
       ],
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ],
+      "likes": 3,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "userId": "u1",
       "location": "Hội An",
-      "isPublic": false
+      "isPublic": true,
+      "isLiked": true
     },
     {
       "id": "i1762175658889",
@@ -171,8 +176,7 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "likeCount": 2,
-
+      "likeCount": 3,
       "commentCount": 14,
       "shareCount": 89,
       "views": 25002,
@@ -186,7 +190,8 @@
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -487,7 +492,6 @@
       "userId": "u1",
       "content": "Ho",
       "createdAt": "2025-11-03T14:30:02.805Z",
-
       "likeCount": 1,
       "likedBy": [
         "u1"
@@ -773,6 +777,17 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1762226462085",
+      "imageId": "i2",
+      "userId": "u1",
+      "content": "hay qya di",
+      "createdAt": "2025-11-04T03:21:02.085Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [

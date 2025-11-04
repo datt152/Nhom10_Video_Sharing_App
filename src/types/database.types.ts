@@ -34,7 +34,7 @@ export interface Image {
   location?: string;
   isPublic?: boolean;
   likeBy?: string[];
-
+  isLiked?: boolean;
   // Liên kết nhạc
   musicId?: string; // ID bài nhạc (nếu dùng _expand)
   music?: {
@@ -66,7 +66,7 @@ export interface Video {
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
-  
+
 }
 
 export interface Comment {

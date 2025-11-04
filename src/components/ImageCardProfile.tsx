@@ -1,4 +1,4 @@
-// components/ImageCard.tsx (fixed likedBy key)
+// ✅ components/ImageCard.tsx (chuẩn field likedBy + cập nhật isLiked)
 import React, { useEffect, useState, useRef, memo } from 'react';
 import {
     View,
@@ -25,7 +25,7 @@ interface ImageCardProps {
     currentUserId: string;
     onToggleLike: (imageId: string) => void;
     onToggleFollow: (userId: string) => void;
-    isLiked: boolean;
+    isLiked?: boolean;
     isActive?: boolean;
     musics?: Music[];
 }
@@ -36,20 +36,14 @@ const ImageCard: React.FC<ImageCardProps> = ({
     currentUserId,
     onToggleLike,
     onToggleFollow,
-    isLiked,
     isActive,
     musics = [],
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-
-    // ✅ dùng likedBy (đúng key)
-    const initialLikes = Number(image?.likes ?? (Array.isArray(image.likeBy) ? image.likeBy.length : 0)) || 0;
-    const [localLikeCount, setLocalLikeCount] = useState<number>(initialLikes);
+    const [localLikeCount, setLocalLikeCount] = useState(image.likes || image.likeBy?.length || 0);
+    const [localIsLiked, setLocalIsLiked] = useState(image.likeBy?.includes(currentUserId) || false);
     const [totalCommentCount, setTotalCommentCount] = useState(0);
-    const [localIsLiked, setLocalIsLiked] = useState<boolean>(
-        Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false
-    );
 
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
@@ -66,57 +60,52 @@ const ImageCard: React.FC<ImageCardProps> = ({
     } = useImageComments(String(image.id));
     const navigation = useNavigation();
 
-    // DEBUG
+    // ✅ Đồng bộ like từ publicImages
     useEffect(() => {
-        console.log('[ImageCard] mount/update for image.id=', image.id);
-        console.log(' image.likes prop:', image.likes);
-        console.log(' image.likedBy prop (len):', Array.isArray(image.likeBy) ? image.likeBy.length : image.likeBy);
-        console.log(' initial localLikeCount:', localLikeCount);
-        console.log(' localIsLiked initial:', localIsLiked);
-    }, [image.id]);
-
-    // ✅ Sync lại khi likedBy thay đổi
-    useEffect(() => {
-        const likeByLen = Array.isArray(image.likeBy) ? image.likeBy.length : undefined;
-        const likedNow = Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false;
-
-        console.log('[ImageCard] syncing from image.likedBy ->', { likeByLen, likedNow });
-
-        setLocalIsLiked(!!likedNow);
-
-        const newCount = typeof likeByLen === 'number' ? likeByLen : (Number(image.likes) || 0);
-        if (!Number.isNaN(newCount) && newCount !== localLikeCount) {
-            setLocalLikeCount(newCount);
-        }
-    }, [image.likeBy, image.likes, currentUserId]);
-
-    // cập nhật khi publicImages thay đổi
-    useEffect(() => {
-        if (!publicImages || !image?.id) return;
         const updated = publicImages.find((img) => img.id === image.id);
         if (updated) {
-            const liked = Array.isArray(updated.likeBy) ? updated.likeBy.includes(currentUserId) : false;
-            const likeCountFromUpdated = Array.isArray(updated.likeBy)
+            const likedNow = Array.isArray(updated.likeBy)
+                ? updated.likeBy.includes(currentUserId)
+                : !!updated.isLiked;
+
+            const likeCount = Array.isArray(updated.likeBy)
                 ? updated.likeBy.length
-                : (Number(updated.likes) || 0);
+                : Number(updated.likes) || 0;
 
-            console.log('[ImageCard] publicImages update ->', { liked, likeCountFromUpdated });
+            setLocalIsLiked(likedNow);
+            setLocalLikeCount(likeCount);
+        } else {
+            const likedNow = Array.isArray(image.likeBy)
+                ? image.likeBy.includes(currentUserId)
+                : !!image.isLiked;
 
-            if (liked !== localIsLiked) setLocalIsLiked(!!liked);
-            if (!Number.isNaN(likeCountFromUpdated) && likeCountFromUpdated !== localLikeCount) {
-                setLocalLikeCount(likeCountFromUpdated);
-            }
+            const likeCount = Array.isArray(image.likeBy)
+                ? image.likeBy.length
+                : Number(image.likes) || 0;
+
+            setLocalIsLiked(likedNow);
+            setLocalLikeCount(likeCount);
         }
-    }, [publicImages?.length]);
+    }, [publicImages, image.id, currentUserId]);
 
-    // lấy count chính xác từ DB
+    // ✅ Sync khi image prop thay đổi
+    useEffect(() => {
+        const likedNow = Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false;
+        const likeCount = Array.isArray(image.likeBy)
+            ? image.likeBy.length
+            : Number(image.likes) || 0;
+
+        setLocalIsLiked(likedNow);
+        setLocalLikeCount(likeCount);
+    }, [image.likeBy, image.likes, currentUserId]);
+
+    // ✅ Lấy lại số lượng like từ DB
     useEffect(() => {
         let mounted = true;
         const fetch = async () => {
             try {
                 if (typeof getImageLikes === 'function') {
                     const count = await getImageLikes(image.id);
-                    console.log('[ImageCard] getImageLikes result:', count);
                     if (mounted && typeof count === 'number' && count !== localLikeCount) {
                         setLocalLikeCount(count);
                     }
@@ -126,10 +115,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
             }
         };
         fetch();
-        return () => { mounted = false; };
+        return () => {
+            mounted = false;
+        };
     }, [image.id]);
 
-    // đếm bình luận
+    // ✅ Đếm bình luận
     useEffect(() => {
         const loadCount = async () => {
             try {
@@ -142,8 +133,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
         loadCount();
     }, [comments, image.id]);
 
+    // ✅ Xử lý nhạc quay đĩa
     const music = musics.find((m) => m.id === image.musicId);
-
     useEffect(() => {
         if (!isActive || !music?.uri) return;
         startRotation();
@@ -164,42 +155,40 @@ const ImageCard: React.FC<ImageCardProps> = ({
     };
     const stopRotation = () => spinAnim.stopAnimation();
     const rotate = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-    useEffect(() => {
-        console.log('[ImageCard] syncing from image.likeBy ->', {
-            likeByLen: image?.likeBy?.length,
-            likedNow: image?.likeBy?.includes(currentUserId),
-        });
 
-        if (image) {
-            setLocalLikeCount(image.likeBy?.length || 0);
-            setLocalIsLiked(image.likeBy?.includes(currentUserId) || false);
-        }
-    }, [image]);
-
+    // ✅ Toggle like
     const handleLike = async () => {
         try {
             const newLiked = !localIsLiked;
             setLocalIsLiked(newLiked);
             setLocalLikeCount((prev) => Math.max(0, prev + (newLiked ? 1 : -1)));
 
-            if (newLiked) await likeImage(image.id);
-            else await unlikeImage(image.id);
+            if (newLiked) {
+                await likeImage(image.id);
+            } else {
+                await unlikeImage(image.id);
+            }
 
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
                 Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
             ]).start();
-
-            console.log('[ImageCard] toggled like ->', { newLiked, localLikeCount });
         } catch (error) {
             console.log('🔥 Lỗi khi toggle like:', error);
         }
     };
 
     const handleFollow = () => onToggleFollow(image.userId);
-    const handleOpenComments = () => { setShowComments(true); fetchComments(); };
-    const handleAddComment = async (content: string, parentId: string | null = null) => { await addComment(content, parentId); };
-    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => { await deleteComment(commentId, parentId); };
+    const handleOpenComments = () => {
+        setShowComments(true);
+        fetchComments();
+    };
+    const handleAddComment = async (content: string, parentId: string | null = null) => {
+        await addComment(content, parentId);
+    };
+    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+        await deleteComment(commentId, parentId);
+    };
 
     const likeScale = likeAnimation.interpolate({ inputRange: [0, 1], outputRange: [1, 1.3] });
 
@@ -219,11 +208,18 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 </TouchableOpacity>
 
                 <Image source={{ uri: image.imageUrl }} style={styles.image} />
-                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']} style={styles.gradient} />
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
+                    style={styles.gradient}
+                />
 
                 <View style={styles.bottomContent}>
                     <View style={styles.leftContent}>
-                        {image.caption ? <Text style={styles.caption} numberOfLines={2}>{image.caption}</Text> : null}
+                        {image.caption ? (
+                            <Text style={styles.caption} numberOfLines={2}>
+                                {image.caption}
+                            </Text>
+                        ) : null}
                     </View>
 
                     <View style={styles.rightContent}>
@@ -266,7 +262,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 )}
             </TouchableOpacity>
 
-            <Modal visible={showComments} transparent animationType="slide" onRequestClose={() => setShowComments(false)}>
+            <Modal
+                visible={showComments}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setShowComments(false)}
+            >
                 <CommentModalImage
                     imageId={String(image.id)}
                     comments={comments}
