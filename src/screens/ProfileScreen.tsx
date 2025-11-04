@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -124,7 +125,7 @@ const ProfileScreen: React.FC = () => {
       const likedVideos = publicVideos;
       console.log("danh sach video public da duoc tym " + likedVideos)
       const likedImages = publicImages;
-      console.log("danh sach image public da  duoc tym"+likedImages)
+      console.log("danh sach image public da  duoc tym" + likedImages)
       return (
         <>
           <View style={styles.privacyMenu}>

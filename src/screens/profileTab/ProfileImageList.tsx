@@ -17,6 +17,7 @@ type Props = {
     privacy: 'public' | 'private';
     loading: boolean;
     onPressImage?: (img: ImageType, index: number) => void; // ✅ thêm index
+    onTogglePrivacy?: (imageId: string, newPrivacy: boolean) => void;
 };
 
 const ProfileImageList: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const ProfileImageList: React.FC<Props> = ({
     privacy,
     loading,
     onPressImage,
+    onTogglePrivacy
 }) => {
 
     const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
@@ -31,23 +33,45 @@ const ProfileImageList: React.FC<Props> = ({
     const { getImageLikes } = useImage()
     const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
     useEffect(() => {
-        const fetchStats = async () => {
-            const likeMap: Record<string, number> = {};
-            const commentMap: Record<string, number> = {};
+        if (!images || images.length === 0) return;
 
-            for (const img of images) {
-                // lấy số like
-                likeMap[img.id] = await getImageLikes(img.id);
-                // lấy số comment
-                commentMap[img.id] = await countCommentsByImage(img.id);
+        let isMounted = true; // tránh setState sau khi unmount
+
+        const fetchCounts = async () => {
+            try {
+                const likePromises = images.map((img) => getImageLikes(img.id));
+                const commentPromises = images.map((img) => countCommentsByImage(img.id));
+
+                const [likes, comments] = await Promise.all([
+                    Promise.all(likePromises),
+                    Promise.all(commentPromises),
+                ]);
+
+                if (!isMounted) return;
+
+                const likeData: Record<string, number> = {};
+                const commentData: Record<string, number> = {};
+
+                images.forEach((img, i) => {
+                    likeData[img.id] = likes[i];
+                    commentData[img.id] = comments[i];
+                });
+
+                setLikeCounts(likeData);
+                setCommentCounts(commentData);
+            } catch (err) {
+                console.warn('❌ fetchCounts error:', err);
             }
-
-            setLikeCounts(likeMap);
-            setCommentCounts(commentMap);
         };
 
-        if (images.length) fetchStats();
+        fetchCounts();
+
+        return () => {
+            isMounted = false;
+        };
     }, [images]);
+
+
 
     if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
 

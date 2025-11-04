@@ -97,7 +97,7 @@
       "userId": "u1",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": false,
-      "commentCount": 5,
+      "commentCount": 6,
       "likes": 3
     },
     {
@@ -810,6 +810,17 @@
       "userId": "u1",
       "content": "hay qya di",
       "createdAt": "2025-11-04T03:21:02.085Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762266315392",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "kkkkkk",
+      "createdAt": "2025-11-04T14:25:15.392Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
