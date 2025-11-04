@@ -17,6 +17,7 @@ import { useImage } from '../hooks/useImage';
 import ProfileImageList from './profileTab/ProfileImageList';
 import { CURRENT_USER_ID, useVideo } from '../hooks/useVideo';
 import ProfileVideoList from './profileTab/ProfileVideoList';
+import { Video } from 'expo-av';
 
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
@@ -30,12 +31,20 @@ const ProfileScreen: React.FC = () => {
   const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
   const { videos, loading: videoLoading, loadVideosByUser } = useVideo();
 
-  const publicVideos = videos.filter((v) => v.isPublic);
-  const privateVideos = videos.filter((v) => !v.isPublic);
-  const isLoading = userLoading || followerLoading;
-  
+  const [userVideos, setUserVideos] = useState<any[]>([]);
 
- 
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadVideosByUser(currentUser.id).then(setUserVideos);
+    }
+  }, [currentUser?.id]);
+
+  const publicVideos = userVideos.filter((v) => v.isPublic);
+  const privateVideos = userVideos.filter((v) => !v.isPublic);
+  const isLoading = userLoading || followerLoading;
+
+
+
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);

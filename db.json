@@ -196,6 +196,30 @@
       ]
     },
     {
+      "id": "v9",
+      "userId": "u1",
+      "title": "Hành trình ở Đà Lạt 🌿",
+      "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
+      "thumbnail": "https://picsum.photos/id/1015/400/700",
+      "likeCount": 3,
+      "commentCount": 14,
+      "shareCount": 89,
+      "views": 25002,
+      "createdAt": "2025-10-10T10:00:00Z",
+      "isPublic": false,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
+      "likedBy": [
+        "u2",
+        "u3",
+        "u1"
+      ]
+    },
+    {
       "id": "v4",
       "userId": "u4",
       "title": "Dance challenge 💃",

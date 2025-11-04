@@ -155,19 +155,15 @@ export const useVideo = () => {
     }
   }, []);
 
-  // 4️⃣ Lấy danh sách video theo userId
   const loadVideosByUser = async (userId?: string) => {
     try {
-      setLoading(true);
       const res = await api.get('/videos');
       const allVideos = res.data;
-      setVideos(
-        userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos
-      );
+      const userVideos = userId ? allVideos.filter((v: any) => v.userId === userId) : allVideos;
+      return userVideos; // ✅ trả kết quả mà không set state
     } catch (err) {
       console.error('Error loading user videos:', err);
-    } finally {
-      setLoading(false);
+      return [];
     }
   };
 
@@ -242,29 +238,30 @@ export const useVideo = () => {
       return 0;
     }
   };
-  // 8️⃣ GET VIDEO BY ID
-  const getVideoById = async (id: string): Promise<Video | null> => {
+  // 4️⃣ Lấy danh sách video theo userId (không ảnh hưởng state videos)
+  const getVideoById = async (userId?: string): Promise<Video[]> => {
     try {
-      const [videoRes, userRes] = await Promise.all([
-        api.get(`/videos/${id}`),
-        api.get(`/users`),
-      ]);
+      const res = await api.get('/videos');
+      const allVideos = res.data;
+      const usersRes = await api.get('/users');
+      const users = usersRes.data;
 
-      const video = videoRes.data;
-      const users = userRes.data;
+      const userVideos = userId
+        ? allVideos.filter((v: any) => v.userId === userId)
+        : allVideos;
 
-      const enrichedVideo = {
+      const enrichedVideos = userVideos.map((video: any) => ({
         ...video,
         user: users.find((u: any) => u.id === video.userId),
         isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
-      };
+      }));
 
-      return enrichedVideo;
-    } catch (error) {
-      console.error("Error fetching video by id:", error);
-      return null;
+      return enrichedVideos; // ✅ chỉ return, không set state
+    } catch (err) {
+      console.error('Error loading user videos:', err);
+      return [];
     }
-  }
+  };
 
   // ✅ Hàm đổi trạng thái video (có cập nhật luôn local state)
   const toggleVideoPrivacy = async (videoId: string, isPublic: boolean) => {
