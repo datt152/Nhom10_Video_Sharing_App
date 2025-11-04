@@ -3,7 +3,7 @@ import { View, FlatList, Text, StyleSheet, Dimensions } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { Video as VideoType, Music } from "../../types/database.types";
 import VideoCard from "../../components/VideoCardProfile";
-
+import { useVideo } from "../../hooks/useVideo"; // ✅ import thêm
 const { height } = Dimensions.get("window");
 
 type UserVideoViewerParams = {
@@ -17,7 +17,7 @@ export default function UserVideoViewer() {
     const route = useRoute<RouteProp<{ params: UserVideoViewerParams }, "params">>();
     const { videos = [], musics = [], initialVideoId, currentUserId = "" } =
         (route.params ?? {}) as UserVideoViewerParams;
-
+    const { refreshVideos } = useVideo(); // ✅ lấy hàm refresh
     const flatListRef = useRef<FlatList<VideoType>>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [likedVideos, setLikedVideos] = useState<string[]>([]);
@@ -29,6 +29,7 @@ export default function UserVideoViewer() {
         videos.findIndex((v) => String(v.id) === String(initialVideoId)),
         0
     );
+
 
     // 🧷 Scroll tới đúng video
     useEffect(() => {
@@ -96,6 +97,8 @@ export default function UserVideoViewer() {
                         isLiked={likedVideos.includes(item.id)}
                         isActive={index === currentIndex}
                         musics={musics}
+                        onPrivacyChange={refreshVideos} // ✅ thêm dòng này
+
                     />
                 )}
                 pagingEnabled

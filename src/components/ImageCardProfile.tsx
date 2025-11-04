@@ -28,6 +28,7 @@ interface ImageCardProps {
     isLiked?: boolean;
     isActive?: boolean;
     musics?: Music[];
+    onPrivacyChange?: () => void; // ✅ thêm dòng này
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
@@ -38,18 +39,21 @@ const ImageCard: React.FC<ImageCardProps> = ({
     onToggleFollow,
     isActive,
     musics = [],
+    onPrivacyChange
+
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
     const [localLikeCount, setLocalLikeCount] = useState(image.likes || image.likeBy?.length || 0);
     const [localIsLiked, setLocalIsLiked] = useState(image.likeBy?.includes(currentUserId) || false);
     const [totalCommentCount, setTotalCommentCount] = useState(0);
-
+    const [showOptions, setShowOptions] = useState(false);
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [localIsPublic, setLocalIsPublic] = useState(image.isPublic); // ✅ thêm state riêng
 
-    const { publicImages, getImageLikes, likeImage, unlikeImage } = useImage();
+    const { publicImages, getImageLikes, likeImage, unlikeImage, toggleImagePrivacy } = useImage();
     const {
         comments,
         fetchComments,
@@ -57,6 +61,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
         deleteComment,
         likeComment,
         countCommentsByImage,
+
+
     } = useImageComments(String(image.id));
     const navigation = useNavigation();
 
@@ -239,10 +245,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
                             <Text style={styles.actionText}>{totalCommentCount ?? 0}</Text>
                         </TouchableOpacity>
 
-                        <View style={styles.actionButton}>
-                            <Ionicons name="eye-outline" size={28} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(Number(image.views) || 0)}</Text>
-                        </View>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => setShowOptions(true)}>
+                            <Ionicons name="ellipsis-horizontal" size={28} color="#fff" />
+                            <Text style={styles.actionText}>Tùy chọn</Text>
+                        </TouchableOpacity>
 
                         {music && (
                             <Animated.View style={[styles.musicDisc, { transform: [{ rotate }] }]}>
@@ -261,7 +267,37 @@ const ImageCard: React.FC<ImageCardProps> = ({
                     </View>
                 )}
             </TouchableOpacity>
+            {/* ✅ Modal hiển thị tùy chọn video */}
+            <Modal transparent visible={showOptions} animationType="fade" onRequestClose={() => setShowOptions(false)}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setShowOptions(false)}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Tùy chọn video</Text>
 
+                        <TouchableOpacity
+                            style={styles.modalButton}
+                            onPress={async () => {
+                                try {
+                                    const newStatus = await toggleImagePrivacy(image.id, localIsPublic ?? false);
+                                    setLocalIsPublic(newStatus);
+                                    onPrivacyChange?.();// ✅ cập nhật liền tại chỗ
+                                    setShowOptions(false);
+                                } catch (err) {
+                                    console.error("❌ Lỗi khi đổi trạng thái:", err);
+                                }
+                            }}
+                        >
+                            <Text style={styles.modalButtonText}>
+                                {localIsPublic ? 'Chuyển sang riêng tư 🔒' : 'Chuyển sang công khai 🌍'}
+                            </Text>
+                        </TouchableOpacity>
+
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ff4444' }]} onPress={() => setShowOptions(false)}>
+                            <Text style={[styles.modalButtonText, { color: '#fff' }]}>Hủy</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
             <Modal
                 visible={showComments}
                 transparent
@@ -309,4 +345,32 @@ const styles = StyleSheet.create({
     musicText: { color: '#fff', fontSize: 14, maxWidth: '70%' },
     musicDisc: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#fff', justifyContent: 'center', alignItems: 'center', marginTop: 10 },
     backButton: { position: 'absolute', top: 40, left: 16, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 30, padding: 6 },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContainer: {
+        backgroundColor: '#222',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    modalTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalButton: {
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: '#333',
+        marginVertical: 5,
+    },
+    modalButtonText: {
+        color: '#fff',
+        textAlign: 'center',
+        fontSize: 16,
+    },
 });

@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Image as ImageType } from '../../types/database.types';
 import { useImage } from '../../hooks/useImage'; // 👈 import hook để lấy getImageLikes
+import { useImageComments } from '../../hooks/useCommentImage';
 
 type Props = {
     images: ImageType[];
@@ -24,14 +25,15 @@ const ProfileImageList: React.FC<Props> = ({
     loading,
     onPressImage,
 }) => {
-    const { getImageLikes } = useImage();
+    // const { getImageLikes } = useImage();
     const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-
+    const { countCommentsByImage } = useImageComments();
+    // const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
     useEffect(() => {
         const fetchLikes = async () => {
             const counts: Record<string, number> = {};
             for (const img of images) {
-                const count = await getImageLikes(img.id);
+                const count = await countCommentsByImage(img.id);
                 counts[img.id] = count;
             }
             setLikeCounts(counts);
@@ -85,9 +87,9 @@ const ProfileImageList: React.FC<Props> = ({
                                             </Text>
                                         </View>
                                         <View style={styles.iconGroup}>
-                                            <Ionicons name="eye" size={14} color="#fff" />
+                                            <Ionicons name="chatbubble-outline" size={14} color="#fff" />
                                             <Text style={styles.iconText}>
-                                                {img.views ?? 0}
+                                                {likeCounts[String(img.id)]}
                                             </Text>
                                         </View>
                                     </View>

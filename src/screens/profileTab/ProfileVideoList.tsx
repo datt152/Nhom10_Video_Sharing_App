@@ -23,25 +23,24 @@ type Props = {
 const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
     const navigation = useNavigation<any>();
     const { countCommentsByVideo } = useComments(); // ✅ dùng hàm này
-    const {getLikeCount} = useVideo();
+    const { getLikeCount } = useVideo();
     const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
 
     useEffect(() => {
         const fetchCommentCounts = async () => {
+            const promises = videos.map((v) => countCommentsByVideo(v.id));
+            const results = await Promise.all(promises);
+
             const counts: Record<string, number> = {};
-            for (const v of videos) {
-                const count = await countCommentsByVideo(v.id);
-                counts[String(v.id)] = count;
-            }
-            console.log("Fetched counts:", counts);
+            videos.forEach((v, i) => {
+                counts[String(v.id)] = results[i];
+            });
             setCommentCounts(counts);
         };
 
-        if (videos.length > 0) {
-            fetchCommentCounts();
-        }
+        if (videos.length > 0) fetchCommentCounts();
     }, [videos]);
-
+    
     if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
 
     if (!videos.length)

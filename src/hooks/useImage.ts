@@ -20,8 +20,12 @@ export const useImage = () => {
             const data = res.data;
 
             if (Array.isArray(data)) {
-                const publicList = data.filter((img) => img.isPublic === true);
-                const privateList = data.filter((img) => img.isPublic === false);
+                // 🧩 Lọc ảnh thuộc về user hiện tại
+                const userImages = data.filter(img => img.userId === CURRENT_USER_ID);
+
+                // 🧩 Phân chia công khai / riêng tư
+                const publicList = userImages.filter((img) => img.isPublic === true);
+                const privateList = userImages.filter((img) => img.isPublic === false);
 
                 setPublicImages(publicList);
                 setPrivateImages(privateList);
@@ -37,7 +41,6 @@ export const useImage = () => {
             setLoading(false);
         }
     }, []);
-
     useEffect(() => {
         fetchImages();
     }, [fetchImages]);
@@ -110,6 +113,20 @@ export const useImage = () => {
             return null;
         }
     };
+    const toggleImagePrivacy = async (imageId: string, isPublic: boolean) => {
+        try {
+            const res = await fetch(`http://localhost:3000/images/${imageId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isPublic: !isPublic }),
+            });
+            const updated = await res.json();
+            return updated.isPublic;
+        } catch (error) {
+            console.error("❌ Lỗi khi đổi trạng thái ảnh:", error);
+            throw error;
+        }
+    };
 
     return {
         publicImages,
@@ -119,6 +136,7 @@ export const useImage = () => {
         refresh: fetchImages,
         getImageLikes,
         likeImage,   // ✅ sửa lại chuẩn
-        unlikeImage, // ✅ thêm đầy đủ
+        unlikeImage,
+        toggleImagePrivacy // ✅ thêm đầy đủ
     };
 };

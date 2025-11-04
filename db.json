@@ -15,7 +15,8 @@
         "u4"
       ],
       "followingIds": [
-        "u2"
+        "u2",
+        "u3"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
@@ -55,7 +56,7 @@
       "followingIds": [
         "u1"
       ],
-      "followerCount": 0
+      "followerCount": 1
     },
     {
       "id": "u4",
@@ -115,7 +116,7 @@
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
-      "userId": "u1",
+      "userId": "u2",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
       "commentCount": 1,
@@ -181,7 +182,7 @@
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
+      "isPublic": false,
       "user": {
         "id": "u1",
         "username": "linhnguyen",
@@ -201,12 +202,12 @@
       "url": "https://res.cloudinary.com/ddcw5fmea/video/upload/v1761317722/samples/dance-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 2,
+      "likeCount": 3,
       "commentCount": 3,
       "shareCount": 67,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
+      "isPublic": false,
       "user": {
         "id": "u4",
         "username": "datt152",
@@ -222,7 +223,8 @@
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -251,7 +253,9 @@
         "cover": "https://i.scdn.co/image/ab67616d0000b2738d82b4b.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": []
+      "likedBy": [
+        "u1"
+      ]
     },
     {
       "id": "v3",
@@ -530,10 +534,8 @@
       "userId": "u1",
       "content": "Ê",
       "createdAt": "2025-11-03T14:31:43.214Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
+      "likeCount": 0,
+      "likedBy": [],
       "replyCount": 0,
       "parentId": null,
       "user": {

@@ -7,6 +7,7 @@ import {
     Animated,
     Modal,
     useWindowDimensions,
+    Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,7 +18,8 @@ import { useComments } from '../hooks/useComment';
 import CommentModalVideo from '../components/CommentModalVideo';
 import { useVideo } from '../hooks/useVideo';
 import { useNavigation } from '@react-navigation/native';
-import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
+import { useUser } from "../hooks/useUser";
+
 interface VideoCardProps {
     video: VideoType;
     isFollowing: boolean;
@@ -27,7 +29,10 @@ interface VideoCardProps {
     isActive?: boolean;
     musics?: Music[];
     isLiked?: boolean;
+    onPrivacyChange?: () => void; // ✅ thêm dòng này
 }
+
+const DOUBLE_TAP_DELAY = 300; // ms
 
 const VideoCard: React.FC<VideoCardProps> = ({
     video,
@@ -36,23 +41,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
     onToggleFollow,
     isActive,
     musics = [],
+    onPrivacyChange
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
     const [localCommentCount, setLocalCommentCount] = useState(video.commentCount || 0);
 
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
+    const heartAnim = useRef(new Animated.Value(0)).current;
     const videoRef = useRef<Video | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [videoCommentsList, setVideoCommentsList] = useState<any[]>([]);
+    const [isPlaying, setIsPlaying] = useState(isActive);
+    const lastTap = useRef<number>(0);
 
-    const { likeVideo, unlikeVideo,  videos } = useVideo();
+    const { likeVideo, unlikeVideo, videos, toggleVideoPrivacy } = useVideo();
     const { addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
     const navigation = useNavigation();
     const music = musics.find((m) => m.id === video.musicId);
 
     const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+    const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
+    const [likeCount, setLikeCount] = useState(video.likeCount || 0);
+    const [localIsPublic, setLocalIsPublic] = useState(video.isPublic); // ✅ thêm state riêng
 
     useEffect(() => {
         const fetchCommentCounts = async () => {
@@ -61,7 +74,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 const count = await countCommentsByVideo(v.id);
                 counts[String(v.id)] = count;
             }
-            console.log("Fetched counts:", counts);
             setCommentCounts(counts);
         };
 
@@ -69,10 +81,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
             fetchCommentCounts();
         }
     }, [videos]);
-
-    // ❤️ Local like state (đồng bộ với dữ liệu từ useVideo)
-    const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
-    const [likeCount, setLikeCount] = useState(video.likeCount || 0);
 
     useEffect(() => {
         const updated = videos.find((v) => v.id === video.id);
@@ -88,6 +96,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
         if (isActive) {
             videoRef.current?.playAsync();
+            setIsPlaying(true);
             startRotation();
 
             if (music?.uri) {
@@ -105,6 +114,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
             }
         } else {
             videoRef.current?.pauseAsync();
+            setIsPlaying(false);
             stopRotation();
             sound?.unloadAsync();
         }
@@ -133,28 +143,26 @@ const VideoCard: React.FC<VideoCardProps> = ({
         outputRange: ['0deg', '360deg'],
     });
 
-    // ❤️ Toggle like
+    const triggerHeartAnimation = () => {
+        heartAnim.setValue(0);
+        Animated.sequence([
+            Animated.timing(heartAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
+            Animated.timing(heartAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+        ]).start();
+    };
+
     const handleLike = async () => {
         try {
-            // Gọi API hiện tại của video
-            const res = await likeVideo(video.id);
-           
-
-            // Nếu video đã được like trước đó → unlike
             if (localIsLiked) {
                 await unlikeVideo(video.id);
                 setLocalIsLiked(false);
                 setLikeCount((prev) => Math.max(0, prev - 1));
-                console.log(`💔 Bỏ like video ${video.id}`);
             } else {
-                // Nếu chưa like → like
                 await likeVideo(video.id);
                 setLocalIsLiked(true);
                 setLikeCount((prev) => prev + 1);
-                console.log(`❤️ Like video ${video.id}`);
             }
 
-            // 🔄 Làm animation nhẹ
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
                 Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
@@ -164,15 +172,39 @@ const VideoCard: React.FC<VideoCardProps> = ({
         }
     };
 
-    const handleFollow = () => onToggleFollow(video.userId);
+    // 💕 Double-tap để thả tym
+    const handleDoubleTap = async () => {
+        if (!localIsLiked) {
+            await likeVideo(video.id);
+            setLocalIsLiked(true);
+            setLikeCount((prev) => prev + 1);
+        }
+        triggerHeartAnimation();
+    };
+
+    const handleTap = async () => {
+        const now = Date.now();
+        if (now - lastTap.current < DOUBLE_TAP_DELAY) {
+            handleDoubleTap();
+        } else {
+            lastTap.current = now;
+            if (videoRef.current) {
+                if (isPlaying) {
+                    await videoRef.current.pauseAsync();
+                    setIsPlaying(false);
+                    stopRotation();
+                } else {
+                    await videoRef.current.playAsync();
+                    setIsPlaying(true);
+                    startRotation();
+                }
+            }
+        }
+    };
 
     const handleOpenComments = async (videoId: string) => {
         try {
-            console.log("🔍 Lấy bình luận của video:", videoId);
             const fetchedComments = await getCommentsByVideo(videoId);
-
-            console.log("✅ Fetched comments:", fetchedComments);
-
             setVideoCommentsList(fetchedComments || []);
             setShowComments(true);
         } catch (error) {
@@ -180,45 +212,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
         }
     };
 
-
-
-
-    const handleAddComment = async (content: string, parentId: string | null = null) => {
-        try {
-            await addComment(content, parentId);
-            setLocalCommentCount(prev => prev + 1);
-
-            // ✅ Sau khi thêm bình luận, load lại danh sách bình luận của video này
-            const updatedComments = await getCommentsByVideo(video.id);
-            setVideoCommentsList(updatedComments);
-
-            // (tuỳ chọn) cuộn modal về cuối cùng nếu cần
-        } catch (error) {
-            console.error("❌ Lỗi khi thêm bình luận:", error);
-        }
-    };
-
-    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
-        await deleteComment(commentId, parentId);
-        setLocalCommentCount((prev) => Math.max(0, prev - 1));
-    };
-
-    const likeScale = likeAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 1.3],
-    });
-
     const formatNumber = (num: number) => {
         if (!num) return '0';
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
         return num.toString();
     };
-
+    
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
-            <TouchableOpacity activeOpacity={0.9} style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
-                {/* 🔙 Nút quay lại */}
+            <Pressable onPress={handleTap} style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
@@ -235,6 +238,18 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     shouldPlay={isActive}
                 />
 
+                <Animated.View
+                    style={[
+                        styles.centerHeart,
+                        {
+                            opacity: heartAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1] }),
+                            transform: [{ scale: heartAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.4] }) }],
+                        },
+                    ]}
+                >
+                    <Ionicons name="heart" size={100} color="#FF3B5C" />
+                </Animated.View>
+
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
                     style={styles.gradient}
@@ -242,17 +257,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
                 <View style={styles.bottomContent}>
                     <View style={styles.leftContent}>
-                        {video.caption ? (
+                        {video.title ? (
                             <Text style={styles.caption} numberOfLines={2}>
-                                {video.caption}
+                                {video.title}
                             </Text>
                         ) : null}
                     </View>
 
                     <View style={styles.rightContent}>
-                        {/* ❤️ Tym */}
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
-                            <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+                            <Animated.View style={{ transform: [{ scale: likeAnimation.interpolate({ inputRange: [0, 1], outputRange: [1, 1.3] }) }] }}>
                                 <Ionicons
                                     name={localIsLiked ? 'heart' : 'heart-outline'}
                                     size={32}
@@ -262,35 +276,60 @@ const VideoCard: React.FC<VideoCardProps> = ({
                             <Text style={styles.actionText}>{formatNumber(likeCount)}</Text>
                         </TouchableOpacity>
 
-                        {/* 💬 Bình luận */}
                         <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenComments(video.id)}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
                             <Text style={styles.actionText}>{commentCounts[String(video.id)] ?? 0}</Text>
                         </TouchableOpacity>
 
-                        {/* 👁 Lượt xem */}
-                        <View style={styles.actionButton}>
-                            <Ionicons name="eye-outline" size={28} color="#fff" />
-                            <Text style={styles.actionText}>{formatNumber(video.views || 0)}</Text>
-                        </View>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => setShowOptions(true)}>
+                            <Ionicons name="ellipsis-horizontal" size={28} color="#fff" />
+                            <Text style={styles.actionText}>Tùy chọn</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            </TouchableOpacity>
+            </Pressable>
 
-            <Modal
-                visible={showComments}
-                animationType="none" // ✅ để animation bên trong CommentModalVideo xử lý
-                transparent={true}
-                onRequestClose={() => setShowComments(false)}
-            >
+            {/* ✅ Modal hiển thị tùy chọn video */}
+            <Modal transparent visible={showOptions} animationType="fade" onRequestClose={() => setShowOptions(false)}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setShowOptions(false)}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Tùy chọn video</Text>
+
+                        <TouchableOpacity
+                            style={styles.modalButton}
+                            onPress={async () => {
+                                try {
+                                    const newStatus = await toggleVideoPrivacy(video.id, localIsPublic);
+                                    setLocalIsPublic(newStatus);
+                                    onPrivacyChange?.();// ✅ cập nhật liền tại chỗ
+                                    setShowOptions(false);
+                                } catch (err) {
+                                    console.error("❌ Lỗi khi đổi trạng thái:", err);
+                                }
+                            }}
+                        >
+                            <Text style={styles.modalButtonText}>
+                                {localIsPublic ? 'Chuyển sang riêng tư 🔒' : 'Chuyển sang công khai 🌍'}
+                            </Text>
+                        </TouchableOpacity>
+
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ff4444' }]} onPress={() => setShowOptions(false)}>
+                            <Text style={[styles.modalButtonText, { color: '#fff' }]}>Hủy</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            <Modal visible={showComments} animationType="none" transparent={true} onRequestClose={() => setShowComments(false)}>
                 <CommentModalVideo
                     videoId={String(video.id)}
                     comments={videoCommentsList}
                     currentUserId={currentUserId}
                     isVisible={showComments}
                     onClose={() => setShowComments(false)}
-                    onAddComment={handleAddComment}
-                    onDeleteComment={handleDeleteComment}
+                    onAddComment={() => { }}
+                    onDeleteComment={() => { }}
                     onLikeComment={likeComment}
                 />
             </Modal>
@@ -300,11 +339,18 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
 export default memo(VideoCard);
 
+
 const styles = StyleSheet.create({
     container: { backgroundColor: '#000' },
     videoWrapper: { width: '100%', justifyContent: 'center', alignItems: 'center' },
     video: { width: '100%', height: '100%' },
     gradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%' },
+    centerHeart: {
+        position: 'absolute',
+        top: '40%',
+        left: '40%',
+        transform: [{ translateX: -50 }, { translateY: -50 }],
+    },
     bottomContent: {
         position: 'absolute',
         bottom: 50,
@@ -328,5 +374,33 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.4)',
         borderRadius: 30,
         padding: 6,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContainer: {
+        backgroundColor: '#222',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    modalTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalButton: {
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: '#333',
+        marginVertical: 5,
+    },
+    modalButtonText: {
+        color: '#fff',
+        textAlign: 'center',
+        fontSize: 16,
     },
 });

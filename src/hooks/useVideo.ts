@@ -243,44 +243,74 @@ export const useVideo = () => {
     }
   };
   // 8️⃣ GET VIDEO BY ID
-const getVideoById = async (id: string): Promise<Video | null> => {
-  try {
-    const [videoRes, userRes] = await Promise.all([
-      api.get(`/videos/${id}`),
-      api.get(`/users`),
-    ]);
+  const getVideoById = async (id: string): Promise<Video | null> => {
+    try {
+      const [videoRes, userRes] = await Promise.all([
+        api.get(`/videos/${id}`),
+        api.get(`/users`),
+      ]);
 
-    const video = videoRes.data;
-    const users = userRes.data;
+      const video = videoRes.data;
+      const users = userRes.data;
 
-    const enrichedVideo = {
-      ...video,
-      user: users.find((u: any) => u.id === video.userId),
-      isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
-    };
+      const enrichedVideo = {
+        ...video,
+        user: users.find((u: any) => u.id === video.userId),
+        isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+      };
 
-    return enrichedVideo;
-  } catch (error) {
-    console.error("Error fetching video by id:", error);
-    return null;
+      return enrichedVideo;
+    } catch (error) {
+      console.error("Error fetching video by id:", error);
+      return null;
+    }
   }
-};
+
+  // ✅ Hàm đổi trạng thái video (có cập nhật luôn local state)
+  const toggleVideoPrivacy = async (videoId: string, isPublic: boolean) => {
+    try {
+      const newPrivacy = !isPublic;
+      await axios.patch(`${API_BASE_URL}/videos/${videoId}`, {
+        isPublic: newPrivacy,
+      });
+
+      // 🔥 Cập nhật lại state local ngay sau khi đổi
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === videoId ? { ...v, isPublic: newPrivacy } : v
+        )
+      );
+
+      console.log(`✅ Đã đổi trạng thái video ${videoId}: ${newPrivacy ? "Công khai" : "Riêng tư"}`);
+      return newPrivacy;
+    } catch (err) {
+      console.error("❌ Lỗi đổi trạng thái video:", err);
+      throw err;
+    }
+  };
+
+  const updateVideoPrivacy = async (id: string, newPrivacy: 'public' | 'private') => {
+    await axios.patch(`${API_BASE_URL}/videos/${id}`, { privacy: newPrivacy });
+    setVideos((prev) => prev.map(v => v.id === id ? { ...v, privacy: newPrivacy } : v));
+  };
 
 
   return {
-  videos,
-  loading,
-  followingStatus,
-  currentUserId: CURRENT_USER_ID,
-  toggleLike,
-  toggleFollow,
-  refreshVideos: fetchVideos,
-  loadVideosByUser,
-  likeVideo,
-  unlikeVideo,
-  getLikeCount,
-  countCommentsByVideo,
-  getVideoById, 
-};
+    videos,
+    loading,
+    followingStatus,
+    currentUserId: CURRENT_USER_ID,
+    toggleLike,
+    toggleFollow,
+    refreshVideos: fetchVideos,
+    loadVideosByUser,
+    likeVideo,
+    unlikeVideo,
+    getLikeCount,
+    countCommentsByVideo,
+    getVideoById,
+    toggleVideoPrivacy,
+    updateVideoPrivacy
+  };
 
 };
