@@ -3,11 +3,11 @@ import axios from "axios";
 import { User } from "../types/database.types";
 
 const API_BASE_URL = "http://192.168.65.2:3000";
-const CURRENT_USER_ID = "u1"; // user hiện tại
 
-export const useFollower = () => {
-    const [followers, setFollowers] = useState<User[]>([]); // danh sách người theo dõi mình
-    const [following, setFollowing] = useState<User[]>([]); // danh sách mình đang theo dõi
+export const useFollower = (userId?: string) => {
+    const CURRENT_USER_ID = userId || "u1";
+    const [followers, setFollowers] = useState<User[]>([]);
+    const [following, setFollowing] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
     // 🧭 Lấy danh sách người mình đang follow
@@ -18,39 +18,57 @@ export const useFollower = () => {
                 `${API_BASE_URL}/users/${CURRENT_USER_ID}`
             );
 
-            if (currentUser.followingIds?.length) {
-                const { data: users } = await axios.get<User[]>(`${API_BASE_URL}/users`);
-                const list = users.filter((u) => currentUser.followingIds?.includes(u.id));
+            if (Array.isArray(currentUser.followingIds) && currentUser.followingIds.length > 0) {
+                const { data: allUsers } = await axios.get<User[]>(`${API_BASE_URL}/users`);
+                const list = allUsers.filter((u) => currentUser.followingIds.includes(u.id));
                 setFollowing(list);
+                return list; // ✅ trả về để FollowPage cập nhật realtime
             } else {
                 setFollowing([]);
+                return [];
             }
         } catch (error) {
             console.error("❌ Lỗi khi lấy danh sách following:", error);
+            return [];
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [CURRENT_USER_ID]);
 
     // 🧭 Lấy danh sách người đang follow mình
     const fetchFollowers = useCallback(async () => {
         setLoading(true);
         try {
-            const { data: users } = await axios.get<User[]>(`${API_BASE_URL}/users`);
-            const list = users.filter((u) => u.followingIds?.includes(CURRENT_USER_ID));
-            setFollowers(list);
+            const { data: currentUser } = await axios.get<User>(
+                `${API_BASE_URL}/users/${CURRENT_USER_ID}`
+            );
+
+            if (Array.isArray(currentUser.followerIds) && currentUser.followerIds.length > 0) {
+                const { data: allUsers } = await axios.get<User[]>(`${API_BASE_URL}/users`);
+                const list = allUsers.filter((u) => currentUser.followerIds.includes(u.id));
+                setFollowers(list);
+                return list; // ✅ trả về
+            } else {
+                setFollowers([]);
+                return [];
+            }
         } catch (error) {
             console.error("❌ Lỗi khi lấy danh sách followers:", error);
+            return [];
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [CURRENT_USER_ID]);
 
-    //  Hàm follow user
+    // 🔁 Load ban đầu
+    useEffect(() => {
+        fetchFollowers();
+        fetchFollowing();
+    }, [fetchFollowers, fetchFollowing]);
+
     const followUser = useCallback(
         async (targetUserId: string) => {
             try {
-                // Lấy user hiện tại & user mục tiêu
                 const { data: currentUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${CURRENT_USER_ID}`
                 );
@@ -58,10 +76,8 @@ export const useFollower = () => {
                     `${API_BASE_URL}/users/${targetUserId}`
                 );
 
-                // Nếu đã follow rồi thì bỏ qua
                 if (currentUser.followingIds.includes(targetUserId)) return;
 
-                // Cập nhật mảng mới
                 const updatedCurrentUser = {
                     ...currentUser,
                     followingIds: [...currentUser.followingIds, targetUserId],
@@ -71,25 +87,21 @@ export const useFollower = () => {
                     followerIds: [...targetUser.followerIds, CURRENT_USER_ID],
                 };
 
-                // Gửi PATCH cập nhật
                 await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
 
-                // Làm mới dữ liệu
-                await fetchFollowing();
                 await fetchFollowers();
+                await fetchFollowing();
             } catch (error) {
                 console.error("❌ Lỗi khi follow user:", error);
             }
         },
-        [fetchFollowing, fetchFollowers]
+        [CURRENT_USER_ID, fetchFollowing, fetchFollowers]
     );
 
-    // ✅ Hàm unfollow user
     const unfollowUser = useCallback(
         async (targetUserId: string) => {
             try {
-                // Lấy user hiện tại & user mục tiêu
                 const { data: currentUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${CURRENT_USER_ID}`
                 );
@@ -97,10 +109,8 @@ export const useFollower = () => {
                     `${API_BASE_URL}/users/${targetUserId}`
                 );
 
-                // Nếu chưa follow thì bỏ qua
                 if (!currentUser.followingIds.includes(targetUserId)) return;
 
-                // Cập nhật lại mảng
                 const updatedCurrentUser = {
                     ...currentUser,
                     followingIds: currentUser.followingIds.filter((id) => id !== targetUserId),
@@ -110,38 +120,27 @@ export const useFollower = () => {
                     followerIds: targetUser.followerIds.filter((id) => id !== CURRENT_USER_ID),
                 };
 
-                // Gửi PATCH cập nhật
                 await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
 
-                // Làm mới danh sách
-                await fetchFollowing();
                 await fetchFollowers();
+                await fetchFollowing();
             } catch (error) {
                 console.error("❌ Lỗi khi bỏ follow user:", error);
             }
         },
-        [fetchFollowing, fetchFollowers]
+        [CURRENT_USER_ID, fetchFollowing, fetchFollowers]
     );
-
-    // 🔁 Load ban đầu
-    useEffect(() => {
-        fetchFollowers();
-        fetchFollowing();
-    }, [fetchFollowers, fetchFollowing]);
-
-    const followerCount = followers.length;
-    const followingCount = following.length;
 
     return {
         followers,
         following,
         loading,
-        refreshFollowers: fetchFollowers,
-        refreshFollowing: fetchFollowing,
         followUser,
         unfollowUser,
-        followerCount,     // ✅ đổi từ hàm sang giá trị
-        followingCount,    // ✅ đổi từ hàm sang giá trị
+        refreshFollowers: fetchFollowers,
+        refreshFollowing: fetchFollowing,
+        followerCount: followers.length,
+        followingCount: following.length,
     };
 };

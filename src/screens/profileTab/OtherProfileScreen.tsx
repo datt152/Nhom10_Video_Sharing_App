@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     View,
     Text,
@@ -6,43 +6,93 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
-    FlatList,
+    ActivityIndicator,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { useUser } from "../../hooks/useUser";
+import { useFollower } from "../../hooks/useFollowers";
+import { useImage } from "../../hooks/useImage";
+import { useVideo } from "../../hooks/useVideo";
+import ProfileContent from "../../components/ProfileContent";
 
 export default function OtherProfileScreen() {
     const navigation = useNavigation();
     const route = useRoute();
     const { userId } = route.params as { userId: string };
 
-    const { loading, targetUser, isFollowing, isFollowedByOther, isFriend } =
-        useUser(userId);
+    const {
+        targetUser,
+        loading: userLoading,
+        isFollowing,
+        isFriend,
+        followUser,
+        unfollowUser,
+        unfriendUser,
+        loadTargetUser,
+    } = useUser(userId);
 
-    const [activeTab, setActiveTab] = useState<"videos" | "images"|"liked">("videos");
+    const { followerCount, followingCount, refreshFollowers, refreshFollowing } = useFollower();
+    const { getImagesByUser, loading: imageLoading } = useImage();
+    const { loadVideosByUser, loading: videoLoading } = useVideo();
 
-    if (loading || !targetUser) {
+    const [menu, setMenu] = useState<"videos" | "images">("videos");
+    const [loadingContent, setLoadingContent] = useState(false);
+    const [userVideos, setUserVideos] = useState<any[]>([]);
+    const [userImages, setUserImages] = useState<any[]>([]);
+
+    const loadAll = useCallback(async () => {
+        if (!userId) return;
+        setLoadingContent(true);
+        await loadTargetUser(userId);
+        const vids = await loadVideosByUser(userId);
+        const imgs = await getImagesByUser(userId);
+        setUserVideos(vids || []);
+        setUserImages(imgs || []);
+        setLoadingContent(false);
+    }, [userId]);
+
+    useEffect(() => {
+        loadAll();
+    }, [loadAll]);
+
+    useFocusEffect(
+        useCallback(() => {
+            refreshFollowers();
+            refreshFollowing();
+        }, [])
+    );
+
+    const publicVideos = userVideos.filter((v) => v.isPublic);
+    const publicImages = userImages.filter((img) => img.isPublic);
+
+    const handleFollowAction = async () => {
+        if (isFriend) await unfriendUser(userId);
+        else if (isFollowing) await unfollowUser(userId);
+        else await followUser(userId);
+        await loadAll(); // Cập nhật lại giao diện ngay sau hành động
+    };
+
+    const renderButtonText = () => {
+        if (isFriend) return "Bạn bè 🤝";
+        if (isFollowing) return "Đang theo dõi";
+        return "Theo dõi";
+    };
+
+    const showContent = isFollowing || isFriend;
+
+    if (userLoading || loadingContent || !targetUser) {
         return (
-            <View style={styles.loadingContainer}>
-                <Text>Đang tải...</Text>
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#FF4EB8" />
             </View>
         );
     }
 
-    const canViewContent = isFriend || isFollowing;
-
     return (
         <ScrollView style={styles.container}>
-            {/* Cover + Back Button */}
+            {/* Header */}
             <View style={styles.coverContainer}>
-                <Image
-                    source={{
-                        uri:
-                            targetUser.avatar ||
-                            "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
-                    }}
-                    style={styles.coverImage}
-                />
+                <Image source={{ uri: targetUser.avatar }} style={styles.coverImage} />
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
@@ -51,33 +101,35 @@ export default function OtherProfileScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Avatar + Info */}
-            <View style={styles.profileSection}>
+            {/* Info */}
+            <View style={styles.profileTop}>
                 <Image source={{ uri: targetUser.avatar }} style={styles.avatar} />
-                <Text style={styles.username}>{targetUser.fullname}</Text>
-                <Text style={styles.bio}>{targetUser.bio || "Không có mô tả."}</Text>
+                <Text style={styles.name}>{targetUser.fullname}</Text>
+                <Text style={styles.username}>@{targetUser.username}</Text>
+                <Text style={styles.bio}>{targetUser.bio}</Text>
 
-                {isFollowedByOther && !isFollowing && (
-                    <Text style={styles.followBackText}>
-                        Người này đang theo dõi bạn
-                    </Text>
-                )}
+                <View style={styles.statsRow}>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>{followingCount}</Text>
+                        <Text style={styles.statLabel}>Following</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>{followerCount}</Text>
+                        <Text style={styles.statLabel}>Followers</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>{targetUser.likes}</Text>
+                        <Text style={styles.statLabel}>Likes</Text>
+                    </View>
+                </View>
 
-                {/* Buttons */}
-                <View style={styles.buttonRow}>
+                <View style={styles.btnRow}>
                     <TouchableOpacity
-                        style={[
-                            styles.followBtn,
-                            (isFollowing || isFriend) && styles.followedBtn,
-                        ]}
+                        style={[styles.followBtn, (isFollowing || isFriend) && styles.followedBtn]}
+                        onPress={handleFollowAction}
                     >
-                        <Text
-                            style={[
-                                styles.followText,
-                                (isFollowing || isFriend) && styles.followedText,
-                            ]}
-                        >
-                            {isFriend ? "Bạn bè 💞" : isFollowing ? "Đang Follow" : "Follow"}
+                        <Text style={[styles.followText, (isFollowing || isFriend) && styles.followedText]}>
+                            {renderButtonText()}
                         </Text>
                     </TouchableOpacity>
 
@@ -87,81 +139,22 @@ export default function OtherProfileScreen() {
                 </View>
             </View>
 
-            {/* Stats */}
-            <View style={styles.statsRow}>
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>203</Text>
-                    <Text style={styles.statLabel}>Following</Text>
+            {/* Content */}
+            {showContent ? (
+                <ProfileContent
+                    menu={menu}
+                    setMenu={setMenu}
+                    videos={{ public: publicVideos }}
+                    images={{ public: publicImages }}
+                    loading={loadingContent || imageLoading || videoLoading}
+                    navigation={navigation}
+                />
+            ) : (
+                <View style={{ alignItems: "center", paddingVertical: 30 }}>
+                    <Text style={{ color: "#999", fontSize: 14 }}>
+                        Hãy theo dõi để xem nội dung của người này 👀
+                    </Text>
                 </View>
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>628</Text>
-                    <Text style={styles.statLabel}>Followers</Text>
-                </View>
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>2634</Text>
-                    <Text style={styles.statLabel}>Likes</Text>
-                </View>
-            </View>
-
-            {/* Videos */}
-            {canViewContent && (
-                <>
-                    <View style={styles.menuTabs}>
-                        <TouchableOpacity
-                            style={[styles.tab, activeTab === "videos" && styles.activeTab]}
-                            onPress={() => setActiveTab("videos")}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === "videos" && styles.activeTabText,
-                                ]}
-                            >
-                                Videos
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.tab, activeTab === "images" && styles.activeTab]}
-                            onPress={() => setActiveTab("images")}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === "images" && styles.activeTabText,
-                                ]}
-                            >
-                                Image
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.tab, activeTab === "liked" && styles.activeTab]}
-                            onPress={() => setActiveTab("liked")}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === "liked" && styles.activeTabText,
-                                ]}
-                            >
-                                Liked
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <FlatList
-                        data={[
-                            { id: 1, img: "https://source.unsplash.com/400x400/?nature" },
-                            { id: 2, img: "https://source.unsplash.com/400x400/?food" },
-                            { id: 3, img: "https://source.unsplash.com/400x400/?travel" },
-                            { id: 4, img: "https://source.unsplash.com/400x400/?flowers" },
-                        ]}
-                        numColumns={3}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={({ item }) => (
-                            <Image source={{ uri: item.img }} style={styles.videoThumb} />
-                        )}
-                    />
-                </>
             )}
         </ScrollView>
     );
@@ -169,8 +162,7 @@ export default function OtherProfileScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#fff" },
-    loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-
+    center: { flex: 1, justifyContent: "center", alignItems: "center" },
     coverContainer: { position: "relative", height: 150 },
     coverImage: { width: "100%", height: "100%" },
     backButton: {
@@ -182,73 +174,36 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 2,
     },
-    backIcon: { fontSize: 28, color: "#FF5BAE", fontWeight: "600" },
-
-    profileSection: { alignItems: "center", marginTop: -50, padding: 20 },
-    avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        borderWidth: 3,
-        borderColor: "#fff",
-        marginBottom: 10,
-    },
-    username: { fontSize: 20, fontWeight: "700", color: "#000" },
-    bio: { color: "#555", textAlign: "center", marginTop: 5, marginBottom: 10 },
-    followBackText: { color: "#FF5BAE", fontSize: 13, marginBottom: 10 },
-
-    buttonRow: { flexDirection: "row", gap: 10, marginTop: 10 },
-    followBtn: {
-        backgroundColor: "#FF5BAE",
-        borderRadius: 20,
-        paddingHorizontal: 30,
-        paddingVertical: 10,
-    },
-    followedBtn: { backgroundColor: "#FFE6F2" },
-    followText: { color: "#fff", fontWeight: "600" },
-    followedText: { color: "#FF5BAE" },
-    msgBtn: {
-        backgroundColor: "#FFE6F2",
-        borderRadius: 20,
-        paddingHorizontal: 30,
-        paddingVertical: 10,
-    },
-    msgText: { color: "#FF5BAE", fontWeight: "600" },
-
-    statsRow: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 10,
-        paddingVertical: 10,
+    backIcon: { fontSize: 28, color: "#FF4EB8", fontWeight: "600" },
+    profileTop: {
+        alignItems: "center",
+        paddingVertical: 25,
         borderBottomWidth: 1,
-        borderColor: "#f1f1f1",
+        borderBottomColor: "#eee",
     },
+    avatar: { width: 110, height: 110, borderRadius: 100, borderWidth: 2, borderColor: "#FF4EB8" },
+    name: { fontSize: 18, fontWeight: "700", marginTop: 10, color: "#333" },
+    username: { fontSize: 14, color: "#888" },
+    bio: { fontSize: 13, color: "#666", marginTop: 5, textAlign: "center", paddingHorizontal: 20 },
+    statsRow: { flexDirection: "row", justifyContent: "center", marginTop: 10, gap: 30 },
     statItem: { alignItems: "center" },
-    statValue: { fontSize: 18, fontWeight: "700", color: "#000" },
-    statLabel: { color: "#777", fontSize: 13 },
-
-    menuTabs: {
-        flexDirection: "row",
-        justifyContent: "center",
-        borderBottomWidth: 1,
-        borderColor: "#f1f1f1",
-        marginTop: 20,
+    statValue: { fontSize: 16, fontWeight: "700", color: "#333" },
+    statLabel: { fontSize: 13, color: "#777" },
+    btnRow: { flexDirection: "row", gap: 10, marginTop: 12 },
+    followBtn: {
+        backgroundColor: "#FF4EB8",
+        borderRadius: 20,
+        paddingHorizontal: 25,
+        paddingVertical: 8,
     },
-    tab: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        marginHorizontal: 10,
+    followedBtn: { backgroundColor: "#ffe6f3" },
+    followText: { color: "#fff", fontWeight: "700" },
+    followedText: { color: "#FF4EB8" },
+    msgBtn: {
+        backgroundColor: "#ffe6f3",
+        borderRadius: 20,
+        paddingHorizontal: 25,
+        paddingVertical: 8,
     },
-    activeTab: {
-        borderBottomWidth: 2,
-        borderColor: "#FF5BAE",
-    },
-    tabText: { color: "#777", fontWeight: "500" },
-    activeTabText: { color: "#FF5BAE", fontWeight: "700" },
-    videoThumb: {
-        width: "32%",
-        height: 120,
-        borderRadius: 10,
-        margin: "1%",
-    },
+    msgText: { color: "#FF4EB8", fontWeight: "700" },
 });

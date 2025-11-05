@@ -28,7 +28,23 @@ const ProfileScreen: React.FC = () => {
 
   const navigation: any = useNavigation();
   const { currentUser, loadUser, loading: userLoading } = useUser();
-  const { followerCount, followingCount, loading: followerLoading, refreshFollowers, refreshFollowing } = useFollower();
+  const {
+    followerCount: hookFollowerCount,
+    followingCount: hookFollowingCount,
+    loading: followerLoading,
+    refreshFollowers,
+    refreshFollowing,
+  } = useFollower(currentUser?.id);
+  // ✅ Nếu là profile của chính mình → lấy từ currentUser
+  const followerCount =
+    currentUser?.followerIds?.length ??
+    hookFollowerCount ??
+    0;
+
+  const followingCount =
+    currentUser?.followingIds?.length ??
+    hookFollowingCount ??
+    0;
 
   const [loadingFollowers, setLoadingFollowers] = useState(false);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
@@ -104,7 +120,11 @@ const ProfileScreen: React.FC = () => {
   const privateVideos = userVideos.filter((v) => !v.isPublic);
   const isLoading = userLoading || followerLoading;
 
-
+  useEffect(() => {
+    console.log("🧩 currentUser:", currentUser);
+    console.log("👥 followerCount:", followerCount);
+    console.log("➡ followingCount:", followingCount);
+  }, [currentUser, followerCount, followingCount]);
 
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
@@ -265,11 +285,10 @@ const ProfileScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Thống kê */}
         <View style={styles.statsRow}>
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'following' })}
+            onPress={() => navigation.navigate('Followers', { tab: 'following', userId: currentUser.id })}
           >
             <Text style={styles.statValue}>{followingCount}</Text>
             <Text style={styles.statLabel}>Following</Text>
@@ -277,7 +296,7 @@ const ProfileScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'followers' })}
+            onPress={() => navigation.navigate('Followers', { tab: 'followers', userId: currentUser.id })}
           >
             <Text style={styles.statValue}>{followerCount}</Text>
             <Text style={styles.statLabel}>Follower</Text>
