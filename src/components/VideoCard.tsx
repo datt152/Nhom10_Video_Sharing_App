@@ -10,6 +10,7 @@ import {
   AppState,
   AppStateStatus,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { ResizeMode, Video, AVPlaybackStatus } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
@@ -54,23 +55,23 @@ function VideoCard() {
     setLocalCommentCount(video?.commentCount || 0);
   }, [video?.commentCount]);
 
-  // Pause video khi rời khỏi màn hình
   useFocusEffect(
     React.useCallback(() => {
-      videoRef.current?.playAsync().catch(() => { });
+      videoRef.current?.playAsync().catch(() => {});
+      setIsPaused(false);
       return () => {
-        videoRef.current?.pauseAsync().catch(() => { });
+        videoRef.current?.pauseAsync().catch(() => {});
       };
     }, [video?.id])
   );
 
-  // App background handling
   useEffect(() => {
     const subscription = AppState.addEventListener(
       "change",
       (nextAppState: AppStateStatus) => {
         if (nextAppState === "background" || nextAppState === "inactive") {
-          videoRef.current?.pauseAsync().catch(() => { });
+          videoRef.current?.pauseAsync().catch(() => {});
+          setIsPaused(true);
         }
       }
     );
@@ -81,11 +82,10 @@ function VideoCard() {
     if (video?.id) fetchComments();
   }, [video?.id]);
 
-  // Pause khi mất focus
   useEffect(() => {
     if (!isFocused) {
-      videoRef.current?.pauseAsync().catch(() => { });
-      videoRef.current?.unloadAsync().catch(() => { });
+      videoRef.current?.pauseAsync().catch(() => {});
+      videoRef.current?.unloadAsync().catch(() => {});
     }
   }, [isFocused]);
 
@@ -97,21 +97,27 @@ function VideoCard() {
   };
 
   const handlePlayPause = async () => {
-    if (isPaused) {
-      await videoRef.current?.playAsync();
-      setIsPaused(false);
-      Animated.timing(playButtonOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      await videoRef.current?.pauseAsync();
-      setIsPaused(true);
-      Animated.spring(playButtonOpacity, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
+    try {
+      if (isPaused) {
+        await videoRef.current?.playAsync();
+        setIsPaused(false);
+        setShowPlayButton(false);
+        Animated.timing(playButtonOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        await videoRef.current?.pauseAsync();
+        setIsPaused(true);
+        setShowPlayButton(true);
+        Animated.spring(playButtonOpacity, {
+          toValue: 1,
+          useNativeDriver: true,
+        }).start();
+      }
+    } catch (error) {
+      console.log('Play/Pause error:', error);
     }
   };
 
@@ -133,6 +139,18 @@ function VideoCard() {
 
   const handleLike = async () => {
     if (!video) return;
+    
+    Animated.sequence([
+      Animated.spring(likeAnimation, {
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+      Animated.spring(likeAnimation, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     await toggleLike(video.id);
 
     setVideo((prev: any) => ({
@@ -142,18 +160,28 @@ function VideoCard() {
     }));
   };
 
-  // ✅ Wrapper để cập nhật UI ngay lập tức khi thêm comment
+  const handleFollow = async () => {
+    if (!video?.user?.id) return;
+    
+    await toggleFollow(video.user.id);
+    
+    setVideo((prev: any) => ({
+      ...prev,
+      user: {
+        ...prev.user,
+        isFollowing: !prev.user.isFollowing,
+      },
+    }));
+  };
+
   const handleAddComment = async (content: string, parentId: string | null = null) => {
     await addComment(content, parentId);
-    // Cập nhật count ngay lập tức
     setLocalCommentCount(prev => prev + 1);
   };
 
-  // ✅ Wrapper để cập nhật UI ngay lập tức khi xóa comment
   const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
     const success = await deleteComment(commentId, parentId);
     if (success) {
-      // Cập nhật count ngay lập tức
       setLocalCommentCount(prev => Math.max(0, prev - 1));
     }
     return success;
@@ -161,27 +189,24 @@ function VideoCard() {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // Check if this is current user's video
+  const isOwnVideo = video?.user?.id === currentUserId;
+
   if (!video) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "#fff" }}>Đang tải video...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Đang tải video...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Video */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={28} color="black" />
-      </TouchableOpacity>
-      <View style={styles.videoWrapper}>
-        <TouchableOpacity
-          style={styles.videoContainer}
-          activeOpacity={1}
+      {/* Video Container - Full Screen */}
+      <View style={styles.videoContainer}>
+        <TouchableOpacity 
+          style={styles.videoTouchArea} 
+          activeOpacity={1} 
           onPress={handlePlayPause}
         >
           <Video
@@ -192,35 +217,40 @@ function VideoCard() {
             isLooping
             shouldPlay={!isPaused && isFocused}
             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+            useNativeControls={false}
+            videoStyle={styles.videoStyle}
           />
-
-          {showPlayButton && (
-            <Animated.View
-              style={[styles.centerPlayButton, { opacity: playButtonOpacity }]}
-            >
+          
+          {/* Play Button Overlay */}
+          {isPaused && (
+            <Animated.View style={[styles.centerPlayButton, { opacity: playButtonOpacity }]}>
               <View style={styles.playButtonCircle}>
-                <Ionicons name="play" size={60} color="#fff" />
+                <Ionicons name="play" size={60} color="#fff" style={{ marginLeft: 5 }} />
               </View>
             </Animated.View>
           )}
         </TouchableOpacity>
       </View>
 
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={28} color="white" />
+      </TouchableOpacity>
+
       {/* Gradient Overlay */}
       <LinearGradient
-        colors={["transparent", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.8)"]}
+        colors={["transparent", "transparent", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.85)"]}
+        locations={[0, 0.5, 0.75, 1]}
         style={styles.gradient}
         pointerEvents="none"
       />
 
-      {/* Bottom UI */}
-      <View style={styles.bottomContent}>
-        {/* Left info */}
+      {/* Bottom Content */}
+      <View style={styles.bottomContent} pointerEvents="box-none">
+        {/* Left Info */}
         <View style={styles.leftContent}>
           <Text style={styles.username}>@{video?.user?.username || "Unknown"}</Text>
-          <Text style={styles.title} numberOfLines={2}>
-            {video?.title || ""}
-          </Text>
+          <Text style={styles.title} numberOfLines={2}>{video?.title || ""}</Text>
           {Array.isArray(video?.tags) && video.tags.length > 0 && (
             <View style={styles.tagsContainer}>
               {video.tags.map((tag, index) => (
@@ -230,27 +260,39 @@ function VideoCard() {
               ))}
             </View>
           )}
-
-
-
         </View>
 
-        {/* Right actions */}
+        {/* Right Actions */}
         <View style={styles.rightContent}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri: video?.user?.avatar || "https://via.placeholder.com/50",
-              }}
-              style={styles.avatar}
-            />
+          {/* Avatar with Follow Button */}
+          <View style={styles.avatarWrapper}>
+            <TouchableOpacity style={styles.avatarContainer}>
+              <Image
+                source={{ uri: video?.user?.avatar || "https://via.placeholder.com/50" }}
+                style={styles.avatar}
+              />
+            </TouchableOpacity>
+            
+            {/* Follow Button - Only show if not own video */}
+            {!isOwnVideo && (
+              <TouchableOpacity 
+                style={styles.followButton}
+                onPress={handleFollow}
+              >
+                <Ionicons 
+                  name={video?.user?.isFollowing ? "checkmark" : "add"} 
+                  size={20} 
+                  color="#fff" 
+                />
+              </TouchableOpacity>
+            )}
           </View>
 
           <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
               <Ionicons
                 name={video?.isLiked ? "heart" : "heart-outline"}
-                size={35}
+                size={36}
                 color={video?.isLiked ? "#FF3B5C" : "#fff"}
               />
             </Animated.View>
@@ -258,14 +300,14 @@ function VideoCard() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
-            <Ionicons name="chatbubble-outline" size={32} color="#fff" />
+            <Ionicons name="chatbubble-outline" size={33} color="#fff" />
             <Text style={styles.actionText}>{localCommentCount}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Progress bar */}
-      <View style={styles.progressBarContainer}>
+      {/* Progress Bar */}
+      <View style={styles.progressBarContainer} pointerEvents="none">
         <Text style={styles.timeText}>
           {formatTime(currentTime)} / {formatTime(duration)}
         </Text>
@@ -297,173 +339,237 @@ function VideoCard() {
 }
 
 export default memo(VideoCard);
+
 const styles = StyleSheet.create({
-  container: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    backgroundColor: "#dcc6c6ff",
-    position: "relative",
+  container: { 
+    flex: 1, 
+    backgroundColor: '#000',
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  videoWrapper: {
-    position: "absolute", // ✅ Thêm absolute
+
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+
+  // Video Container - Absolute positioning for web
+  videoContainer: {
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 80, // ✅ Thêm bottom
-    backgroundColor: "#dec3c3ff",
-    justifyContent: "center",
-    alignItems: "center",
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
   },
-  videoContainer: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+
+  videoTouchArea: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
+  // Video element - Key for web compatibility
   video: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#f9e9e9ff"
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
   },
-  centerPlayButton: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
+
+  // Video style for web - important!
+  videoStyle: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain', // CSS object-fit for web
   },
-  playButtonCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 16,
+    zIndex: 100,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 30,
+    padding: 10,
   },
+
   gradient: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: "50%",
-    pointerEvents: "none",
-  },
-  bottomContent: {
-    position: "absolute",
-    bottom: 180,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    alignItems: "flex-end",
-  },
-  leftContent: { flex: 1, justifyContent: "flex-end" },
-  username: {
-    color: "#fff",
-    fontSize: 17,
-    fontWeight: "bold",
-    marginBottom: 6,
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  title: {
-    color: "#fff",
-    fontSize: 15,
-    marginBottom: 12,
-    lineHeight: 20,
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  rightContent: { alignItems: "center", gap: 20 },
-  avatarContainer: { position: "relative", marginBottom: 8 },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-  followButton: {
-    position: "absolute",
-    bottom: -6,
-    left: "50%",
-    marginLeft: -12,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#FF3B5C",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-  actionButton: { alignItems: "center", gap: 4 },
-  actionText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "600",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  progressBarContainer: {
-    position: "absolute",
-    bottom: 155,
-    left: 16,
-    right: 16,
-    zIndex: 100,
-  },
-  timeText: {
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: "600",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    marginBottom: 4,
-  },
-  progressBar: {
-    width: "100%",
-    height: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderRadius: 2,
-    position: "relative",
-  },
-  progressFill: { height: "100%", backgroundColor: "#FF3B5C", borderRadius: 2 },
-  backButton: {
-    position: "absolute",
-    top: 16,
-    left: 16,
-    zIndex: 1000,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  }, tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginBottom: 12,
-  },
-  tagItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginRight: 6,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
-  },
-  tagText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "500",
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    height: '40%',
+    zIndex: 2,
   },
 
+  bottomContent: {
+    position: 'absolute',
+    bottom: 90,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    alignItems: 'flex-end',
+    zIndex: 10,
+  },
+
+  leftContent: { 
+    flex: 1,
+    paddingRight: 16,
+  },
+  
+  username: { 
+    color: '#fff', 
+    fontSize: 16, 
+    fontWeight: '700', 
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+  
+  title: { 
+    color: '#fff', 
+    fontSize: 14, 
+    lineHeight: 20,
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+
+  rightContent: { 
+    alignItems: 'center', 
+    gap: 24,
+  },
+  
+  // Avatar wrapper with follow button
+  avatarWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+
+  avatarContainer: { 
+    position: 'relative',
+  },
+  
+  avatar: { 
+    width: 50, 
+    height: 50, 
+    borderRadius: 25, 
+    borderWidth: 2.5, 
+    borderColor: '#fff' 
+  },
+
+  // Follow button positioned at bottom of avatar
+  followButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 12,
+    backgroundColor: '#FF3B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    marginTop: -10
+  },
+
+  actionButton: { 
+    alignItems: 'center', 
+    gap: 5,
+  },
+  
+  actionText: { 
+    color: '#fff', 
+    fontSize: 12, 
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+
+  centerPlayButton: { 
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 50,
+  },
+  
+  playButtonCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  progressBarContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  
+  timeText: { 
+    color: '#fff', 
+    fontSize: 11, 
+    fontWeight: '600', 
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+  
+  progressBar: { 
+    width: '100%', 
+    height: 3, 
+    backgroundColor: 'rgba(255,255,255,0.3)', 
+    borderRadius: 2,
+  },
+  
+  progressFill: { 
+    height: '100%', 
+    backgroundColor: '#FF3B5C', 
+    borderRadius: 2 
+  },
+
+  tagsContainer: { 
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    marginTop: 8,
+    gap: 6,
+  },
+  
+  tagItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  
+  tagText: { 
+    color: "#fff", 
+    fontSize: 13, 
+    fontWeight: "600", 
+    textShadowColor: "rgba(0,0,0,1)", 
+    textShadowOffset: { width: 0, height: 1 }, 
+    textShadowRadius: 5 
+  },
 });

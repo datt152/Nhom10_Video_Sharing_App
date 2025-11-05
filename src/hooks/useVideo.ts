@@ -2,8 +2,9 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.1.186:3000';
-export const CURRENT_USER_ID = 'u1';
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/database.types'
+
+
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);

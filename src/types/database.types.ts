@@ -103,3 +103,5 @@ export interface Notification {
   // Denormalized
   sender?: User;
 }
+export const API_BASE_URL = "http://192.168.1.187:3000";
+export const CURRENT_USER_ID = 'u1';

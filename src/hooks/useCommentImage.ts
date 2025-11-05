@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
+import {API_BASE_URL} from '../types/database.types'
 
-const API_BASE_URL = 'http://192.168.1.186:3000';
 const CURRENT_USER_ID = 'u1';
 
 interface Comment {

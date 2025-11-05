@@ -15,7 +15,7 @@ import Header from "../components/Header";
 import { useVideo } from "../hooks/useVideo";
 import { useImage } from "../hooks/useImage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import {Image as ImageType, Video as VideoType} from '../types/database.types'
+import {CURRENT_USER_ID, Image as ImageType, Video as VideoType} from '../types/database.types'
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 45) / 2;
 
@@ -110,7 +110,12 @@ const SearchScreen: React.FC = () => {
   );
 
   const renderImageCard = (img: ImageType, i: number) => (
-  <TouchableOpacity key={img.id || i} style={styles.card}>
+  <TouchableOpacity key={img.id || i} style={styles.card}
+  onPress={() => navigation.navigate('UserImageViewer', {
+    images: [img],
+    initialIndex: 0,
+    CURRENT_USER_ID
+  })}>
     <Image
       source={{ uri: img.imageUrl?.trim() || `https://picsum.photos/400/250?random=${i}` }}
       style={styles.thumb}

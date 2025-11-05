@@ -19,7 +19,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useUser } from '../hooks/useUser';
 
-const API_BASE_URL = 'http://192.168.1.186:3000';
+import {API_BASE_URL} from '../types/database.types'
+
 const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
 const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
 const CURRENT_USER_ID = 'u1';
