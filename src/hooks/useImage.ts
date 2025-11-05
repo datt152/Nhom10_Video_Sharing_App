@@ -22,7 +22,7 @@ export const useImage = () => {
 
             if (Array.isArray(data)) {
                 // 🧩 Lọc ảnh thuộc về user hiện tại
-                const userImages = data.filter(img => img.userId === CURRENT_USER_ID);
+                const userImages = data.filter(img => img.user.id === CURRENT_USER_ID);
 
                 // 🧩 Phân chia công khai / riêng tư
                 const publicList = userImages.filter((img) => img.isPublic === true);

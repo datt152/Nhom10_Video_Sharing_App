@@ -30,6 +30,12 @@ export interface Image {
   views: number;
   createdAt: string;
   userId: string;
+  user: {
+    id: string;
+    username: string;
+    fullname: string;
+    avatar: string;
+  }
   userName?: string;
   location?: string;
   isPublic?: boolean;

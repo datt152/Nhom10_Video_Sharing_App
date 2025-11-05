@@ -94,7 +94,12 @@
       "isLiked": true,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
-      "userId": "u1",
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
       "commentCount": 7,
@@ -116,12 +121,16 @@
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
-      "userId": "u2",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
       "commentCount": 1,
       "likes": 3,
-      "isLiked": true
+      "isLiked": true,"user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      }
     },
     {
       "id": "i3",
@@ -139,7 +148,12 @@
       "likes": 3,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
-      "userId": "u1",
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
       "location": "Hội An",
       "isPublic": true,
       "isLiked": true,
@@ -153,7 +167,12 @@
         "Meowww"
       ],
       "createdAt": "2025-11-03T13:14:18.889Z",
-      "userId": "u4"
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      }
     },
     {
       "id": "i1762186851210",
@@ -166,9 +185,15 @@
       ],
       "taggedUsers": [],
       "commentsEnabled": true,
+      "isPublic": true,
       "privacy": "Friends",
       "createdAt": "2025-11-03T16:20:51.210Z",
-      "userId": "u4"
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      }
     }
   ],
   "videos": [
