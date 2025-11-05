@@ -15,8 +15,7 @@
         "u4"
       ],
       "followingIds": [
-        "u4",
-        "u3"
+        "u4"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
@@ -53,7 +52,7 @@
         "u1"
       ],
       "followingIds": [],
-      "followerCount": 2
+      "followerCount": 1
     },
     {
       "id": "u4",
@@ -189,6 +188,11 @@
         "u2",
         "u3",
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -213,6 +217,11 @@
         "u2",
         "u3",
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -245,6 +254,11 @@
         "u2",
         "u3",
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {

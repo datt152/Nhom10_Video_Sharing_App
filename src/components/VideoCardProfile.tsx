@@ -253,6 +253,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
                                 {video.title}
                             </Text>
                         ) : null}
+                        {video.tags && video.tags.length > 0 && (
+                            <View style={styles.tagContainer}>
+                                {video.tags.map((tab: string, index: number) => (
+                                    <View key={index} style={styles.tagItem}>
+                                        <Text style={styles.tagText}>#{tab}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+
                     </View>
 
                     <View style={styles.rightContent}>
@@ -400,6 +410,33 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
     },
+    tagContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 6,
+        gap: 6,
+    },
+
+    tagItem: {
+        borderWidth: 1.2,
+        borderColor: '#FF69B4', // hồng nổi
+        backgroundColor: '#FFE4EC', // hồng nhạt pastel
+        borderRadius: 16,
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+        elevation: 1,
+    },
+
+    tagText: {
+        fontSize: 12,
+        color: '#C2185B', // chữ hồng đậm nhẹ
+        fontWeight: '600',
+    },
+
     modalButton: {
         paddingVertical: 12,
         borderRadius: 10,

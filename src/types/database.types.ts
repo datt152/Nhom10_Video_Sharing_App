@@ -66,7 +66,7 @@ export interface Video {
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
-
+  tags?: string[]
 }
 
 export interface Comment {
