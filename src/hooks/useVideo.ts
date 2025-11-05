@@ -314,7 +314,23 @@ const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
     await axios.patch(`${API_BASE_URL}/videos/${id}`, { privacy: newPrivacy });
     setVideos((prev) => prev.map(v => v.id === id ? { ...v, privacy: newPrivacy } : v));
   };
+  // 🆕 Lấy danh sách video công khai mà user hiện tại đã like
+  const getPublicVideosLikedByUser = useCallback(async (): Promise<Video[]> => {
+    try {
+      const res = await api.get("/videos");
+      const videosData = res.data;
 
+      // Lọc: video công khai và có CURRENT_USER_ID trong likedBy
+      const likedVideos = videosData.filter(
+        (v: any) => v.isPublic && Array.isArray(v.likedBy) && v.likedBy.includes(CURRENT_USER_ID)
+      );
+
+      return likedVideos;
+    } catch (error) {
+      console.error("🔥 Lỗi khi lấy video public mà user đã like:", error);
+      return [];
+    }
+  }, []);
 
   return {
     videos,
@@ -332,7 +348,8 @@ const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
     getVideoById,
     toggleVideoPrivacy,
     updateVideoPrivacy,
-    getVideoByVideoId
+    getVideoByVideoId,
+    getPublicVideosLikedByUser
   };
 
 };

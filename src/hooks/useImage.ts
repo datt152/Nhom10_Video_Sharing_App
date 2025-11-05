@@ -130,6 +130,68 @@ export const useImage = () => {
         }
     };
 
+    // chu phan user khac 
+    const getImagesByUser = useCallback(
+        async (userId: string) => {
+            try {
+                setLoading(true);
+                const res = await axios.get(`${API_BASE_URL}?userId=${userId}`);
+                setError(null);
+                // ⚠️ Chỗ này nè: phải return đúng kiểu mảng
+                return Array.isArray(res.data) ? res.data : [];
+            } catch (err) {
+                console.error("❌ Lỗi khi tải ảnh theo user:", err);
+                setError("Không thể tải ảnh của người dùng");
+                return [];
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+    // 🔹 Lấy ảnh public
+    const getPublicImages = useCallback(async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE_URL}?isPublic=true`);
+            setError(null);
+            return res.data;
+        } catch (err) {
+            console.error("❌ Lỗi khi tải ảnh public:", err);
+            setError("Không thể tải ảnh public");
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // 🧡 Lấy ảnh public mà user hiện tại đã like
+    const getPublicImagesLikedByUser = useCallback(async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE_URL}/images`);
+            const data = res.data;
+
+            if (Array.isArray(data)) {
+                // Lọc: ảnh công khai và có CURRENT_USER_ID trong likedBy
+                const likedPublicImages = data.filter(
+                    (img) =>
+                        img.isPublic === true &&
+                        Array.isArray(img.likedBy) &&
+                        img.likedBy.includes(CURRENT_USER_ID)
+                );
+                return likedPublicImages;
+            } else {
+                console.error("❌ Dữ liệu trả về không hợp lệ:", data);
+                return [];
+            }
+        } catch (error) {
+            console.error("🔥 Lỗi khi lấy ảnh public mà user đã like:", error);
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, []);
     return {
         publicImages,
         privateImages,
@@ -139,6 +201,9 @@ export const useImage = () => {
         getImageLikes,
         likeImage,   // ✅ sửa lại chuẩn
         unlikeImage,
-        toggleImagePrivacy // ✅ thêm đầy đủ
+        toggleImagePrivacy,
+        getPublicImages,
+        getImagesByUser,
+        getPublicImagesLikedByUser // ✅ thêm đầy đủ
     };
 };

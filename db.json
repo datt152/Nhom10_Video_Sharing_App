@@ -15,6 +15,7 @@
         "u4"
       ],
       "followingIds": [],
+
       "externalLinks": [
         "https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
@@ -48,12 +49,14 @@
       "likes": 9000,
       "followerIds": [
         "u4",
+        "u1",
         "u1"
       ],
       "followingIds": [
         "u1"
       ],
       "followerCount": 0
+
     },
     {
       "id": "u4",
@@ -83,10 +86,9 @@
       ],
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ],
-      "isLiked": true,
+      "isLiked": false,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "user": {
@@ -98,7 +100,7 @@
       "location": "Đà Lạt, Việt Nam",
       "isPublic": false,
       "commentCount": 7,
-      "likes": 3
+      "likes": 2
     },
     {
       "id": "i2",
@@ -111,8 +113,7 @@
       ],
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
@@ -233,7 +234,7 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "likeCount": 2,
+      "likeCount": 3,
       "commentCount": 18,
       "shareCount": 89,
       "views": 25002,
@@ -252,6 +253,7 @@
       "tags": [
         "Meow",
         "MyDieu"
+
       ]
     },
     {
@@ -290,7 +292,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 0,
       "shareCount": 156,
       "views": 36000,
@@ -355,7 +357,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 6,
       "shareCount": 0,
       "views": 0,
@@ -374,9 +376,7 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     },
     {
       "id": "v1761849039838",
@@ -385,7 +385,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761849039/ckb0scw6yqdd1vqdcxyz.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 0,
       "shareCount": 0,
       "views": 0,
@@ -404,9 +404,7 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ]
+      "likedBy": []
     }
   ],
   "comments": [
@@ -841,6 +839,42 @@
       "likedBy": [],
       "replyCount": 0,
       "parentId": "c1762355134057"
+    },
+    {
+      "id": "c1762354202846",
+      "videoId": "v3",
+      "userId": "u1",
+      "content": "ffff",
+      "createdAt": "2025-11-05T14:50:02.846Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [

@@ -28,9 +28,28 @@ const ProfileScreen: React.FC = () => {
 
   const navigation: any = useNavigation();
   const { currentUser, loadUser, loading: userLoading } = useUser();
-  const { followerCount, followingCount, loading: followerLoading } = useFollower();
-  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
-  const { loading: videoLoading, loadVideosByUser } = useVideo();
+  const {
+    followerCount: hookFollowerCount,
+    followingCount: hookFollowingCount,
+    loading: followerLoading,
+    refreshFollowers,
+    refreshFollowing,
+  } = useFollower(currentUser?.id);
+  // ✅ Nếu là profile của chính mình → lấy từ currentUser
+  const followerCount =
+    currentUser?.followerIds?.length ??
+    hookFollowerCount ??
+    0;
+
+  const followingCount =
+    currentUser?.followingIds?.length ??
+    hookFollowingCount ??
+    0;
+
+  const [loadingFollowers, setLoadingFollowers] = useState(false);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
+  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages, getPublicImagesLikedByUser } = useImage();
+  const { loading: videoLoading, loadVideosByUser, getPublicVideosLikedByUser } = useVideo();
 
   const [userVideos, setUserVideos] = useState<any[]>([]);
 
@@ -53,7 +72,31 @@ const ProfileScreen: React.FC = () => {
 
     loadData();
   }, [currentUser?.id]);
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refreshFollowers(), refreshFollowing()]);
+  }, [refreshFollowers, refreshFollowing]);
+  useFocusEffect(
+    useCallback(() => {
+      if (!currentUser?.id) return;
 
+      const refetch = async () => {
+        console.log('🔁 Refetching Profile Data...');
+        try {
+          await Promise.all([
+            loadVideosByUser(currentUser.id).then((vids) =>
+              setUserVideos(Array.isArray(vids) ? vids : [])
+            ),
+            loadImages(),
+            refreshAll(), // ✅ cập nhật follower/following luôn
+          ]);
+        } catch (err) {
+          console.error('❌ Refetch error:', err);
+        }
+      };
+
+      refetch();
+    }, [currentUser?.id, refreshAll])
+  );
   // ⚡ Chỉ refetch khi focus màn hình (ví dụ quay lại từ tab khác)
   useFocusEffect(
     useCallback(() => {
@@ -77,8 +120,29 @@ const ProfileScreen: React.FC = () => {
   const privateVideos = userVideos.filter((v) => !v.isPublic);
   const isLoading = userLoading || followerLoading;
 
-
-
+  useEffect(() => {
+    console.log("🧩 currentUser:", currentUser);
+    console.log("👥 followerCount:", followerCount);
+    console.log("➡ followingCount:", followingCount);
+  }, [currentUser, followerCount, followingCount]);
+  const countTotalLikes = useCallback(() => {
+    try {
+      const imageLikes = (publicImages || []).reduce(
+        (sum, img) => sum + (Array.isArray(img.likeBy) ? img.likeBy.length : 0),
+        0
+      );
+      const videoLikes = (publicVideos || []).reduce(
+        (sum, vid) => sum + (Array.isArray(vid.likedBy) ? vid.likedBy.length : 0),
+        0
+      );
+      console.log("🖼 Public Images:", publicImages);
+      console.log("🎞 Public Videos:", publicVideos);
+      return imageLikes + videoLikes;
+    } catch (err) {
+      console.error("Error counting likes:", err);
+      return 0;
+    }
+  }, [publicImages, publicVideos]);
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);
@@ -94,6 +158,23 @@ const ProfileScreen: React.FC = () => {
     useCallback(() => {
       loadUser();
       fetchProfileContent();
+    }, [])
+  );
+
+  // 🧠 Tạo state để lưu dữ liệu
+  const [likedImages, setLikedImages] = useState<any[]>([]);
+  const [likedVideos, setLikedVideos] = useState<any[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLikedData = async () => {
+        const likedImgs = await getPublicImagesLikedByUser();
+        const likedVids = await getPublicVideosLikedByUser();
+        setLikedImages(likedImgs);
+        setLikedVideos(likedVids);
+      };
+
+      fetchLikedData();
     }, [])
   );
 
@@ -154,10 +235,7 @@ const ProfileScreen: React.FC = () => {
     }
 
     if (menu === 'liked') {
-      // ✅ Sửa thành:
-      const likedVideos = publicVideos.filter(v => v.likedBy?.includes(CURRENT_USER_ID));
-      const likedImages = publicImages.filter(img => img.isLiked === true);
-      console.log("danh sach image like" + likedImages+ "danh sach video"+ likedVideos)
+
       return (
         <>
           <View style={styles.privacyMenu}>
@@ -238,11 +316,10 @@ const ProfileScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Thống kê */}
         <View style={styles.statsRow}>
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'following' })}
+            onPress={() => navigation.navigate('Followers', { tab: 'following', userId: currentUser.id })}
           >
             <Text style={styles.statValue}>{followingCount}</Text>
             <Text style={styles.statLabel}>Following</Text>
@@ -250,14 +327,14 @@ const ProfileScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'followers' })}
+            onPress={() => navigation.navigate('Followers', { tab: 'followers', userId: currentUser.id })}
           >
             <Text style={styles.statValue}>{followerCount}</Text>
             <Text style={styles.statLabel}>Follower</Text>
           </TouchableOpacity>
 
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{currentUser.likes}</Text>
+            <Text style={styles.statValue}>{countTotalLikes()}</Text>
             <Text style={styles.statLabel}>Likes</Text>
           </View>
         </View>
