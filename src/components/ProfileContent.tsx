@@ -24,16 +24,18 @@ export default function ProfileContent({
 }: ProfileContentProps) {
     return (
         <View style={styles.contentBox}>
+            {/* Thanh menu chọn video / ảnh */}
             <View style={styles.menu}>
                 {(["videos", "images"] as MenuType[]).map((type) => (
                     <TouchableOpacity key={type} onPress={() => setMenu(type)}>
                         <Text style={[styles.menuText, menu === type && styles.activeMenu]}>
-                            {type === "videos" ? "Video" : "Image"}
+                            {type === "videos" ? "Video" : "Ảnh"}
                         </Text>
                     </TouchableOpacity>
                 ))}
             </View>
 
+            {/* Hiển thị nội dung */}
             {menu === "videos" ? (
                 <ProfileVideoList
                     videos={videos.public}
@@ -64,13 +66,25 @@ const styles = StyleSheet.create({
         justifyContent: "space-around",
         borderBottomWidth: 1,
         borderColor: "#eee",
-
-        paddingVertical: 14,   // ↑ tăng khoảng cách dọc giữa text và border
-        marginTop: 5,         // ↑ cách phần trên (avatar, info)
-        marginBottom: 8,       // ↑ thêm chút cách với nội dung dưới
+        paddingVertical: 14,
+        marginTop: 5,
+        marginBottom: 8,
+        width: "100%",
     },
     menuText: {
-        fontSize: 15, color: "#777", paddingHorizontal: 8},
-        activeMenu: { color: "#FF4EB8", fontWeight: "700" },
-        contentBox: { alignItems: "center", paddingVertical: 20 },
-    });
+        fontSize: 15,
+        color: "#777",
+        paddingHorizontal: 8,
+        fontWeight: "500",
+    },
+    activeMenu: {
+        color: "#FF4EB8",
+        fontWeight: "700",
+        textDecorationLine: "underline",
+    },
+    contentBox: {
+        alignItems: "center",
+        paddingVertical: 20,
+        width: "100%",
+    },
+});

@@ -39,6 +39,17 @@ export default function OtherProfileScreen() {
     const [loadingContent, setLoadingContent] = useState(false);
     const [userVideos, setUserVideos] = useState<any[]>([]);
     const [userImages, setUserImages] = useState<any[]>([]);
+    const [actionLoading, setActionLoading] = useState(false);
+
+    // ✅ local state để UI phản hồi tức thì
+    const [localIsFollowing, setLocalIsFollowing] = useState(isFollowing);
+    const [localIsFriend, setLocalIsFriend] = useState(isFriend);
+
+    // Đồng bộ lại khi dữ liệu hook thay đổi
+    useEffect(() => {
+        setLocalIsFollowing(isFollowing);
+        setLocalIsFriend(isFriend);
+    }, [isFollowing, isFriend]);
 
     const loadAll = useCallback(async () => {
         if (!userId) return;
@@ -65,20 +76,43 @@ export default function OtherProfileScreen() {
     const publicVideos = userVideos.filter((v) => v.isPublic);
     const publicImages = userImages.filter((img) => img.isPublic);
 
+    // ✅ Cập nhật ngay khi follow / unfollow / unfriend
     const handleFollowAction = async () => {
-        if (isFriend) await unfriendUser(userId);
-        else if (isFollowing) await unfollowUser(userId);
-        else await followUser(userId);
-        await loadAll(); // Cập nhật lại giao diện ngay sau hành động
+        if (actionLoading) return; // tránh spam
+        setActionLoading(true);
+
+        try {
+            if (localIsFriend) {
+                await unfriendUser(userId);
+                setLocalIsFriend(false);
+                setLocalIsFollowing(false);
+            } else if (localIsFollowing) {
+                await unfollowUser(userId);
+                setLocalIsFollowing(false);
+            } else {
+                await followUser(userId);
+                setLocalIsFollowing(true);
+            }
+
+            // Làm mới dữ liệu nền
+            loadTargetUser(userId);
+            refreshFollowers();
+            refreshFollowing();
+            loadAll();
+        } catch (error) {
+            console.log("Lỗi khi xử lý follow/unfollow:", error);
+        } finally {
+            setActionLoading(false);
+        }
     };
 
     const renderButtonText = () => {
-        if (isFriend) return "Bạn bè 🤝";
-        if (isFollowing) return "Đang theo dõi";
+        if (localIsFriend) return "Bạn bè 🤝";
+        if (localIsFollowing) return "Đang theo dõi";
         return "Theo dõi";
     };
 
-    const showContent = isFollowing || isFriend;
+    const showContent = localIsFollowing || localIsFriend;
 
     if (userLoading || loadingContent || !targetUser) {
         return (
@@ -125,12 +159,26 @@ export default function OtherProfileScreen() {
 
                 <View style={styles.btnRow}>
                     <TouchableOpacity
-                        style={[styles.followBtn, (isFollowing || isFriend) && styles.followedBtn]}
+                        style={[
+                            styles.followBtn,
+                            (localIsFollowing || localIsFriend) && styles.followedBtn,
+                            actionLoading && { opacity: 0.7 },
+                        ]}
                         onPress={handleFollowAction}
+                        disabled={actionLoading}
                     >
-                        <Text style={[styles.followText, (isFollowing || isFriend) && styles.followedText]}>
-                            {renderButtonText()}
-                        </Text>
+                        {actionLoading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Text
+                                style={[
+                                    styles.followText,
+                                    (localIsFollowing || localIsFriend) && styles.followedText,
+                                ]}
+                            >
+                                {renderButtonText()}
+                            </Text>
+                        )}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.msgBtn}>
