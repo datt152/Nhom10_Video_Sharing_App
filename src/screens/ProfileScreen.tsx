@@ -48,8 +48,8 @@ const ProfileScreen: React.FC = () => {
 
   const [loadingFollowers, setLoadingFollowers] = useState(false);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
-  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages } = useImage();
-  const { loading: videoLoading, loadVideosByUser } = useVideo();
+  const { publicImages, privateImages, loading: imageLoading, refresh: loadImages, getPublicImagesLikedByUser } = useImage();
+  const { loading: videoLoading, loadVideosByUser, getPublicVideosLikedByUser } = useVideo();
 
   const [userVideos, setUserVideos] = useState<any[]>([]);
 
@@ -144,6 +144,23 @@ const ProfileScreen: React.FC = () => {
     }, [])
   );
 
+  // 🧠 Tạo state để lưu dữ liệu
+  const [likedImages, setLikedImages] = useState<any[]>([]);
+  const [likedVideos, setLikedVideos] = useState<any[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLikedData = async () => {
+        const likedImgs = await getPublicImagesLikedByUser();
+        const likedVids = await getPublicVideosLikedByUser();
+        setLikedImages(likedImgs);
+        setLikedVideos(likedVids);
+      };
+
+      fetchLikedData();
+    }, [])
+  );
+
   const renderContent = () => {
     if (menu === 'images') {
       return (
@@ -201,10 +218,7 @@ const ProfileScreen: React.FC = () => {
     }
 
     if (menu === 'liked') {
-      // ✅ Sửa thành:
-      const likedVideos = publicVideos.filter(v => v.likedBy?.includes(CURRENT_USER_ID));
-      const likedImages = publicImages.filter(img => img.isLiked === true);
-      console.log("danh sach image like" + likedImages + "danh sach video" + likedVideos)
+
       return (
         <>
           <View style={styles.privacyMenu}>
