@@ -173,7 +173,7 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "likeCount": 2,
+      "likeCount": 3,
       "commentCount": 23,
       "shareCount": 89,
       "views": 25002,
@@ -187,7 +187,8 @@
       },
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ]
     },
     {
@@ -282,7 +283,7 @@
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
       "likeCount": 2,
-      "commentCount": 1,
+      "commentCount": 2,
       "shareCount": 43,
       "views": 21000,
       "createdAt": "2025-10-15T09:30:00Z",
@@ -1324,6 +1325,42 @@
       "likedBy": [],
       "replyCount": 0,
       "parentId": null
+    },
+    {
+      "id": "c1762354202846",
+      "videoId": "v3",
+      "userId": "u1",
+      "content": "ffff",
+      "createdAt": "2025-11-05T14:50:02.846Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 313,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u4",
+          "u3"
+        ],
+        "externalLinks": [
+          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ]
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [

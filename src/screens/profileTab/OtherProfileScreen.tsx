@@ -215,10 +215,10 @@ const styles = StyleSheet.create({
     coverImage: { width: "100%", height: "100%" },
     backButton: {
         position: "absolute",
-        top: 45,
+        top: 30,
         left: 15,
         backgroundColor: "rgba(255,255,255,0.8)",
-        borderRadius: 20,
+        borderRadius: 40,
         paddingHorizontal: 10,
         paddingVertical: 2,
     },

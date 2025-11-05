@@ -125,7 +125,24 @@ const ProfileScreen: React.FC = () => {
     console.log("👥 followerCount:", followerCount);
     console.log("➡ followingCount:", followingCount);
   }, [currentUser, followerCount, followingCount]);
-
+  const countTotalLikes = useCallback(() => {
+    try {
+      const imageLikes = (publicImages || []).reduce(
+        (sum, img) => sum + (Array.isArray(img.likeBy) ? img.likeBy.length : 0),
+        0
+      );
+      const videoLikes = (publicVideos || []).reduce(
+        (sum, vid) => sum + (Array.isArray(vid.likedBy) ? vid.likedBy.length : 0),
+        0
+      );
+      console.log("🖼 Public Images:", publicImages);
+      console.log("🎞 Public Videos:", publicVideos);
+      return imageLikes + videoLikes;
+    } catch (err) {
+      console.error("Error counting likes:", err);
+      return 0;
+    }
+  }, [publicImages, publicVideos]);
   const fetchProfileContent = useCallback(async () => {
     if (!currentUser) return;
     setLoadingContent(true);
@@ -317,7 +334,7 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{currentUser.likes}</Text>
+            <Text style={styles.statValue}>{countTotalLikes()}</Text>
             <Text style={styles.statLabel}>Likes</Text>
           </View>
         </View>
