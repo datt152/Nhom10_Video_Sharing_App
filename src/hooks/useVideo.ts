@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.65.2:3000';
+const API_BASE_URL = 'http://192.168.1.186:3000';
 export const CURRENT_USER_ID = 'u1';
 
 export const useVideo = () => {
@@ -262,6 +262,29 @@ export const useVideo = () => {
       return [];
     }
   };
+  // 🆕 Lấy 1 video theo ID
+const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
+  try {
+    const [videoRes, usersRes] = await Promise.all([
+      api.get(`/videos/${videoId}`),
+      api.get(`/users`),
+    ]);
+
+    const video = videoRes.data;
+    const users = usersRes.data;
+
+    const enrichedVideo = {
+      ...video,
+      user: users.find((u: any) => u.id === video.userId),
+      isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+    };
+
+    return enrichedVideo;
+  } catch (err) {
+    console.error("❌ Lỗi khi tải video theo id:", err);
+    return null;
+  }
+};
 
   // ✅ Hàm đổi trạng thái video (có cập nhật luôn local state)
   const toggleVideoPrivacy = async (videoId: string, isPublic: boolean) => {
@@ -307,7 +330,8 @@ export const useVideo = () => {
     countCommentsByVideo,
     getVideoById,
     toggleVideoPrivacy,
-    updateVideoPrivacy
+    updateVideoPrivacy,
+    getVideoByVideoId
   };
 
 };

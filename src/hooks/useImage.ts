@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
 
-const API_BASE_URL = 'http://192.168.65.2:3000'; // ⚠️ nhớ đổi IP cho đúng
+const API_BASE_URL = 'http://192.168.1.186:3000'; // ⚠️ nhớ đổi IP cho đúng
 export const CURRENT_USER_ID = 'u1';
 
 export const useImage = () => {

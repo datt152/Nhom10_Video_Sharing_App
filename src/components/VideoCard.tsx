@@ -25,7 +25,7 @@ function VideoCard() {
   const route = useRoute();
   const { id } = route.params as any;
   const navigation = useNavigation();
-  const { getVideoById, toggleLike, toggleFollow, currentUserId } = useVideo();
+  const { getVideoByVideoId, toggleLike, toggleFollow, currentUserId } = useVideo();
   const [video, setVideo] = useState<any>(null);
   const videoRef = useRef<Video>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -40,7 +40,7 @@ function VideoCard() {
 
   useEffect(() => {
     const fetchVideo = async () => {
-      const data = await getVideoById(id);
+      const data = await getVideoByVideoId(id);
       setVideo(data);
       setLocalCommentCount(data?.commentCount || 0);
     };
@@ -57,9 +57,9 @@ function VideoCard() {
   // Pause video khi rời khỏi màn hình
   useFocusEffect(
     React.useCallback(() => {
-      videoRef.current?.playAsync().catch(() => {});
+      videoRef.current?.playAsync().catch(() => { });
       return () => {
-        videoRef.current?.pauseAsync().catch(() => {});
+        videoRef.current?.pauseAsync().catch(() => { });
       };
     }, [video?.id])
   );
@@ -70,7 +70,7 @@ function VideoCard() {
       "change",
       (nextAppState: AppStateStatus) => {
         if (nextAppState === "background" || nextAppState === "inactive") {
-          videoRef.current?.pauseAsync().catch(() => {});
+          videoRef.current?.pauseAsync().catch(() => { });
         }
       }
     );
@@ -84,8 +84,8 @@ function VideoCard() {
   // Pause khi mất focus
   useEffect(() => {
     if (!isFocused) {
-      videoRef.current?.pauseAsync().catch(() => {});
-      videoRef.current?.unloadAsync().catch(() => {});
+      videoRef.current?.pauseAsync().catch(() => { });
+      videoRef.current?.unloadAsync().catch(() => { });
     }
   }, [isFocused]);
 
@@ -172,8 +172,8 @@ function VideoCard() {
   return (
     <View style={styles.container}>
       {/* Video */}
-      <TouchableOpacity 
-        style={styles.backButton} 
+      <TouchableOpacity
+        style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
         <Ionicons name="arrow-back" size={28} color="black" />
@@ -221,6 +221,18 @@ function VideoCard() {
           <Text style={styles.title} numberOfLines={2}>
             {video?.title || ""}
           </Text>
+          {Array.isArray(video?.tags) && video.tags.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {video.tags.map((tag, index) => (
+                <View key={index} style={styles.tagItem}>
+                  <Text style={styles.tagText}>#{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+
+
         </View>
 
         {/* Right actions */}
@@ -308,10 +320,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  video: { 
-    width: "100%", 
-    height: "100%", 
-    backgroundColor: "#f9e9e9ff" 
+  video: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#f9e9e9ff"
   },
   centerPlayButton: {
     position: "absolute",
@@ -420,14 +432,38 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: "100%", backgroundColor: "#FF3B5C", borderRadius: 2 },
   backButton: {
-  position: "absolute",
-  top: 16,
-  left: 16,
-  zIndex: 1000,
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  justifyContent: "center",
-  alignItems: "center",
-},
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 1000,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  }, tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginBottom: 12,
+  },
+  tagItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginRight: 6,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+  tagText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "500",
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
 });

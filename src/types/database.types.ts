@@ -60,9 +60,9 @@ export interface Video {
   createdAt: string;
   isPublic: boolean;
   likedBy: string[];
+  tags?: string[];
   // Denormalized data
   user?: User;
-  music?: Music;
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
