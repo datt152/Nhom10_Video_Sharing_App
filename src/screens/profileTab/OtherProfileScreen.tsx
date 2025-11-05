@@ -56,7 +56,10 @@ export default function OtherProfileScreen() {
         setLoadingContent(true);
         await loadTargetUser(userId);
         const vids = await loadVideosByUser(userId);
+        console.log("User dang duoc xem tai khoan" +userId)
+        console.log("danh sach video trang OtherProfileScreen.tsx "+vids)
         const imgs = await getImagesByUser(userId);
+        console.log("danh sach image trang OtherProfileScreen.tsx "+imgs)
         setUserVideos(vids || []);
         setUserImages(imgs || []);
         setLoadingContent(false);
