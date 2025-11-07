@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 
-const API_BASE_URL = 'http://192.168.65.2:3000';
-const CURRENT_USER_ID = 'u2';
 
 interface Comment {
     id: string;
@@ -55,7 +54,7 @@ export const useImageComments = (imageId?: string) => {
                         username: 'Unknown',
                         avatar: 'https://via.placeholder.com/40',
                     },
-                isLiked: c.likedBy?.includes(CURRENT_USER_ID) || false,
+                isLiked: c.likedBy?.includes(getCurrentUserId()) || false,
             });
 
             const parents = allComments.filter((c: any) => !c.parentId).map(enrich);
@@ -79,7 +78,7 @@ export const useImageComments = (imageId?: string) => {
             const newComment = {
                 id: `c${Date.now()}`,
                 imageId,
-                userId: CURRENT_USER_ID,
+                userId: getCurrentUserId(),
                 content,
                 createdAt: new Date().toISOString(),
                 likeCount: 0,
@@ -107,9 +106,9 @@ export const useImageComments = (imageId?: string) => {
                 // 📨 Thêm thông báo cho chủ ảnh (nếu khác người bình luận)
                 const imageOwnerId = imgRes.data.userId;
                 console.log("imageOwnerId" + imageOwnerId)
-                if (imageOwnerId && imageOwnerId !== CURRENT_USER_ID) {
+                if (imageOwnerId && imageOwnerId !== getCurrentUserId()) {
                     try {
-                        const userRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
+                        const userRes = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
                         console.log("Thong tin user " + userRes.data)
                         const currentUser = userRes.data;
 
@@ -117,8 +116,8 @@ export const useImageComments = (imageId?: string) => {
                             id: `n${Date.now()}`,
                             imageId: imageId,
                             userId: imageOwnerId,          // 👈 người NHẬN thông báo
-                            senderId: CURRENT_USER_ID,     // 👈 người GỬI (bình luận)
-                            type: 'COMMENT_IMAGE',               // 👈 dùng đúng ENUM type
+                            senderId: getCurrentUserId(),     // 👈 người GỬI (bình luận)
+                            type: 'COMMENT',               // 👈 dùng đúng ENUM type
                             message: `${currentUser.fullname || currentUser.username} đã bình luận: "${content}"`, // ✅ thêm nội dung
                             content, // vẫn giữ lại để lưu chi tiết
                             videoId: null,                 // 👈 vì là ảnh, nên không có video
@@ -173,10 +172,10 @@ export const useImageComments = (imageId?: string) => {
             const res = await axios.get(`${API_BASE_URL}/comments/${commentId}`);
             const comment = res.data;
 
-            const isLiked = comment.likedBy?.includes(CURRENT_USER_ID) || false;
+            const isLiked = comment.likedBy?.includes(getCurrentUserId()) || false;
             const updatedLikedBy = isLiked
-                ? comment.likedBy.filter((id: string) => id !== CURRENT_USER_ID)
-                : [...(comment.likedBy || []), CURRENT_USER_ID];
+                ? comment.likedBy.filter((id: string) => id !== getCurrentUserId())
+                : [...(comment.likedBy || []), getCurrentUserId()];
             const updatedLikeCount = isLiked ? comment.likeCount - 1 : comment.likeCount + 1;
 
             await axios.patch(`${API_BASE_URL}/comments/${commentId}`, {

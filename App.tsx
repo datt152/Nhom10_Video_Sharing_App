@@ -1,7 +1,7 @@
 import React from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import SignupScreen from './src/screens/SignupScreen';
+import SignupScreen from './src/screens/auth/SignupScreen';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -10,7 +10,7 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       
          <NavigationContainer>
-           <AppNavigator />
+           <AuthNavigator />
          </NavigationContainer>
         
       </SafeAreaView>

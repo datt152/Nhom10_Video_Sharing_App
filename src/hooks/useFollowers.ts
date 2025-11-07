@@ -2,11 +2,11 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-const API_BASE_URL = "http://192.168.65.2:3000";
+import { API_BASE_URL, getCurrentUserId } from '../types/config'
+
 
 export const useFollower = (userId?: string) => {
-    const CURRENT_USER_ID = "u2"; // giả lập user đang đăng nhập
-    const TARGET_USER_ID = userId || CURRENT_USER_ID; // user đang được xem (ở hồ sơ)
+    const TARGET_USER_ID = userId || getCurrentUserId(); // user đang được xem (ở hồ sơ)
 
     const [followers, setFollowers] = useState<User[]>([]);
     const [following, setFollowing] = useState<User[]>([]);
@@ -73,7 +73,7 @@ export const useFollower = (userId?: string) => {
         async (targetUserId: string) => {
             try {
                 const { data: currentUser } = await axios.get<User>(
-                    `${API_BASE_URL}/users/${CURRENT_USER_ID}`
+                    `${API_BASE_URL}/users/${getCurrentUserId()}`
                 );
                 const { data: targetUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${targetUserId}`
@@ -87,15 +87,15 @@ export const useFollower = (userId?: string) => {
                 };
                 const updatedTargetUser = {
                     ...targetUser,
-                    followerIds: [...targetUser.followerIds, CURRENT_USER_ID],
+                    followerIds: [...targetUser.followerIds, getCurrentUserId()],
                 };
 
-                await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedCurrentUser);
+                await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
                 // 🔔 Gửi thông báo cho người được follow (targetUser)
                 await axios.post(`${API_BASE_URL}/notifications`, {
                     userId: targetUserId,
-                    senderId: CURRENT_USER_ID,
+                    senderId: getCurrentUserId,
                     type: "FOLLOW",
                     message: `${currentUser.fullname} đã theo dõi bạn`,
                     createdAt: new Date().toISOString(),
@@ -109,7 +109,7 @@ export const useFollower = (userId?: string) => {
                 console.error("❌ Lỗi khi follow user:", error);
             }
         },
-        [CURRENT_USER_ID, fetchFollowing, fetchFollowers]
+        [getCurrentUserId(), fetchFollowing, fetchFollowers]
     );
 
     // ✅ Unfollow người khác
@@ -117,7 +117,7 @@ export const useFollower = (userId?: string) => {
         async (targetUserId: string) => {
             try {
                 const { data: currentUser } = await axios.get<User>(
-                    `${API_BASE_URL}/users/${CURRENT_USER_ID}`
+                    `${API_BASE_URL}/users/${getCurrentUserId()}`
                 );
                 const { data: targetUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${targetUserId}`
@@ -131,10 +131,10 @@ export const useFollower = (userId?: string) => {
                 };
                 const updatedTargetUser = {
                     ...targetUser,
-                    followerIds: targetUser.followerIds.filter((id) => id !== CURRENT_USER_ID),
+                    followerIds: targetUser.followerIds.filter((id) => id !== getCurrentUserId()),
                 };
 
-                await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedCurrentUser);
+                await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
 
                 await fetchFollowers();
@@ -143,7 +143,7 @@ export const useFollower = (userId?: string) => {
                 console.error("❌ Lỗi khi bỏ follow user:", error);
             }
         },
-        [CURRENT_USER_ID, fetchFollowing, fetchFollowers]
+        [getCurrentUserId(), fetchFollowing, fetchFollowers]
     );
 
     return {

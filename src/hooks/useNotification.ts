@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { Notification } from "../types/database.types";
-
-const API_BASE_URL = "http://192.168.65.2:3000";
-export const CURRENT_USER_ID = "u2";
+import { Notification, User } from "../types/database.types";
+import { API_BASE_URL, getCurrentUserId } from '../types/config'
 
 export const useNotification = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -17,11 +15,11 @@ export const useNotification = () => {
 
     // 🧠 Lấy danh sách thông báo
     const fetchNotifications = useCallback(async () => {
-        if (!CURRENT_USER_ID) return;
+        if (!getCurrentUserId) return;
         setLoading(true);
         try {
             const res = await axios.get(
-                `${API_BASE_URL}/notifications?userId=${CURRENT_USER_ID}`
+                `${API_BASE_URL}/notifications?userId=${getCurrentUserId}`
             );
             const sorted = res.data.sort(
                 (a: Notification, b: Notification) =>

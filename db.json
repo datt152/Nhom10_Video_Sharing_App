@@ -7,7 +7,7 @@
       "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
       "bio": "Du lịch & cuộc sống 🌿125555",
       "followers": 12002,
-      "following": 313,
+      "following": 312,
       "likes": 22000,
       "followerIds": [
         "u2",
@@ -15,15 +15,14 @@
         "u4"
       ],
       "followingIds": [
-        "u2",
         "u3",
         "u4"
       ],
       "externalLinks": [
-        "\u0001https://coccoc.com/search?query=figma",
+        "https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
       ],
-      "followerCount": 1
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u2",
@@ -38,10 +37,8 @@
         "u4",
         "u1"
       ],
-      "followingIds": [
-        "u1"
-      ],
-      "followerCount": 4
+      "followerCount": 4,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u3",
@@ -56,8 +53,11 @@
         "u4",
         "u1"
       ],
-      "followingIds": [],
-      "followerCount": 2
+      "followingIds": [
+        "u1"
+      ],
+      "followerCount": 1,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u4",
@@ -65,14 +65,15 @@
       "fullname": "Dat Tran",
       "avatar": "https://randomuser.me/api/portraits/men/45.jpg",
       "bio": "Developer 💻",
-      "followers": 2,
+      "followers": 1,
       "following": 5,
       "likes": 0,
-      "followerIds": [
-        "u1"
+      "followerIds": [],
+      "followingIds": [
+        "u3"
       ],
-      "followingIds": [],
-      "followerCount": 1
+      "followerCount": 1,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     }
   ],
   "images": [
@@ -93,7 +94,12 @@
       "isLiked": true,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
-      "userId": "u3",
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
       "commentCount": 16,
@@ -115,12 +121,17 @@
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
-      "userId": "u2",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
       "commentCount": 1,
       "likes": 3,
-      "isLiked": true
+      "isLiked": true,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      }
     },
     {
       "id": "i3",
@@ -138,7 +149,12 @@
       "likes": 3,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
-      "userId": "u1",
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
       "location": "Hội An",
       "isPublic": true,
       "isLiked": true,
@@ -152,7 +168,12 @@
         "Meowww"
       ],
       "createdAt": "2025-11-03T13:14:18.889Z",
-      "userId": "u4"
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      }
     },
     {
       "id": "i1762186851210",
@@ -165,9 +186,21 @@
       ],
       "taggedUsers": [],
       "commentsEnabled": true,
+      "isPublic": true,
       "privacy": "Friends",
       "createdAt": "2025-11-03T16:20:51.210Z",
-      "userId": "u4"
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
+      "likedBy": [
+        "u1"
+      ],
+      "likes": 1,
+      "isLiked": true,
+      "commentCount": 3
     }
   ],
   "videos": [
@@ -178,7 +211,7 @@
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "likeCount": 3,
-      "commentCount": 23,
+      "commentCount": 0,
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -195,6 +228,8 @@
         "u1"
       ],
       "tags": [
+        "Meow",
+        "MyDieu",
         "portrait",
         "smile",
         "people"
@@ -248,13 +283,6 @@
         "fullname": "Dat Tran",
         "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
       },
-      "music": {
-        "id": "m1",
-        "title": "Quay đi quay lại",
-        "artist": "HIEUTHUHAI",
-        "cover": "https://i.scdn.co/image/ab67616d0000b273d3f4377.jpg",
-        "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-      },
       "likedBy": [
         "u2",
         "u3",
@@ -296,9 +324,8 @@
         "u1"
       ],
       "tags": [
-        "portrait",
-        "smile",
-        "people"
+        "Meow",
+        "MyDieu"
       ]
     },
     {
@@ -406,35 +433,38 @@
         "smile",
         "people"
       ]
+    },
+    {
+      "id": "v1762506247043",
+      "userId": "u1",
+      "title": "Bùn",
+      "caption": "Alone",
+      "tags": [
+        "Lonely"
+      ],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "privacy": "Công khai",
+      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.mp4",
+      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.jpg",
+      "likeCount": 1,
+      "commentCount": 0,
+      "shareCount": 0,
+      "views": 0,
+      "createdAt": "2025-11-07T09:04:07.043Z",
+      "isPublic": true,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
+      "likedBy": [
+        "u1"
+      ]
     }
   ],
   "comments": [
-    {
-      "id": "c1762149724273",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "dddd",
-      "createdAt": "2025-11-03T06:02:14.273Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
-      "replyCount": 1,
-      "parentId": null
-    },
-    {
-      "id": "c1762159400144",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "fffff",
-      "createdAt": "2025-11-03T08:43:20.144Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
-      "replyCount": 0,
-      "parentId": null
-    },
     {
       "id": "c1762159414885",
       "videoId": "v1761841701895",
@@ -454,19 +484,6 @@
       "createdAt": "2025-11-03T08:44:05.054Z",
       "likeCount": 0,
       "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762159498596",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "fffffhhh",
-      "createdAt": "2025-11-03T08:44:58.596Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
       "replyCount": 0,
       "parentId": null
     },
@@ -493,30 +510,6 @@
       "parentId": "c1762159510806"
     },
     {
-      "id": "c1762179545751",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "Có tăng đâ",
-      "createdAt": "2025-11-03T14:19:05.751Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762179630656",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "Hi",
-      "createdAt": "2025-11-03T14:20:30.656Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
       "id": "c1762179840854",
       "videoId": "v3",
       "userId": "u1",
@@ -537,91 +530,6 @@
       "isLiked": false,
       "replies": [],
       "_local": true
-    },
-    {
-      "id": "c1762179986533",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "Mệt",
-      "createdAt": "2025-11-03T14:26:26.533Z",
-      "likeCount": 1,
-      "likedBy": [
-        "u1"
-      ],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762180202805",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "Ho",
-      "createdAt": "2025-11-03T14:30:02.805Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u4",
-          "u3"
-        ],
-        "externalLinks": [
-          "https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762180303214",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "Ê",
-      "createdAt": "2025-11-03T14:31:43.214Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u4",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
     },
     {
       "id": "c1762181117018",
@@ -804,205 +712,6 @@
       "replies": []
     },
     {
-      "id": "c1762181283442",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "fasdf",
-      "createdAt": "2025-11-03T14:48:03.442Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u4",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762226462085",
-      "imageId": "i2",
-      "userId": "u1",
-      "content": "hay qya di",
-      "createdAt": "2025-11-04T03:21:02.085Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762266315392",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "kkkkkk",
-      "createdAt": "2025-11-04T14:25:15.392Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762269497191",
-      "imageId": "i3",
-      "userId": "u1",
-      "content": "kkkkk",
-      "createdAt": "2025-11-04T15:18:17.191Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762269505811",
-      "imageId": "i1",
-      "userId": "u1",
-      "content": "jjjjj",
-      "createdAt": "2025-11-04T15:18:25.811Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762269591943",
-      "imageId": "i3",
-      "userId": "u1",
-      "content": "jjjjj",
-      "createdAt": "2025-11-04T15:19:51.943Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null
-    },
-    {
-      "id": "c1762270257587",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "jjjj",
-      "createdAt": "2025-11-04T15:30:57.587Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270261764",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "hhhhhhhhh",
-      "createdAt": "2025-11-04T15:31:01.764Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270267847",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "hhhh",
-      "createdAt": "2025-11-04T15:31:07.847Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
       "id": "c1762270280155",
       "videoId": "v9",
       "userId": "u1",
@@ -1044,186 +753,6 @@
       "userId": "u1",
       "content": "hhhhhh",
       "createdAt": "2025-11-04T15:31:33.617Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270309184",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "jjjjjle ngoc dungdgdgd",
-      "createdAt": "2025-11-04T15:31:49.184Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270341256",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "ggggg",
-      "createdAt": "2025-11-04T15:32:21.256Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270350310",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "tran le nguyen",
-      "createdAt": "2025-11-04T15:32:30.310Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270540180",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "jjjj",
-      "createdAt": "2025-11-04T15:35:40.180Z",
-      "likeCount": 0,
-      "likedBy": [],
-      "replyCount": 0,
-      "parentId": null,
-      "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn2004",
-        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
-        "bio": "Du lịch & cuộc sống 🌿125555",
-        "followers": 12002,
-        "following": 313,
-        "likes": 22000,
-        "followerIds": [
-          "u2",
-          "u3",
-          "u4"
-        ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
-        "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
-          "https://coccoc.com/search?query=figma"
-        ]
-      },
-      "isLiked": false,
-      "replies": []
-    },
-    {
-      "id": "c1762270544178",
-      "videoId": "v1",
-      "userId": "u1",
-      "content": "uuuuu",
-      "createdAt": "2025-11-04T15:35:44.178Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
@@ -1327,11 +856,11 @@
       "replies": []
     },
     {
-      "id": "c1762270904006",
-      "videoId": "v1",
+      "id": "c1762355101911",
+      "videoId": "v3",
       "userId": "u1",
-      "content": "jjjjj",
-      "createdAt": "2025-11-04T15:41:44.006Z",
+      "content": "Ê nha xịn nha má",
+      "createdAt": "2025-11-05T15:05:01.911Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
@@ -1350,12 +879,9 @@
           "u3",
           "u4"
         ],
-        "followingIds": [
-          "u2",
-          "u3"
-        ],
+        "followingIds": [],
         "externalLinks": [
-          "\u0001https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma",
           "https://coccoc.com/search?query=figma"
         ]
       },
@@ -1363,15 +889,15 @@
       "replies": []
     },
     {
-      "id": "c1762270913271",
-      "imageId": "i3",
+      "id": "c1762355148442",
+      "imageId": "i1762186851210",
       "userId": "u1",
-      "content": "jjjjj",
-      "createdAt": "2025-11-04T15:41:53.271Z",
+      "content": "Con tôi cưng mà bà",
+      "createdAt": "2025-11-05T15:05:48.442Z",
       "likeCount": 0,
       "likedBy": [],
       "replyCount": 0,
-      "parentId": null
+      "parentId": "c1762355134057"
     },
     {
       "id": "c1762354202846",

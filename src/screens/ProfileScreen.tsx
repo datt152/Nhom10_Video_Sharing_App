@@ -16,10 +16,10 @@ import { useUser } from '../hooks/useUser';
 import { useFollower } from '../hooks/useFollowers';
 import { useImage } from '../hooks/useImage';
 import ProfileImageList from './profileTab/ProfileImageList';
-import { CURRENT_USER_ID, useVideo } from '../hooks/useVideo';
+import { useVideo } from '../hooks/useVideo';
 import ProfileVideoList from './profileTab/ProfileVideoList';
 import { Video } from 'expo-av';
-
+import {CURRENT_USER_ID} from '../types/database.types'
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');

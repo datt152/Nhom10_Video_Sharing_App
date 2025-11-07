@@ -30,6 +30,12 @@ export interface Image {
   views: number;
   createdAt: string;
   userId: string;
+  user: {
+    id: string;
+    username: string;
+    fullname: string;
+    avatar: string;
+  }
   userName?: string;
   location?: string;
   isPublic?: boolean;
@@ -60,13 +66,12 @@ export interface Video {
   createdAt: string;
   isPublic: boolean;
   likedBy: string[];
+  tags?: string[];
   // Denormalized data
   user?: User;
-  music?: Music;
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
-  tags?: string[]
 }
 
 export interface Comment {
@@ -84,6 +89,8 @@ export interface Comment {
   isLiked?: boolean;
   replies?: Comment[];
 }
+
+
 
 export interface Notification {
   id: string;
