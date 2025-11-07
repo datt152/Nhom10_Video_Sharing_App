@@ -5,49 +5,26 @@ import { User } from "../types/database.types";
 const API_BASE_URL = "http://192.168.65.2:3000";
 
 export const useFollower = (userId?: string) => {
-    const CURRENT_USER_ID = userId || "u1";
+    const CURRENT_USER_ID = "u1"; // giả lập user đang đăng nhập
+    const TARGET_USER_ID = userId || CURRENT_USER_ID; // user đang được xem (ở hồ sơ)
+
     const [followers, setFollowers] = useState<User[]>([]);
     const [following, setFollowing] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // 🧭 Lấy danh sách người mình đang follow
-    const fetchFollowing = useCallback(async () => {
-        setLoading(true);
-        try {
-            const { data: currentUser } = await axios.get<User>(
-                `${API_BASE_URL}/users/${CURRENT_USER_ID}`
-            );
-
-            if (Array.isArray(currentUser.followingIds) && currentUser.followingIds.length > 0) {
-                const { data: allUsers } = await axios.get<User[]>(`${API_BASE_URL}/users`);
-                const list = allUsers.filter((u) => currentUser.followingIds.includes(u.id));
-                setFollowing(list);
-                return list; // ✅ trả về để FollowPage cập nhật realtime
-            } else {
-                setFollowing([]);
-                return [];
-            }
-        } catch (error) {
-            console.error("❌ Lỗi khi lấy danh sách following:", error);
-            return [];
-        } finally {
-            setLoading(false);
-        }
-    }, [CURRENT_USER_ID]);
-
-    // 🧭 Lấy danh sách người đang follow mình
+    // 🧭 Lấy danh sách người đang follow TARGET_USER
     const fetchFollowers = useCallback(async () => {
         setLoading(true);
         try {
-            const { data: currentUser } = await axios.get<User>(
-                `${API_BASE_URL}/users/${CURRENT_USER_ID}`
+            const { data: targetUser } = await axios.get<User>(
+                `${API_BASE_URL}/users/${TARGET_USER_ID}`
             );
 
-            if (Array.isArray(currentUser.followerIds) && currentUser.followerIds.length > 0) {
+            if (Array.isArray(targetUser.followerIds) && targetUser.followerIds.length > 0) {
                 const { data: allUsers } = await axios.get<User[]>(`${API_BASE_URL}/users`);
-                const list = allUsers.filter((u) => currentUser.followerIds.includes(u.id));
+                const list = allUsers.filter((u) => targetUser.followerIds.includes(u.id));
                 setFollowers(list);
-                return list; // ✅ trả về
+                return list;
             } else {
                 setFollowers([]);
                 return [];
@@ -58,7 +35,32 @@ export const useFollower = (userId?: string) => {
         } finally {
             setLoading(false);
         }
-    }, [CURRENT_USER_ID]);
+    }, [TARGET_USER_ID]);
+
+    // 🧭 Lấy danh sách người TARGET_USER đang follow
+    const fetchFollowing = useCallback(async () => {
+        setLoading(true);
+        try {
+            const { data: targetUser } = await axios.get<User>(
+                `${API_BASE_URL}/users/${TARGET_USER_ID}`
+            );
+
+            if (Array.isArray(targetUser.followingIds) && targetUser.followingIds.length > 0) {
+                const { data: allUsers } = await axios.get<User[]>(`${API_BASE_URL}/users`);
+                const list = allUsers.filter((u) => targetUser.followingIds.includes(u.id));
+                setFollowing(list);
+                return list;
+            } else {
+                setFollowing([]);
+                return [];
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi lấy danh sách following:", error);
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, [TARGET_USER_ID]);
 
     // 🔁 Load ban đầu
     useEffect(() => {
@@ -66,6 +68,7 @@ export const useFollower = (userId?: string) => {
         fetchFollowing();
     }, [fetchFollowers, fetchFollowing]);
 
+    // ✅ Follow người khác
     const followUser = useCallback(
         async (targetUserId: string) => {
             try {
@@ -99,6 +102,7 @@ export const useFollower = (userId?: string) => {
         [CURRENT_USER_ID, fetchFollowing, fetchFollowers]
     );
 
+    // ✅ Unfollow người khác
     const unfollowUser = useCallback(
         async (targetUserId: string) => {
             try {

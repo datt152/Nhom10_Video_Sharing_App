@@ -36,7 +36,7 @@
         "u4"
       ],
       "followingIds": [],
-      "followerCount": 2
+      "followerCount": 3
     },
     {
       "id": "u3",
@@ -49,7 +49,6 @@
       "likes": 9000,
       "followerIds": [
         "u4",
-        "u1",
         "u1"
       ],
       "followingIds": [],
@@ -65,8 +64,6 @@
       "following": 5,
       "likes": 0,
       "followerIds": [
-        "u1",
-        "u1",
         "u1"
       ],
       "followingIds": [],
@@ -85,16 +82,17 @@
       ],
       "likedBy": [
         "u2",
-        "u3"
+        "u3",
+        "u1"
       ],
-      "isLiked": false,
+      "isLiked": true,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "userId": "u3",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 10,
-      "likes": 2
+      "commentCount": 11,
+      "likes": 3
     },
     {
       "id": "i2",
@@ -1510,6 +1508,17 @@
       "likedBy": [],
       "replyCount": 0,
       "parentId": null
+    },
+    {
+      "id": "c1762484506797",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "hay qyas ne bro",
+      "createdAt": "2025-11-07T03:01:46.797Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [
@@ -1549,6 +1558,16 @@
       "videoId": null,
       "isRead": false,
       "createdAt": "2025-11-07T01:52:31.642Z"
+    },
+    {
+      "id": "n1762484506843",
+      "userId": "u3",
+      "senderId": "u1",
+      "type": "COMMENT",
+      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
+      "videoId": null,
+      "isRead": false,
+      "createdAt": "2025-11-07T03:01:46.843Z"
     }
   ]
 }
