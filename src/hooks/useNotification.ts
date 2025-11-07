@@ -1,62 +1,90 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { User } from "../types/database.types";
 import { Notification } from "../types/database.types";
-const API_BASE_URL = "http://192.168.65.2:3000"; // đổi theo IP máy bạn
-const CURRENT_USER_ID = "u1"; // user hiện tại (tạm thời fix cứng)
 
+const API_BASE_URL = "http://192.168.65.2:3000";
+export const CURRENT_USER_ID = "u2";
 
-export const useNotification = (userId?: string) => {
+export const useNotification = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const effectiveUserId = userId || CURRENT_USER_ID;
+    // 🔹 Số lượng thông báo chưa đọc
+    const [unreadCount, setUnreadCount] = useState<number>(0);
 
-    // 🔹 Lấy danh sách thông báo
+    // 🔹 Giới hạn hiển thị
+    const [visibleCount, setVisibleCount] = useState<number>(5);
+
+    // 🧠 Lấy danh sách thông báo
     const fetchNotifications = useCallback(async () => {
+        if (!CURRENT_USER_ID) return;
+        setLoading(true);
         try {
             const res = await axios.get(
-                `${API_BASE_URL}/notifications?toUserId=${effectiveUserId}`
+                `${API_BASE_URL}/notifications?userId=${CURRENT_USER_ID}`
             );
-            const data = res.data.sort(
-                (a: any, b: any) =>
+            const sorted = res.data.sort(
+                (a: Notification, b: Notification) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
 
-            setNotifications(data);
-            setUnreadCount(data.filter((n: any) => !n.isRead).length);
-        } catch (err) {
-            console.error("[useNotification] fetch error:", err);
-        }
-    }, [effectiveUserId]);
+            setNotifications(sorted);
 
-    // 🔹 Đánh dấu tất cả là đã đọc
-    const markAllAsRead = useCallback(async () => {
+            // 🔹 Đếm số lượng chưa đọc
+            const unread = sorted.filter((n: Notification) => !n.isRead).length;
+            setUnreadCount(unread);
+        } catch (error) {
+            console.error("❌ Lỗi khi tải thông báo:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // 🧠 Thêm thông báo mới
+    const addNotification = useCallback(async (noti: Notification) => {
         try {
-            const unread = notifications.filter(n => !n.isRead);
-            await Promise.all(
-                unread.map(n =>
-                    axios.patch(`${API_BASE_URL}/notifications/${n.id}`, {
-                        isRead: true,
-                    })
-                )
-            );
-            setUnreadCount(0);
-            fetchNotifications();
-        } catch (err) {
-            console.error("[useNotification] markAllAsRead error:", err);
+            await axios.post(`${API_BASE_URL}/notifications`, noti);
+            setNotifications((prev) => [noti, ...prev]);
+            if (!noti.isRead) setUnreadCount((prev) => prev + 1);
+        } catch (error) {
+            console.error("❌ Lỗi khi tạo thông báo:", error);
         }
-    }, [notifications, fetchNotifications]);
+    }, []);
 
-    // 🔹 Fetch lần đầu
+    // 🧠 Đánh dấu đã đọc
+    const markAsRead = useCallback(async (id: string) => {
+        try {
+            await axios.patch(`${API_BASE_URL}/notifications/${id}`, { isRead: true });
+            setNotifications((prev) =>
+                prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+            );
+            setUnreadCount((prev) => Math.max(prev - 1, 0));
+        } catch (error) {
+            console.error("❌ Lỗi khi đánh dấu đã đọc:", error);
+        }
+    }, []);
+
+    // 🧠 Xem thêm
+    const loadMore = useCallback(() => {
+        setVisibleCount((prev) => prev + 5);
+    }, []);
+
     useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications]);
 
+    // 🔹 Trả ra danh sách hiển thị giới hạn
+    const visibleNotifications = notifications.slice(0, visibleCount);
+
     return {
-        notifications,
+        notifications: visibleNotifications, // chỉ hiển thị giới hạn
+        allNotifications: notifications, // nếu cần toàn bộ
         unreadCount,
+        loading,
         fetchNotifications,
-        markAllAsRead,
+        addNotification,
+        markAsRead,
+        loadMore,
+        hasMore: visibleCount < notifications.length, // có còn để "xem thêm" không
     };
 };

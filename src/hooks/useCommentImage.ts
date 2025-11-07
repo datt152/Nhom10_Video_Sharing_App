@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.65.2:3000';
-const CURRENT_USER_ID = 'u1';
+const CURRENT_USER_ID = 'u2';
 
 interface Comment {
     id: string;
@@ -118,7 +118,7 @@ export const useImageComments = (imageId?: string) => {
                             imageId: imageId,
                             userId: imageOwnerId,          // 👈 người NHẬN thông báo
                             senderId: CURRENT_USER_ID,     // 👈 người GỬI (bình luận)
-                            type: 'COMMENT',               // 👈 dùng đúng ENUM type
+                            type: 'COMMENT_IMAGE',               // 👈 dùng đúng ENUM type
                             message: `${currentUser.fullname || currentUser.username} đã bình luận: "${content}"`, // ✅ thêm nội dung
                             content, // vẫn giữ lại để lưu chi tiết
                             videoId: null,                 // 👈 vì là ảnh, nên không có video

@@ -41,10 +41,10 @@ export default function ProfileContent({
                     videos={videos.public}
                     privacy="public"
                     loading={loading}
-                    onPressVideo={(video, index) =>
+                    onPressVideo={(video) =>
                         navigation.navigate("UserVideoViewer", {
                             videos: videos.public,
-                            initialIndex: index, // ✅ truyền giống bên ảnh
+                           
                         })
                     }
                 />

@@ -15,14 +15,15 @@
         "u4"
       ],
       "followingIds": [
-        "u4",
+        "u2",
         "u3",
-        "u2"
+        "u4"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
-      ]
+      ],
+      "followerCount": 1
     },
     {
       "id": "u2",
@@ -34,9 +35,12 @@
       "following": 200,
       "likes": 15800,
       "followerIds": [
-        "u4"
+        "u4",
+        "u1"
       ],
-      "followingIds": [],
+      "followingIds": [
+        "u1"
+      ],
       "followerCount": 4
     },
     {
@@ -290,6 +294,11 @@
       },
       "likedBy": [
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -321,6 +330,11 @@
       "likedBy": [
         "u4",
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -351,6 +365,11 @@
       },
       "likedBy": [
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -381,6 +400,11 @@
       },
       "likedBy": [
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     }
   ],
@@ -2090,257 +2114,32 @@
   ],
   "notifications": [
     {
-      "id": "n1",
-      "userId": "u1",
-      "senderId": "u2",
-      "type": "FOLLOW",
-      "message": "Tech Zone đã bắt đầu theo dõi bạn.",
-      "isRead": false,
-      "createdAt": "2025-10-11T08:05:00Z"
-    },
-    {
-      "id": "n2",
-      "userId": "u1",
-      "senderId": "u3",
-      "type": "COMMENT",
-      "message": "Hoàng Trung đã bình luận về video của bạn.",
-      "isRead": true,
-      "createdAt": "2025-10-15T09:40:00Z"
-    },
-    {
-      "id": "n3",
-      "userId": "u2",
-      "senderId": "u1",
-      "type": "LIKE",
-      "message": "Linh Nguyễn đã thích video của bạn.",
-      "isRead": false,
-      "createdAt": "2025-10-13T10:00:00Z"
-    },
-    {
-      "id": "n1762480351642",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T01:52:31.642Z"
-    },
-    {
-      "id": "n1762484506843",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T03:01:46.843Z"
-    },
-    {
-      "id": "n1762490251814",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T04:37:31.814Z"
-    },
-    {
-      "id": "n1762490274862",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T04:37:54.862Z"
-    },
-    {
-      "id": "n1762499546732",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:12:26.732Z"
-    },
-    {
-      "id": "n1762499851497",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:17:31.497Z"
-    },
-    {
-      "id": "n1762499971780",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:19:31.780Z"
-    },
-    {
-      "id": "n1762500118776",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:21:58.776Z"
-    },
-    {
-      "id": "n1762500155060",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:22:35.060Z"
-    },
-    {
-      "id": "n1762500256644",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:24:16.644Z"
-    },
-    {
-      "id": "n1762500308739",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:25:08.739Z"
-    },
-    {
-      "id": "n1762500401408",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:26:41.408Z"
-    },
-    {
-      "id": "n1762500461121",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"fffff\"",
-      "content": "fffff",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:27:41.121Z"
-    },
-    {
-      "id": "n1762500510176",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"gggg\"",
-      "content": "gggg",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:28:30.176Z"
-    },
-    {
-      "id": "n1762500697114",
-      "imageId": "i1",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"fffff\"",
-      "content": "fffff",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:31:37.114Z"
-    },
-    {
-      "id": "n1762500724464",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: 1113333",
-      "content": "1113333",
-      "videoId": {
-        "id": "v3",
-        "userId": "u3",
-        "title": "Một ngày cùng âm nhạc 🎶",
-        "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-        "thumbnail": "https://picsum.photos/id/1018/400/700",
-        "musicId": "m3",
-        "likeCount": 2,
-        "commentCount": 9,
-        "shareCount": 43,
-        "views": 21000,
-        "createdAt": "2025-10-15T09:30:00Z",
-        "isPublic": true,
-        "user": {
-          "id": "u3",
-          "username": "hoangtrung",
-          "fullname": "Hoàng Trung",
-          "avatar": "https://randomuser.me/api/portraits/men/33.jpg"
-        },
-        "music": {
-          "id": "m3",
-          "title": "Chill Beats",
-          "artist": "Lowkey",
-          "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-          "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-        },
-        "likedBy": [
-          "u4",
-          "u1"
-        ]
-      },
-      "isRead": false,
-      "createdAt": "2025-11-07T07:32:04.464Z"
-    },
-    {
-      "id": "n1762500796195",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: dddd",
-      "content": "dddd",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:33:16.195Z"
-    },
-    {
-      "id": "n1762501517971",
-      "userId": "u2",
-      "senderId": "u1",
-      "type": "LIKE",
-      "message": "Người dùng u1 đã thích video của bạn.",
-      "videoId": "v2",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:45:17.971Z"
-    },
-    {
       "id": "n1762501838743",
       "userId": "u2",
       "senderId": "u1",
       "type": "LIKE_IMAGE",
-      "message": "Người dùng u1 đã thích ảnh của bạn.",
+      "message": "Linh Nguyễn2004 đã thích ảnh của bạn.",
       "imageId": "i2",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-07T07:50:38.743Z"
+    },
+    {
+      "id": "993f",
+      "userId": "u4",
+      "senderId": "u1",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T08:45:46.054Z",
+      "isRead": false
+    },
+    {
+      "id": "090e",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T09:06:56.526Z",
+      "isRead": true
     }
   ]
 }

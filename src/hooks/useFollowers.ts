@@ -5,7 +5,7 @@ import { User } from "../types/database.types";
 const API_BASE_URL = "http://192.168.65.2:3000";
 
 export const useFollower = (userId?: string) => {
-    const CURRENT_USER_ID = "u1"; // giả lập user đang đăng nhập
+    const CURRENT_USER_ID = "u2"; // giả lập user đang đăng nhập
     const TARGET_USER_ID = userId || CURRENT_USER_ID; // user đang được xem (ở hồ sơ)
 
     const [followers, setFollowers] = useState<User[]>([]);
@@ -92,7 +92,17 @@ export const useFollower = (userId?: string) => {
 
                 await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
+                // 🔔 Gửi thông báo cho người được follow (targetUser)
+                await axios.post(`${API_BASE_URL}/notifications`, {
+                    userId: targetUserId,
+                    senderId: CURRENT_USER_ID,
+                    type: "FOLLOW",
+                    message: `${currentUser.fullname} đã theo dõi bạn`,
+                    createdAt: new Date().toISOString(),
+                    isRead: false,
+                });
 
+                console.log(`🔔 Gửi thông báo follow đến ${targetUser.fullname}`);
                 await fetchFollowers();
                 await fetchFollowing();
             } catch (error) {

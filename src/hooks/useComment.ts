@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.65.2:3000';
-const CURRENT_USER_ID = 'u1';
+const CURRENT_USER_ID = 'u2';
 import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
 interface Comment {
   id: string;
@@ -190,7 +190,7 @@ export const useComments = (videoId?: string) => {
               id: `n${Date.now()}`,
               userId: video.userId, // người nhận (chủ video)
               senderId: CURRENT_USER_ID, // người gửi
-              type: "COMMENT",
+              type: "COMMENT_VIDEO",
               message: `${currentUser.fullname || currentUser.username} đã bình luận: ${content}`, // ✅ thêm nội dung
               content: content, // vẫn giữ lại để lưu chi tiết
               videoId: videoId,

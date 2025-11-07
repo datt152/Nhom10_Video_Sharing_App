@@ -2,16 +2,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
+import { useUser } from './useUser';
 
 const API_BASE_URL = 'http://192.168.65.2:3000'; // ⚠️ nhớ đổi IP cho đúng
-export const CURRENT_USER_ID = 'u1';
+export const CURRENT_USER_ID = 'u2';
 
 export const useImage = () => {
     const [publicImages, setPublicImages] = useState<Image[]>([]);
     const [privateImages, setPrivateImages] = useState<Image[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const { getUserById } = useUser()
     // 🧩 Lấy danh sách ảnh
     const fetchImages = useCallback(async () => {
         console.log("🚀 Gọi API lấy danh sách ảnh...");
@@ -83,14 +84,18 @@ export const useImage = () => {
 
             console.log(`❤️ Đã like ảnh ${imageId}`);
 
-            // ✅ Thêm sự kiện tạo thông báo
+            // 3️⃣ Nếu không phải tự like ảnh của mình thì tạo thông báo
             if (CURRENT_USER_ID !== image.userId) {
+                const user = await getUserById(CURRENT_USER_ID); // 🧩 dùng hàm bạn import
+                const displayName =
+                    user?.fullname || user?.name || user?.username || "Người dùng";
+
                 const newNotification = {
-                    id: `n${Date.now()}`, // ID duy nhất
+                    id: `n${Date.now()}`,
                     userId: image.userId, // chủ ảnh nhận thông báo
-                    senderId: CURRENT_USER_ID, // người like
+                    senderId: CURRENT_USER_ID,
                     type: "LIKE_IMAGE",
-                    message: `Người dùng ${CURRENT_USER_ID} đã thích ảnh của bạn.`,
+                    message: `${displayName} đã thích ảnh của bạn.`,
                     imageId,
                     isRead: false,
                     createdAt: new Date().toISOString(),

@@ -3,7 +3,7 @@ import { Video } from '../types/database.types';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.65.2:3000';
-export const CURRENT_USER_ID = 'u1';
+export const CURRENT_USER_ID = 'u2';
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);
