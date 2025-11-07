@@ -242,9 +242,11 @@
         "fullname": "Kon nè",
         "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
       },
-      "likedBy": [],
-      "likes": 0,
-      "isLiked": false,
+      "likedBy": [
+        "1ce9"
+      ],
+      "likes": 1,
+      "isLiked": true,
       "commentCount": 0
     }
   ],
@@ -489,7 +491,7 @@
       "privacy": "Công khai",
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.jpg",
-      "likeCount": 1,
+      "likeCount": 2,
       "commentCount": 0,
       "shareCount": 0,
       "views": 0,
@@ -502,7 +504,8 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "likedBy": [
-        "u1"
+        "u1",
+        "1ce9"
       ]
     }
   ],
@@ -1832,6 +1835,15 @@
       "imageId": "i3",
       "isRead": true,
       "createdAt": "2025-11-07T14:33:18.372Z"
+    },
+    {
+      "id": "n1762532089785",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
+      "imageId": "i1762531170765",
+      "isRead": true,
+      "createdAt": "2025-11-07T16:14:49.785Z"
     }
   ]
 }
