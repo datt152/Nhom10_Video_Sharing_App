@@ -16,7 +16,8 @@
       ],
       "followingIds": [
         "u3",
-        "u4"
+        "u4",
+        "u2"
       ],
       "externalLinks": [
         "https://coccoc.com/search?query=figma",
@@ -35,6 +36,7 @@
       "likes": 15800,
       "followerIds": [
         "u4",
+        "u1",
         "u1"
       ],
       "followerCount": 4,
@@ -88,10 +90,9 @@
       ],
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ],
-      "isLiked": true,
+      "isLiked": false,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "user": {
@@ -103,7 +104,7 @@
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
       "commentCount": 16,
-      "likes": 3
+      "likes": 2
     },
     {
       "id": "i2",
@@ -116,16 +117,15 @@
       ],
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
       "commentCount": 1,
-      "likes": 3,
-      "isLiked": true,
+      "likes": 2,
+      "isLiked": false,
       "user": {
         "id": "u1",
         "username": "linhnguyen",
@@ -246,7 +246,7 @@
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
+      "isPublic": false,
       "user": {
         "id": "u1",
         "username": "linhnguyen",
@@ -371,7 +371,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 0,
       "commentCount": 12,
       "shareCount": 0,
       "views": 0,
@@ -390,9 +390,7 @@
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
-      "likedBy": [
-        "u1"
-      ],
+      "likedBy": [],
       "tags": [
         "portrait",
         "smile",
@@ -1666,6 +1664,24 @@
       "message": "Linh Nguyễn2004 đã theo dõi bạn",
       "createdAt": "2025-11-07T09:06:56.526Z",
       "isRead": true
+    },
+    {
+      "id": "aaf8",
+      "userId": "u2",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T11:26:30.286Z",
+      "isRead": false
+    },
+    {
+      "id": "n1762515150964",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "LIKE_VIDEO",
+      "message": "Người dùng u1 đã thích video của bạn.",
+      "videoId": "v2",
+      "isRead": false,
+      "createdAt": "2025-11-07T11:32:30.964Z"
     }
   ]
 }

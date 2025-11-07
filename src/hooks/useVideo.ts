@@ -227,7 +227,17 @@ export const useVideo = () => {
       return [];
     }
   }, []);
-
+  const loadVideosByUser = async (userId: string) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/videos`, {
+        params: { userId },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error loading videos by user:", error);
+      throw error;
+    }
+  };
   /** ===================== RETURN ===================== **/
   return {
     videos,
@@ -243,5 +253,6 @@ export const useVideo = () => {
     getVideoById,
     toggleVideoPrivacy,
     getPublicVideosLikedByUser,
+    loadVideosByUser
   };
 };
