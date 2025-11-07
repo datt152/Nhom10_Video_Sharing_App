@@ -34,7 +34,7 @@ export default function OtherProfileScreen() {
     const { followerCount, followingCount, refreshFollowers, refreshFollowing } = useFollower(userId);
 
     const { getImagesByUser, loading: imageLoading } = useImage();
-    const { loadVideosByUser, loading: videoLoading } = useVideo();
+    const { getVideoById, loading: videoLoading } = useVideo();
 
     const [menu, setMenu] = useState<"videos" | "images">("videos");
     const [loadingContent, setLoadingContent] = useState(false);
@@ -81,7 +81,7 @@ export default function OtherProfileScreen() {
         if (!userId) return;
         setLoadingContent(true);
         await loadTargetUser(userId);
-        const vids = await loadVideosByUser(userId);
+        const vids = await getVideoById(userId);
         console.log("User dang duoc xem tai khoan" + userId)
         console.log("danh sach video trang OtherProfileScreen.tsx " + vids)
         const imgs = await getImagesByUser(userId);

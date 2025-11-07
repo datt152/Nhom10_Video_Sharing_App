@@ -279,7 +279,16 @@ export const useUser = (userId?: string) => {
             setLoading(false);
         }
     }, [currentUser]);
-
+    // 🧩 Hàm lấy thông tin user theo ID
+    const getUserById = async (userId: string) => {
+        try {
+            const res = await axios.get(`/users/${userId}`);
+            return res.data;
+        } catch (error) {
+            console.error("❌ Lỗi khi lấy user:", error);
+            return null;
+        }
+    };
     return {
         loading,
         currentUser,
@@ -299,5 +308,6 @@ export const useUser = (userId?: string) => {
         fetchSuggestions,
         refreshFollowers,
         refreshFollowing,
+        getUserById
     };
 };

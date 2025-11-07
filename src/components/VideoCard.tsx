@@ -39,18 +39,16 @@ function VideoCard() {
   const likeAnimation = useRef(new Animated.Value(0)).current;
   const isFocused = useIsFocused();
 
+
+  const { comments, fetchComments, addComment, deleteComment, likeComment } =
+    useComments(video?.id);
   useEffect(() => {
     const fetchVideo = async () => {
       const data = await getVideoByVideoId(id);
       setVideo(data);
-      setLocalCommentCount(data?.commentCount || 0);
     };
     fetchVideo();
   }, [id]);
-
-  const { comments, fetchComments, addComment, deleteComment, likeComment } =
-    useComments(video?.id);
-
   useEffect(() => {
     setLocalCommentCount(video?.commentCount || 0);
   }, [video?.commentCount]);
@@ -301,7 +299,7 @@ function VideoCard() {
 
           <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
             <Ionicons name="chatbubble-outline" size={33} color="#fff" />
-            <Text style={styles.actionText}>{localCommentCount}</Text>
+            <Text style={styles.actionText}>{comments.length}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -326,7 +324,7 @@ function VideoCard() {
         <CommentModal
           videoId={video?.id}
           comments={comments}
-          currentUserId={currentUserId}
+          currentUserId={currentUserId || ""}
           isVisible={showComments}
           onClose={() => setShowComments(false)}
           onAddComment={handleAddComment}

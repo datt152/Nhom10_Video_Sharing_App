@@ -2,8 +2,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
+import { useUser } from './useUser';
 
-import {API_BASE_URL, getCurrentUserId} from '../types/config'
+import { API_BASE_URL, getCurrentUserId } from '../types/config'
 
 
 export const useImage = () => {
@@ -11,7 +12,7 @@ export const useImage = () => {
     const [privateImages, setPrivateImages] = useState<Image[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const { getUserById } = useUser()
     // 🧩 Lấy danh sách ảnh
     const fetchImages = useCallback(async () => {
         console.log("🚀 Gọi API lấy danh sách ảnh...");
@@ -86,7 +87,7 @@ export const useImage = () => {
             // ✅ Thêm sự kiện tạo thông báo
             if (getCurrentUserId() !== image.userId) {
                 const newNotification = {
-                    id: `n${Date.now()}`, // ID duy nhất
+                    id: `n${Date.now()}`,
                     userId: image.userId, // chủ ảnh nhận thông báo
                     senderId: getCurrentUserId(), // người like
                     type: "LIKE_IMAGE",

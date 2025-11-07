@@ -16,6 +16,7 @@
       ],
       "followingIds": [
         "u3",
+        "u4",
         "u2"
       ],
       "externalLinks": [
@@ -23,7 +24,7 @@
         "https://coccoc.com/search?query=figma"
       ],
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi",
-      "followerCount": 1
+      "followerCount": 0
     },
     {
       "id": "u2",
@@ -35,9 +36,10 @@
       "following": 200,
       "likes": 15800,
       "followerIds": [
-        "u4"
+        "u4",
+        "u1",
+        "u1"
       ],
-      "followingIds": [],
       "followerCount": 4,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
@@ -66,16 +68,17 @@
       "fullname": "Dat Tran",
       "avatar": "https://randomuser.me/api/portraits/men/45.jpg",
       "bio": "Developer 💻",
-      "followers": 2,
+      "followers": 3,
       "following": 5,
       "likes": 0,
       "followerIds": [
+        "1ce9",
         "1ce9"
       ],
       "followingIds": [
         "u3"
       ],
-      "followerCount": 1,
+      "followerCount": 0,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
@@ -85,16 +88,15 @@
       "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
       "followerIds": [],
       "followingIds": [
-        "u4",
-        "u1"
+        "u4"
       ],
       "followerCount": 0,
       "followingCount": 0,
-      "avatar": "blob:http://localhost:8081/6db9fe3f-6af3-479c-a5c7-465db25329a8",
+      "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg",
       "fullname": "Kon nè",
       "bio": "Trai  IT tuy không đẹp mà hay suy",
       "externalLinks": [],
-      "following": 0
+      "following": 1
     }
   ],
   "images": [
@@ -109,10 +111,9 @@
       ],
       "likedBy": [
         "u2",
-        "u3",
-        "u1"
+        "u3"
       ],
-      "isLiked": true,
+      "isLiked": false,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
       "user": {
@@ -124,7 +125,7 @@
       "location": "Đà Lạt, Việt Nam",
       "isPublic": false,
       "commentCount": 16,
-      "likes": 3
+      "likes": 2
     },
     {
       "id": "i2",
@@ -138,7 +139,7 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1"
+        "1ce9"
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
@@ -165,9 +166,10 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1"
+        "u1",
+        "1ce9"
       ],
-      "likes": 3,
+      "likes": 4,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "user": {
@@ -222,6 +224,28 @@
       "likes": 1,
       "isLiked": true,
       "commentCount": 3
+    },
+    {
+      "id": "i1762531170765",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762531170/qb5wchsftwfnrypfyy1v.jpg",
+      "title": "123",
+      "caption": "123",
+      "tags": [],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "isPublic": true,
+      "privacy": "Public",
+      "createdAt": "2025-11-07T15:59:30.765Z",
+      "user": {
+        "id": "1ce9",
+        "username": "Konnnatachai",
+        "fullname": "Kon nè",
+        "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
+      },
+      "likedBy": [],
+      "likes": 0,
+      "isLiked": false,
+      "commentCount": 0
     }
   ],
   "videos": [
@@ -231,9 +255,8 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "likeCount": 3,
-      "commentCount": 0,
-      "shareCount": 89,
+      "likeCount": 4,
+      "commentCount": 1,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
       "isPublic": true,
@@ -246,7 +269,8 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1"
+        "u1",
+        "1ce9"
       ],
       "tags": [
         "Meow",
@@ -262,12 +286,12 @@
       "title": "Hành trình ở Đà Lạt 🌿",
       "url": "https://res.cloudinary.com/prod/video/upload/w_400/me/tx-cards/video-preview.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
-      "likeCount": 3,
+      "likeCount": 4,
       "commentCount": 18,
       "shareCount": 89,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
-      "isPublic": true,
+      "isPublic": false,
       "user": {
         "id": "u1",
         "username": "linhnguyen",
@@ -277,7 +301,8 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1"
+        "u1",
+        "1ce9"
       ],
       "tags": [
         "portrait",
@@ -292,7 +317,7 @@
       "url": "https://res.cloudinary.com/ddcw5fmea/video/upload/v1761317722/samples/dance-2.mp4",
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
-      "likeCount": 3,
+      "likeCount": 4,
       "commentCount": 4,
       "shareCount": 67,
       "views": 25002,
@@ -307,7 +332,8 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1"
+        "u1",
+        "1ce9"
       ],
       "tags": [
         "portrait",
@@ -378,6 +404,11 @@
       "likedBy": [
         "u4",
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -439,6 +470,11 @@
       },
       "likedBy": [
         "u1"
+      ],
+      "tags": [
+        "portrait",
+        "smile",
+        "people"
       ]
     },
     {
@@ -449,7 +485,6 @@
       "tags": [
         "Lonely"
       ],
-      "taggedUsers": [],
       "commentsEnabled": true,
       "privacy": "Công khai",
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.mp4",
@@ -1670,260 +1705,45 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1762525585490",
+      "videoId": "v1",
+      "userId": "1ce9",
+      "content": "Hellp",
+      "createdAt": "2025-11-07T14:26:25.490Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "1ce9",
+        "username": "Konnnatachai",
+        "email": "",
+        "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
+        "followerIds": [],
+        "followingIds": [],
+        "followerCount": 0,
+        "followingCount": 0,
+        "avatar": "",
+        "fullname": "Kon nè",
+        "bio": "Trai  IT tuy không đẹp mà hay suy",
+        "externalLinks": [],
+        "following": 0
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [
-    {
-      "id": "n1",
-      "userId": "u1",
-      "senderId": "u2",
-      "type": "FOLLOW",
-      "message": "Tech Zone đã bắt đầu theo dõi bạn.",
-      "isRead": false,
-      "createdAt": "2025-10-11T08:05:00Z"
-    },
-    {
-      "id": "n2",
-      "userId": "u1",
-      "senderId": "u3",
-      "type": "COMMENT",
-      "message": "Hoàng Trung đã bình luận về video của bạn.",
-      "isRead": true,
-      "createdAt": "2025-10-15T09:40:00Z"
-    },
-    {
-      "id": "n3",
-      "userId": "u2",
-      "senderId": "u1",
-      "type": "LIKE",
-      "message": "Linh Nguyễn đã thích video của bạn.",
-      "isRead": false,
-      "createdAt": "2025-10-13T10:00:00Z"
-    },
-    {
-      "id": "n1762480351642",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T01:52:31.642Z"
-    },
-    {
-      "id": "n1762484506843",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T03:01:46.843Z"
-    },
-    {
-      "id": "n1762490251814",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T04:37:31.814Z"
-    },
-    {
-      "id": "n1762490274862",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T04:37:54.862Z"
-    },
-    {
-      "id": "n1762499546732",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:12:26.732Z"
-    },
-    {
-      "id": "n1762499851497",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:17:31.497Z"
-    },
-    {
-      "id": "n1762499971780",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:19:31.780Z"
-    },
-    {
-      "id": "n1762500118776",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:21:58.776Z"
-    },
-    {
-      "id": "n1762500155060",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:22:35.060Z"
-    },
-    {
-      "id": "n1762500256644",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào video của bạn.",
-      "videoId": "v1761841701895",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:24:16.644Z"
-    },
-    {
-      "id": "n1762500308739",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:25:08.739Z"
-    },
-    {
-      "id": "n1762500401408",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:26:41.408Z"
-    },
-    {
-      "id": "n1762500461121",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"fffff\"",
-      "content": "fffff",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:27:41.121Z"
-    },
-    {
-      "id": "n1762500510176",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"gggg\"",
-      "content": "gggg",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:28:30.176Z"
-    },
-    {
-      "id": "n1762500697114",
-      "imageId": "i1",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: \"fffff\"",
-      "content": "fffff",
-      "videoId": null,
-      "isRead": false,
-      "createdAt": "2025-11-07T07:31:37.114Z"
-    },
-    {
-      "id": "n1762500724464",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: 1113333",
-      "content": "1113333",
-      "videoId": {
-        "id": "v3",
-        "userId": "u3",
-        "title": "Một ngày cùng âm nhạc 🎶",
-        "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
-        "thumbnail": "https://picsum.photos/id/1018/400/700",
-        "musicId": "m3",
-        "likeCount": 2,
-        "commentCount": 9,
-        "shareCount": 43,
-        "views": 21000,
-        "createdAt": "2025-10-15T09:30:00Z",
-        "isPublic": true,
-        "user": {
-          "id": "u3",
-          "username": "hoangtrung",
-          "fullname": "Hoàng Trung",
-          "avatar": "https://randomuser.me/api/portraits/men/33.jpg"
-        },
-        "music": {
-          "id": "m3",
-          "title": "Chill Beats",
-          "artist": "Lowkey",
-          "cover": "https://i.scdn.co/image/ab67616d0000b2734e392b8.jpg",
-          "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
-        },
-        "likedBy": [
-          "u4",
-          "u1"
-        ]
-      },
-      "isRead": false,
-      "createdAt": "2025-11-07T07:32:04.464Z"
-    },
-    {
-      "id": "n1762500796195",
-      "userId": "u3",
-      "senderId": "u1",
-      "type": "COMMENT",
-      "message": "Linh Nguyễn2004 đã bình luận: dddd",
-      "content": "dddd",
-      "videoId": "v3",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:33:16.195Z"
-    },
-    {
-      "id": "n1762501517971",
-      "userId": "u2",
-      "senderId": "u1",
-      "type": "LIKE",
-      "message": "Người dùng u1 đã thích video của bạn.",
-      "videoId": "v2",
-      "isRead": false,
-      "createdAt": "2025-11-07T07:45:17.971Z"
-    },
     {
       "id": "n1762501838743",
       "userId": "u2",
       "senderId": "u1",
       "type": "LIKE_IMAGE",
-      "message": "Người dùng u1 đã thích ảnh của bạn.",
+      "message": "Linh Nguyễn2004 đã thích ảnh của bạn.",
       "imageId": "i2",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-07T07:50:38.743Z"
     },
     {
@@ -1947,6 +1767,71 @@
       "videoId": "v4",
       "isRead": false,
       "createdAt": "2025-11-07T10:27:35.545Z"
+    },
+    {
+      "id": "993f",
+      "userId": "u4",
+      "senderId": "u1",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T08:45:46.054Z",
+      "isRead": false
+    },
+    {
+      "id": "090e",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T09:06:56.526Z",
+      "isRead": true
+    },
+    {
+      "id": "aaf8",
+      "userId": "u2",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-07T11:26:30.286Z",
+      "isRead": false
+    },
+    {
+      "id": "n1762515150964",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "LIKE_VIDEO",
+      "message": "Người dùng u1 đã thích video của bạn.",
+      "videoId": "v2",
+      "isRead": false,
+      "createdAt": "2025-11-07T11:32:30.964Z"
+    },
+    {
+      "id": "n1762525585750",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "COMMENT",
+      "message": "Kon nè đã bình luận: Hellp",
+      "content": "Hellp",
+      "videoId": "v1",
+      "isRead": false,
+      "createdAt": "2025-11-07T14:26:25.750Z"
+    },
+    {
+      "id": "n1762525846229",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
+      "imageId": "i2",
+      "isRead": true,
+      "createdAt": "2025-11-07T14:30:46.229Z"
+    },
+    {
+      "id": "n1762525998372",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
+      "imageId": "i3",
+      "isRead": true,
+      "createdAt": "2025-11-07T14:33:18.372Z"
     }
   ]
 }

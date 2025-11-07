@@ -255,9 +255,6 @@ const CommentModal: React.FC<CommentModalProps> = ({
   );
 
   if (!isVisible) return null;
-const modalHeight = keyboardHeight > 0 
-  ? SCREEN_HEIGHT*0.75 - keyboardHeight 
-  : SCREEN_HEIGHT * 0.75; 
   return (
     <View style={styles.modalOverlay}>
       {/* Backdrop */}

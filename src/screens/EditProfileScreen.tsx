@@ -8,11 +8,14 @@ import {
   Image,
   Alert,
   ScrollView,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../hooks/useUser"; // 👉 nhớ chỉnh lại đường dẫn nếu khác
+import {CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
@@ -23,6 +26,7 @@ const EditProfileScreen = () => {
   const [bio, setBio] = useState("");
   const [link, setLink] = useState("");
   const [externalLinks, setExternalLinks] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // 🧠 Khi user load xong thì gán vào form
   useEffect(() => {
@@ -35,6 +39,57 @@ const EditProfileScreen = () => {
     }
   }, [currentUser]);
 
+  // 📤 Upload ảnh lên Cloudinary
+  const uploadToCloudinary = async (imageUri: string): Promise<string | null> => {
+    try {
+      setIsUploading(true);
+
+      let imageBlob: Blob;
+
+      // Nếu là web, URI sẽ là blob URL hoặc data URL
+      if (Platform.OS === 'web') {
+        const response = await fetch(imageUri);
+        imageBlob = await response.blob();
+      } else {
+        // Mobile: Fetch file từ URI
+        const response = await fetch(imageUri);
+        imageBlob = await response.blob();
+      }
+
+      const formData = new FormData();
+      formData.append('file', imageBlob || '');
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('cloud_name', CLOUDINARY_CLOUD_NAME);
+
+      const uploadResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await uploadResponse.json();
+
+      if (!uploadResponse.ok) {
+        console.error('Cloudinary error response:', data);
+        throw new Error(data.error?.message || 'Upload failed');
+      }
+
+      if (data.secure_url) {
+        return data.secure_url;
+      } else {
+        throw new Error('No secure_url in response');
+      }
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      Alert.alert('❌ Lỗi', 'Không thể tải ảnh lên. Vui lòng thử lại!');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // 📸 Chọn ảnh
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -42,13 +97,31 @@ const EditProfileScreen = () => {
       Alert.alert("Thông báo", "Cần cấp quyền truy cập ảnh!");
       return;
     }
+    
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.8, // Giảm quality để upload nhanh hơn
     });
-    if (!result.canceled) setAvatar(result.assets[0].uri);
+    
+    if (!result.canceled) {
+      const localUri = result.assets[0].uri;
+      
+      // Hiển thị ảnh local trước (preview)
+      setAvatar(localUri);
+      
+      // Upload lên Cloudinary
+      const cloudinaryUrl = await uploadToCloudinary(localUri);
+      
+      if (cloudinaryUrl) {
+        setAvatar(cloudinaryUrl);
+        Alert.alert("✅ Thành công", "Tải ảnh lên thành công!");
+      } else {
+        // Nếu upload thất bại, revert về ảnh cũ
+        setAvatar(currentUser?.avatar || "https://i.pravatar.cc/150");
+      }
+    }
   };
 
   // ➕ Thêm / xóa / sửa link
@@ -63,6 +136,11 @@ const EditProfileScreen = () => {
 
   // 💾 Lưu thay đổi
   const handleSave = async () => {
+    if (isUploading) {
+      Alert.alert("⏳ Vui lòng đợi", "Đang tải ảnh lên...");
+      return;
+    }
+
     const success = await updateUser({
       fullname: name,
       bio,
@@ -92,9 +170,20 @@ const EditProfileScreen = () => {
       {/* Avatar */}
       <View style={styles.avatarContainer}>
         <Image source={{ uri: avatar }} style={styles.avatar} />
-        <TouchableOpacity style={styles.cameraButton} onPress={pickImage}>
-          <Ionicons name="camera" size={20} color="#fff" />
+        <TouchableOpacity 
+          style={styles.cameraButton} 
+          onPress={pickImage}
+          disabled={isUploading}
+        >
+          {isUploading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Ionicons name="camera" size={20} color="#fff" />
+          )}
         </TouchableOpacity>
+        {isUploading && (
+          <Text style={styles.uploadingText}>Đang tải ảnh...</Text>
+        )}
       </View>
 
       {/* Tên hiển thị */}
@@ -161,8 +250,14 @@ const EditProfileScreen = () => {
       </View>
 
       {/* Lưu thay đổi */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveText}>Lưu thay đổi</Text>
+      <TouchableOpacity 
+        style={[styles.saveButton, isUploading && styles.saveButtonDisabled]} 
+        onPress={handleSave}
+        disabled={isUploading}
+      >
+        <Text style={styles.saveText}>
+          {isUploading ? "Đang tải ảnh..." : "Lưu thay đổi"}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -193,6 +288,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 6,
     elevation: 5,
+  },
+  uploadingText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#FF4EB8",
+    fontWeight: "500",
   },
 
   section: {
@@ -235,6 +336,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 25,
     alignItems: "center",
+  },
+  saveButtonDisabled: {
+    backgroundColor: "#FFB3DC",
+    opacity: 0.6,
   },
   saveText: { color: "#fff", fontWeight: "600" },
 });

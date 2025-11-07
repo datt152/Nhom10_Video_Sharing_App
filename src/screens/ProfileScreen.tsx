@@ -19,7 +19,7 @@ import ProfileImageList from './profileTab/ProfileImageList';
 import { useVideo } from '../hooks/useVideo';
 import ProfileVideoList from './profileTab/ProfileVideoList';
 import { Video } from 'expo-av';
-import {CURRENT_USER_ID} from '../types/database.types'
+
 const ProfileScreen: React.FC = () => {
   const [menu, setMenu] = useState<'videos' | 'images' | 'liked'>('images');
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
@@ -126,7 +126,7 @@ const ProfileScreen: React.FC = () => {
     console.log("➡ followingCount:", followingCount);
   }, [currentUser, followerCount, followingCount]);
 
-  
+
   const countTotalLikes = useCallback(() => {
     try {
       const imageLikes = (publicImages || []).reduce(

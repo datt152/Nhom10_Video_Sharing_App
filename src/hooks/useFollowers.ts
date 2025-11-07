@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-import {API_BASE_URL, getCurrentUserId} from '../types/config'
+import { API_BASE_URL, getCurrentUserId } from '../types/config'
 
 
 export const useFollower = (userId?: string) => {
@@ -92,7 +92,17 @@ export const useFollower = (userId?: string) => {
 
                 await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
+                // 🔔 Gửi thông báo cho người được follow (targetUser)
+                await axios.post(`${API_BASE_URL}/notifications`, {
+                    userId: targetUserId,
+                    senderId: getCurrentUserId,
+                    type: "FOLLOW",
+                    message: `${currentUser.fullname} đã theo dõi bạn`,
+                    createdAt: new Date().toISOString(),
+                    isRead: false,
+                });
 
+                console.log(`🔔 Gửi thông báo follow đến ${targetUser.fullname}`);
                 await fetchFollowers();
                 await fetchFollowing();
             } catch (error) {

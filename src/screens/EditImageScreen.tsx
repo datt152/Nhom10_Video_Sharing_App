@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,24 +6,103 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Alert,
   ScrollView,
   ActivityIndicator,
   Switch,
   Modal,
+  Animated,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-import {API_BASE_URL, getCurrentUserId, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
+import {API_BASE_URL, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config';
+import ErrorBox from '../components/ErrorBox';
+import { useUser } from '../hooks/useUser';
 
+interface SuccessBoxProps {
+  message: string;
+  onClose: () => void;
+}
 
+const SuccessBox: React.FC<SuccessBoxProps> = ({ message, onClose }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    if (!message) return;
+
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(() => {
+      handleClose();
+    }, 2000);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [message]);
+
+  const handleClose = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => onClose());
+  };
+
+  if (!message) return null;
+
+  return (
+    <Animated.View style={[successBoxStyles.container, { opacity: fadeAnim }]}>
+      <Ionicons name="checkmark-circle" size={24} color="#fff" style={successBoxStyles.icon} />
+      <Text style={successBoxStyles.text}>{message}</Text>
+    </Animated.View>
+  );
+};
+
+const successBoxStyles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 50,
+    alignSelf: 'center',
+    backgroundColor: '#27ae60',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: '85%',
+    zIndex: 9999,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  text: {
+    color: '#fff',
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+});
+
+// Main component
 const EditImageScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { imageUri } = route.params as { imageUri: string };
+  const { currentUser } = useUser(); // 👈 Di chuyển lên đây
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -32,46 +111,74 @@ const EditImageScreen: React.FC = () => {
   const [taggedPeople, setTaggedPeople] = useState<any[]>([]);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
   const [whoCanWatch, setWhoCanWatch] = useState('Công khai');
-  const [shareToFacebook, setShareToFacebook] = useState(false);
-  const [shareToTwitter, setShareToTwitter] = useState(false);
-  const [shareToInstagram, setShareToInstagram] = useState(false);
   
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [showTagModal, setShowTagModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const uploadToCloudinary = async (uri: string): Promise<string> => {
-  const formData = new FormData();
+  const uploadToCloudinary = async (imageUri: string): Promise<string | null> => {
+    try {
+      const response = await fetch(imageUri);
+      const imageBlob = await response.blob();
+      const fileName = imageUri.split('/').pop() || `image_${Date.now()}.jpg`;
 
-  const match = uri.match(/\.([a-zA-Z0-9]+)(\?.*)?$/);
-  const fileType = match ? match[1].toLowerCase() : 'jpg';
+      const formData = new FormData();
+      formData.append('file', imageBlob || fileName);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('cloud_name', CLOUDINARY_CLOUD_NAME);
 
-  formData.append('file', {
-    uri,
-    type: `image/${fileType}`,
-    name: `image_${Date.now()}.${fileType}`,
-  } as any);
-  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
 
-  try {
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: 'POST',
-        body: formData, // ✅ fetch hiểu FormData trong RN
-      }
-    );
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const progress = (event.loaded / event.total) * 100;
+            setUploadProgress(Math.round(progress));
+          }
+        });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
-    return data.secure_url;
-  } catch (err: any) {
-    console.error('Cloudinary upload error:', err);
-    throw new Error(err.message || 'Upload failed');
-  }
-};
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              if (data.secure_url) {
+                resolve(data.secure_url);
+              } else {
+                reject(new Error('Không nhận được URL ảnh từ Cloudinary'));
+              }
+            } catch (error) {
+              reject(new Error('Lỗi xử lý dữ liệu từ Cloudinary'));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(new Error(errorData.error?.message || 'Upload thất bại'));
+            } catch {
+              reject(new Error(`Lỗi upload: ${xhr.status}`));
+            }
+          }
+        });
 
+        xhr.addEventListener('error', () => {
+          reject(new Error('Lỗi kết nối mạng'));
+        });
+
+        xhr.addEventListener('abort', () => {
+          reject(new Error('Upload bị hủy'));
+        });
+
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+        xhr.send(formData);
+      });
+
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      return null;
+    }
+  };
 
   const addHashtag = () => {
     if (hashtagInput.trim() && !hashtags.includes(hashtagInput.trim())) {
@@ -86,14 +193,42 @@ const EditImageScreen: React.FC = () => {
 
   const handlePost = async () => {
     if (!title.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập tiêu đề');
+      setErrorMessage('Vui lòng nhập tiêu đề cho ảnh của bạn');
+      return;
+    }
+
+    if (!description.trim()) {
+      setErrorMessage('Vui lòng nhập mô tả cho ảnh của bạn');
+      return;
+    }
+
+    // 👇 Kiểm tra currentUser trước khi sử dụng
+    if (!currentUser) {
+      setErrorMessage('Vui lòng đăng nhập để đăng bài');
       return;
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     try {
       const imageUrl = await uploadToCloudinary(imageUri);
+
+      if (!imageUrl) {
+        throw new Error('Không thể tải ảnh lên Cloudinary');
+      }
+
+      // 👇 Xác định privacy mapping
+      let privacyValue = 'Public';
+      let isPublicValue = true;
+      
+      if (whoCanWatch === 'Bạn bè') {
+        privacyValue = 'Friends';
+        isPublicValue = false;
+      } else if (whoCanWatch === 'Riêng tư') {
+        privacyValue = 'Private';
+        isPublicValue = false;
+      }
 
       const newImagePost = {
         id: `i${Date.now()}`,
@@ -103,32 +238,58 @@ const EditImageScreen: React.FC = () => {
         tags: hashtags,
         taggedUsers: taggedPeople.map(p => p.id),
         commentsEnabled,
-        privacy: whoCanWatch,
+        isPublic: isPublicValue,
+        privacy: privacyValue,
         createdAt: new Date().toISOString(),
-        userId: getCurrentUserId,
+        user: {
+          id: currentUser.id, // ✅ An toàn vì đã kiểm tra ở trên
+          username: currentUser.username,
+          fullname: currentUser.fullname,
+          avatar: currentUser.avatar,
+        },
+        likedBy: [],
+        likes: 0,
+        isLiked: false,
+        commentCount: 0,
       };
 
       await axios.post(`${API_BASE_URL}/images`, newImagePost);
 
-      Alert.alert('Thành công 🎉', 'Ảnh của bạn đã được đăng!', [
-        { text: 'OK', onPress: () => navigation.navigate('Main' as never) },
-      ]);
+      setSuccessMessage('🎉 Ảnh của bạn đã được đăng thành công!');
+      
+      setTimeout(() => {
+        navigation.navigate('Main' as never);
+      }, 2000);
+
     } catch (error: any) {
-      console.error('Upload error:', error);
-      const msg = error?.message || 'Không thể tải ảnh lên';
-      Alert.alert('Lỗi', msg);
+      let errorMsg = 'Không thể đăng bài. Vui lòng thử lại!';
+      
+      if (error.message.includes('Cloudinary')) {
+        errorMsg = 'Lỗi khi tải ảnh lên. Vui lòng kiểm tra kết nối mạng!';
+      } else if (error.response) {
+        errorMsg = `Lỗi server: ${error.response.status}`;
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      setErrorMessage(errorMsg);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
-  };
-
-  const handleSaveDraft = () => {
-    Alert.alert('Đã lưu bản nháp', 'Bài đăng của bạn đã được lưu dưới dạng bản nháp');
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      <ErrorBox 
+        message={errorMessage} 
+        onClose={() => setErrorMessage('')} 
+      />
+      <SuccessBox 
+        message={successMessage} 
+        onClose={() => setSuccessMessage('')} 
+      />
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#333" />
@@ -138,15 +299,12 @@ const EditImageScreen: React.FC = () => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Image Preview */}
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-         
         </View>
 
-        {/* Title */}
         <View style={styles.section}>
-          <Text style={styles.label}>Tiêu đề</Text>
+          <Text style={styles.label}>Tiêu đề *</Text>
           <TextInput
             style={styles.input}
             placeholder="Nhập tiêu đề"
@@ -157,9 +315,8 @@ const EditImageScreen: React.FC = () => {
           />
         </View>
 
-        {/* Description */}
         <View style={styles.section}>
-          <Text style={styles.label}>Mô tả</Text>
+          <Text style={styles.label}>Mô tả *</Text>
           <TextInput
             style={[styles.input, styles.descriptionInput]}
             placeholder="Nhập mô tả"
@@ -172,7 +329,6 @@ const EditImageScreen: React.FC = () => {
           />
         </View>
 
-        {/* Add Hashtag */}
         <View style={styles.section}>
           <Text style={styles.label}>Thêm hashtag</Text>
           <View style={styles.hashtagInputContainer}>
@@ -201,9 +357,6 @@ const EditImageScreen: React.FC = () => {
           </View>
         </View>
 
-      
-
-        {/* Comments */}
         <View style={styles.row}>
           <Text style={styles.rowLabel}>Bình luận</Text>
           <Switch
@@ -215,7 +368,6 @@ const EditImageScreen: React.FC = () => {
           />
         </View>
 
-        {/* Who Can Watch */}
         <TouchableOpacity
           style={styles.row}
           onPress={() => setShowPrivacyModal(true)}
@@ -236,9 +388,7 @@ const EditImageScreen: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
-        
         <TouchableOpacity
           style={[styles.postButton, uploading && { opacity: 0.5 }]}
           onPress={handlePost}
@@ -251,28 +401,6 @@ const EditImageScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Tag People Modal */}
-      <Modal visible={showTagModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Gắn thẻ người khác</Text>
-              <TouchableOpacity onPress={() => setShowTagModal(false)}>
-                <Ionicons name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.modalSubtext}>Tìm kiếm và chọn người để gắn thẻ</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setShowTagModal(false)}
-            >
-              <Text style={styles.modalButtonText}>Xong</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Privacy Modal */}
       <Modal visible={showPrivacyModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -282,7 +410,7 @@ const EditImageScreen: React.FC = () => {
                 <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
-            {['Công khai', 'Riêng tư'].map((option) => (
+            {['Công khai', 'Bạn bè', 'Riêng tư'].map((option) => (
               <TouchableOpacity
                 key={option}
                 style={styles.privacyOption}
@@ -337,14 +465,6 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 16,
     backgroundColor: '#f0f0f0',
-  },
-  changeCoverButton: {
-    marginTop: 12,
-  },
-  changeCoverText: {
-    color: '#FF3B5C',
-    fontSize: 15,
-    fontWeight: '500',
   },
   section: {
     marginBottom: 20,
@@ -423,22 +543,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FF3B5C',
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 20,
-    marginBottom: 12,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  socialLabel: {
-    fontSize: 16,
-    color: '#333',
-  },
   uploadingContainer: {
     alignItems: 'center',
     marginVertical: 20,
@@ -456,23 +560,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
     gap: 12,
-  },
-  saveDraftButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#FF3B5C',
-    borderRadius: 25,
-    paddingVertical: 14,
-    gap: 6,
-  },
-  saveDraftText: {
-    color: '#FF3B5C',
-    fontSize: 16,
-    fontWeight: '600',
   },
   postButton: {
     flex: 1,
@@ -511,23 +598,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#333',
-  },
-  modalSubtext: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 20,
-  },
-  modalButton: {
-    backgroundColor: '#FF3B5C',
-    borderRadius: 25,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   privacyOption: {
     flexDirection: 'row',
