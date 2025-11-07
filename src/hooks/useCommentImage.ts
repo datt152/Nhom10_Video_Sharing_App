@@ -23,6 +23,8 @@ export const useImageComments = (imageId?: string) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(false);
 
+
+
     const fetchComments = useCallback(async () => {
         if (!imageId) return;
         setLoading(true);
@@ -85,6 +87,7 @@ export const useImageComments = (imageId?: string) => {
                 replyCount: 0,
                 parentId,
             };
+            console.log("them binh luan")
 
             try {
                 await axios.post(`${API_BASE_URL}/comments`, newComment);
@@ -101,6 +104,35 @@ export const useImageComments = (imageId?: string) => {
                     commentCount: (imgRes.data.commentCount || 0) + 1,
                 });
 
+                // 📨 Thêm thông báo cho chủ ảnh (nếu khác người bình luận)
+                const imageOwnerId = imgRes.data.userId;
+                console.log("imageOwnerId"+ imageOwnerId)
+                if (imageOwnerId && imageOwnerId !== CURRENT_USER_ID) {
+                    try {
+                        const userRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
+                        console.log("Thong tin user "+ userRes.data)
+                        const currentUser = userRes.data;
+                        
+                        const newNotification = {
+                            id: `n${Date.now()}`,
+                            userId: imageOwnerId,          // 👈 người NHẬN thông báo
+                            senderId: CURRENT_USER_ID,     // 👈 người GỬI (bình luận)
+                            type: 'COMMENT',               // 👈 dùng đúng ENUM type
+                            message: `${currentUser.fullname || currentUser.username} đã bình luận vào ảnh của bạn.`,
+                            videoId: null,                 // 👈 vì là ảnh, nên không có video
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                        };
+
+                        await axios.post(`${API_BASE_URL}/notifications`, newNotification);
+
+                        console.log("✅ Thêm thông báo bình luận ảnh thành công!");
+                    } catch (notifyErr) {
+                        console.warn(
+                            "⚠️ Không thể tạo thông báo comment ảnh:",
+                        );
+                    }
+                }
                 await fetchComments();
             } catch (error) {
                 console.error('Error adding image comment:', error);

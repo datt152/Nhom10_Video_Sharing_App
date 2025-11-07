@@ -15,7 +15,8 @@
         "u4"
       ],
       "followingIds": [
-        "u4"
+        "u4",
+        "u3"
       ],
       "externalLinks": [
         "\u0001https://coccoc.com/search?query=figma",
@@ -52,7 +53,7 @@
         "u1"
       ],
       "followingIds": [],
-      "followerCount": 1
+      "followerCount": 2
     },
     {
       "id": "u4",
@@ -92,7 +93,7 @@
       "userId": "u3",
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
-      "commentCount": 7,
+      "commentCount": 10,
       "likes": 2
     },
     {
@@ -137,7 +138,7 @@
       "location": "Hội An",
       "isPublic": true,
       "isLiked": true,
-      "commentCount": 3
+      "commentCount": 12
     },
     {
       "id": "i1762175658889",
@@ -1377,6 +1378,138 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1762478560378",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "hay qya di nha ND",
+      "createdAt": "2025-11-07T01:22:40.378Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762478680595",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "kkkk le teo qua di",
+      "createdAt": "2025-11-07T01:24:40.595Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762478991054",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "1 2 3 4 5 5",
+      "createdAt": "2025-11-07T01:29:51.054Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479110965",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "teo toe toe eooe",
+      "createdAt": "2025-11-07T01:31:50.966Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479156560",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "5555",
+      "createdAt": "2025-11-07T01:32:36.560Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479237592",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "hhhhh",
+      "createdAt": "2025-11-07T01:33:57.592Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479440209",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "jjj",
+      "createdAt": "2025-11-07T01:37:20.209Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479451972",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "kkkk",
+      "createdAt": "2025-11-07T01:37:31.972Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762479482385",
+      "imageId": "i3",
+      "userId": "u1",
+      "content": "kkkkte ejej",
+      "createdAt": "2025-11-07T01:38:02.385Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762480085302",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "mot hai ba bon nam",
+      "createdAt": "2025-11-07T01:48:05.302Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762480217264",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "mot jejejhhehe",
+      "createdAt": "2025-11-07T01:50:17.264Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1762480351562",
+      "imageId": "i1",
+      "userId": "u1",
+      "content": "kkkkk",
+      "createdAt": "2025-11-07T01:52:31.562Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [
@@ -1406,6 +1539,16 @@
       "message": "Linh Nguyễn đã thích video của bạn.",
       "isRead": false,
       "createdAt": "2025-10-13T10:00:00Z"
+    },
+    {
+      "id": "n1762480351642",
+      "userId": "u3",
+      "senderId": "u1",
+      "type": "COMMENT",
+      "message": "Linh Nguyễn2004 đã bình luận vào ảnh của bạn.",
+      "videoId": null,
+      "isRead": false,
+      "createdAt": "2025-11-07T01:52:31.642Z"
     }
   ]
 }

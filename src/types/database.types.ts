@@ -87,13 +87,19 @@ export interface Comment {
 
 export interface Notification {
   id: string;
-  userId: string;
-  senderId: string;
-  type: 'FOLLOW' | 'LIKE' | 'COMMENT';
-  message: string;
-  videoId: string | null;
-  isRead: boolean;
-  createdAt: string;
-  // Denormalized
-  sender?: User;
+  toUserId: string;        // Người nhận thông báo
+  fromUserId: string;      // Người tạo ra hành động (người like/bình luận)
+  type:
+  | "follow"
+  | "like_video"
+  | "comment_video"
+  | "like_image"
+  | "comment_image";     // Các loại thông báo có thể mở rộng
+  targetId: string | null; // ID của video hoặc ảnh được tương tác
+  message: string;         // Nội dung hiển thị
+  isRead: boolean;         // Đã đọc hay chưa
+  createdAt: string;       // Thời gian tạo
+
+  // Dữ liệu mở rộng (optional)
+  fromUser?: User;         // Thông tin người gửi, nếu muốn hiển thị avatar / name
 }
