@@ -99,7 +99,9 @@ export interface Notification {
   message: string;         // Nội dung hiển thị
   isRead: boolean;         // Đã đọc hay chưa
   createdAt: string;       // Thời gian tạo
-
+  content: string,
+  videoId: string,
+  imageId: string,
   // Dữ liệu mở rộng (optional)
   fromUser?: User;         // Thông tin người gửi, nếu muốn hiển thị avatar / name
 }

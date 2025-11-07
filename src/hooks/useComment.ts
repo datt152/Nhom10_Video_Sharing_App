@@ -112,7 +112,7 @@ export const useComments = (videoId?: string) => {
         // 1️⃣ Lấy thông tin user hiện tại
         const currentUserRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
         const currentUser = currentUserRes.data;
-
+        console.log("Content cua nguoi dung"+ {content})
         // 2️⃣ Tạo comment mới
         const newComment: Comment = {
           id: `c${Date.now()}`,
@@ -178,6 +178,32 @@ export const useComments = (videoId?: string) => {
         await Promise.all(updates);
 
         console.log('✅ Comment added successfully');
+        // 🔔 Thêm thông báo khi bình luận video (nếu không phải chủ video)
+        try {
+          const videoRes = await axios.get(`${API_BASE_URL}/videos/${videoId}`);
+          const video = videoRes.data;
+          console.log("Thong tin video cmt" + video)
+
+          // Chỉ gửi thông báo nếu người comment KHÔNG phải là chủ video
+          if (video && video.userId && video.userId !== CURRENT_USER_ID) {
+            const newNotification = {
+              id: `n${Date.now()}`,
+              userId: video.userId, // người nhận (chủ video)
+              senderId: CURRENT_USER_ID, // người gửi
+              type: "COMMENT",
+              message: `${currentUser.fullname || currentUser.username} đã bình luận: ${content}`, // ✅ thêm nội dung
+              content: content, // vẫn giữ lại để lưu chi tiết
+              videoId: videoId,
+              isRead: false,
+              createdAt: new Date().toISOString(),
+            };
+
+            await axios.post(`${API_BASE_URL}/notifications`, newNotification);
+            console.log("✅ Đã thêm thông báo bình luận video:", newNotification);
+          }
+        } catch (notifyErr) {
+          console.error("⚠️ Lỗi khi thêm thông báo video:", notifyErr);
+        }
 
       } catch (error) {
         console.error('❌ Error adding comment:', error);

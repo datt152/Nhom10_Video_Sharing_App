@@ -191,6 +191,20 @@ export const useVideo = () => {
     } catch (err) {
       console.error('Error liking video:', err);
     }
+    if (CURRENT_USER_ID !== video.userId) {
+      const newNotification = {
+        id: `n${Date.now()}`,
+        userId: video.userId, // chủ video nhận thông báo
+        senderId: CURRENT_USER_ID,
+        type: "LIKE_VIDEO",
+        message: `Người dùng ${CURRENT_USER_ID} đã thích video của bạn.`,
+        videoId,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      await api.post("/notifications", newNotification);
+    }
   };
 
   // 6️⃣ UNLIKE VIDEO

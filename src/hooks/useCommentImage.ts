@@ -106,19 +106,21 @@ export const useImageComments = (imageId?: string) => {
 
                 // 📨 Thêm thông báo cho chủ ảnh (nếu khác người bình luận)
                 const imageOwnerId = imgRes.data.userId;
-                console.log("imageOwnerId"+ imageOwnerId)
+                console.log("imageOwnerId" + imageOwnerId)
                 if (imageOwnerId && imageOwnerId !== CURRENT_USER_ID) {
                     try {
                         const userRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
-                        console.log("Thong tin user "+ userRes.data)
+                        console.log("Thong tin user " + userRes.data)
                         const currentUser = userRes.data;
-                        
+
                         const newNotification = {
                             id: `n${Date.now()}`,
+                            imageId: imageId,
                             userId: imageOwnerId,          // 👈 người NHẬN thông báo
                             senderId: CURRENT_USER_ID,     // 👈 người GỬI (bình luận)
                             type: 'COMMENT',               // 👈 dùng đúng ENUM type
-                            message: `${currentUser.fullname || currentUser.username} đã bình luận vào ảnh của bạn.`,
+                            message: `${currentUser.fullname || currentUser.username} đã bình luận: "${content}"`, // ✅ thêm nội dung
+                            content, // vẫn giữ lại để lưu chi tiết
                             videoId: null,                 // 👈 vì là ảnh, nên không có video
                             isRead: false,
                             createdAt: new Date().toISOString(),
