@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/database.types'
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
 
 
 

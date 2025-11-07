@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-import {API_BASE_URL} from '../types/database.types'
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
 
-const CURRENT_USER_ID = "u1"; // user hiện tại
 
 export const useUser = (userId?: string) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);

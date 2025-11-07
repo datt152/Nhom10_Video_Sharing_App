@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import {API_BASE_URL} from '../types/database.types'
-const CURRENT_USER_ID = 'u1';
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
 import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
 interface Comment {
   id: string;

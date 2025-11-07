@@ -19,11 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useUser } from '../hooks/useUser';
 
-import {API_BASE_URL} from '../types/database.types'
-
-const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
-const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
-const CURRENT_USER_ID = 'u1';
+import {API_BASE_URL, CURRENT_USER_ID, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
 
 interface TaggedUser {
   id: string;
@@ -38,7 +34,6 @@ const EditVideoScreen: React.FC = () => {
   const { videoUri } = route.params as { videoUri: string };
   const videoRef = useRef<Video>(null);
 
-  const { fetchFriendsList } = useUser();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -59,24 +54,6 @@ const EditVideoScreen: React.FC = () => {
   const [friendsList, setFriendsList] = useState<TaggedUser[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    if (showTagModal) {
-      loadFriends();
-    }
-  }, [showTagModal]);
-
-  const loadFriends = async () => {
-    setLoadingFriends(true);
-    try {
-      const friends = await fetchFriendsList();
-      setFriendsList(friends);
-    } catch (error) {
-      console.error('Error loading friends:', error);
-    } finally {
-      setLoadingFriends(false);
-    }
-  };
 
   const toggleTagUser = (user: TaggedUser) => {
     const isTagged = taggedPeople.some(p => p.id === user.id);

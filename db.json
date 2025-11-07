@@ -7,16 +7,14 @@
       "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
       "bio": "Du lịch & cuộc sống 🌿125555",
       "followers": 12002,
-      "following": 313,
+      "following": 312,
       "likes": 22000,
       "followerIds": [
         "u2",
         "u3",
         "u4"
       ],
-
       "followingIds": [
-        "u4",
         "u3",
         "u2"
       ],
@@ -37,7 +35,6 @@
       "followerIds": [
         "u4"
       ],
-
       "followingIds": [],
       "followerCount": 4
     },
@@ -58,7 +55,6 @@
         "u1"
       ],
       "followerCount": 0
-
     },
     {
       "id": "u4",
@@ -66,12 +62,10 @@
       "fullname": "Dat Tran",
       "avatar": "https://randomuser.me/api/portraits/men/45.jpg",
       "bio": "Developer 💻",
-      "followers": 2,
+      "followers": 1,
       "following": 5,
       "likes": 0,
-      "followerIds": [
-        "u1"
-      ],
+      "followerIds": [],
       "followingIds": [],
       "followerCount": 1
     }
@@ -94,7 +88,12 @@
       "isLiked": true,
       "views": 2300,
       "createdAt": "2025-10-20T17:45:00Z",
-      "userId": "u3",
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
+      },
       "location": "Đà Lạt, Việt Nam",
       "isPublic": true,
       "commentCount": 16,
@@ -409,6 +408,35 @@
         "artist": "HIEUTHUHAI",
         "cover": "https://i1.sndcdn.com/artworks-HJewlfnL2mNae0Jm-2MgOGw-t500x500.jpg",
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
+      },
+      "likedBy": [
+        "u1"
+      ]
+    },
+    {
+      "id": "v1762506247043",
+      "userId": "u1",
+      "title": "Bùn",
+      "caption": "Alone",
+      "tags": [
+        "Lonely"
+      ],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "privacy": "Công khai",
+      "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.mp4",
+      "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.jpg",
+      "likeCount": 1,
+      "commentCount": 0,
+      "shareCount": 0,
+      "views": 0,
+      "createdAt": "2025-11-07T09:04:07.043Z",
+      "isPublic": true,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "likedBy": [
         "u1"

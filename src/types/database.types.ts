@@ -72,7 +72,6 @@ export interface Video {
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
-  tags?: string[]
 }
 
 export interface Comment {
@@ -91,22 +90,10 @@ export interface Comment {
   replies?: Comment[];
 }
 
+
+
 export interface Notification {
   id: string;
-<<<<<<< HEAD
-  userId: string;
-  senderId: string;
-  type: 'FOLLOW' | 'LIKE' | 'COMMENT';
-  message: string;
-  videoId: string | null;
-  isRead: boolean;
-  createdAt: string;
-  // Denormalized
-  sender?: User;
-}
-export const API_BASE_URL = "http://192.168.1.187:3000";
-export const CURRENT_USER_ID = 'u1';
-=======
   toUserId: string;        // Người nhận thông báo
   fromUserId: string;      // Người tạo ra hành động (người like/bình luận)
   type:
@@ -125,4 +112,3 @@ export const CURRENT_USER_ID = 'u1';
   // Dữ liệu mở rộng (optional)
   fromUser?: User;         // Thông tin người gửi, nếu muốn hiển thị avatar / name
 }
->>>>>>> 0774393dea45f8611be1ac5f5ad0630f65d709a4

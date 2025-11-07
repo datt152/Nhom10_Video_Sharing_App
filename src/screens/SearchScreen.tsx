@@ -80,6 +80,10 @@ const SearchScreen: React.FC = () => {
 
     
       setFilteredVideos(matchedVideos);
+      console.log(matchedImages);
+      console.log(matchedVideos);
+      
+      
       setFilteredImages(matchedImages);
 
       setSearching(false);

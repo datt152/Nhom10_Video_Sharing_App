@@ -3,9 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
 
-import {API_BASE_URL} from '../types/database.types'
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
 
-export const CURRENT_USER_ID = 'u1';
 
 export const useImage = () => {
     const [publicImages, setPublicImages] = useState<Image[]>([]);

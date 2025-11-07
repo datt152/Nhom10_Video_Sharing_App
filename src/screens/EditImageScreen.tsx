@@ -16,11 +16,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-import {API_BASE_URL} from '../types/database.types'
+import {API_BASE_URL, CURRENT_USER_ID, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
 
-const CLOUDINARY_CLOUD_NAME = 'daq1jyn28';
-const CLOUDINARY_UPLOAD_PRESET = 'vidshare';
-const CURRENT_USER_ID = 'u4';
+
 
 const EditImageScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -44,29 +42,36 @@ const EditImageScreen: React.FC = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const uploadToCloudinary = async (uri: string): Promise<string> => {
-    const formData = new FormData();
-    const fileType = uri.split('.').pop() || 'jpg';
+  const formData = new FormData();
 
-    formData.append('file', {
-      uri,
-      type: `image/${fileType}`,
-      name: `image_${Date.now()}.${fileType}`,
-    } as any);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const match = uri.match(/\.([a-zA-Z0-9]+)(\?.*)?$/);
+  const fileType = match ? match[1].toLowerCase() : 'jpg';
 
-    const response = await axios.post(
+  formData.append('file', {
+    uri,
+    type: `image/${fileType}`,
+    name: `image_${Date.now()}.${fileType}`,
+  } as any);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+  try {
+    const res = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      formData,
       {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (e) => {
-          if (e.total) setUploadProgress(Math.round((e.loaded * 100) / e.total));
-        },
+        method: 'POST',
+        body: formData, // ✅ fetch hiểu FormData trong RN
       }
     );
 
-    return response.data.secure_url;
-  };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
+    return data.secure_url;
+  } catch (err: any) {
+    console.error('Cloudinary upload error:', err);
+    throw new Error(err.message || 'Upload failed');
+  }
+};
+
 
   const addHashtag = () => {
     if (hashtagInput.trim() && !hashtags.includes(hashtagInput.trim())) {
@@ -108,9 +113,10 @@ const EditImageScreen: React.FC = () => {
       Alert.alert('Thành công 🎉', 'Ảnh của bạn đã được đăng!', [
         { text: 'OK', onPress: () => navigation.navigate('Main' as never) },
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error);
-      Alert.alert('Lỗi', 'Không thể tải ảnh lên');
+      const msg = error?.message || 'Không thể tải ảnh lên';
+      Alert.alert('Lỗi', msg);
     } finally {
       setUploading(false);
     }

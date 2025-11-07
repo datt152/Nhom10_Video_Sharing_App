@@ -2,11 +2,10 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/database.types'
+import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
 
 
 export const useFollower = (userId?: string) => {
-    const CURRENT_USER_ID = "u1"; // giả lập user đang đăng nhập
     const TARGET_USER_ID = userId || CURRENT_USER_ID; // user đang được xem (ở hồ sơ)
 
     const [followers, setFollowers] = useState<User[]>([]);
