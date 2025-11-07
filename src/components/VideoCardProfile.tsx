@@ -174,7 +174,12 @@ const VideoCard: React.FC<VideoCardProps> = ({
             console.log('🔥 Lỗi khi toggle like:', error);
         }
     };
-
+    const handleAddComment = async (content: string, parentId: string | null = null) => {
+        const newComment = await addComment(content, parentId);
+        const updatedComments = await getCommentsByVideo(video.id);
+        // onCommentsUpdated?.(); // ✅ báo ra ngoài để cập nhật lại
+        setVideoCommentsList(updatedComments || []);
+    };
     const handleOpenComments = async (videoId: string) => {
         try {
             const fetchedComments = await getCommentsByVideo(videoId);
@@ -184,7 +189,20 @@ const VideoCard: React.FC<VideoCardProps> = ({
             console.error("❌ Lỗi khi lấy bình luận:", error);
         }
     };
+    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+        await deleteComment(commentId, parentId);
+    };
 
+    const handleRefreshComments = async () => {
+        const updatedComments = await getCommentsByVideo(video.id);
+        setVideoCommentsList(updatedComments || []);
+
+        // ✅ Cập nhật lại số comment hiển thị trên icon chat
+        setCommentCounts(prev => ({
+            ...prev,
+            [video.id]: updatedComments.length,
+        }));
+    };
     const formatNumber = (num: number) => {
         if (!num) return '0';
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -275,6 +293,67 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     </View>
                 </View>
             </Pressable>
+            {/* ✅ Modal hiển thị tùy chọn video */}
+            <Modal transparent visible={showOptions} animationType="fade" onRequestClose={() => setShowOptions(false)}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setShowOptions(false)}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Tùy chọn video</Text>
+
+                        <TouchableOpacity
+                            style={styles.modalButton}
+                            onPress={async () => {
+                                try {
+                                    const newStatus = await toggleVideoPrivacy(video.id, localIsPublic);
+                                    setLocalIsPublic(newStatus);
+                                    onPrivacyChange?.();// ✅ cập nhật liền tại chỗ
+                                    setShowOptions(false);
+                                } catch (err) {
+                                    console.error("❌ Lỗi khi đổi trạng thái:", err);
+                                }
+                            }}
+                        >
+                            <Text style={styles.modalButtonText}>
+                                {localIsPublic ? 'Chuyển sang riêng tư 🔒' : 'Chuyển sang công khai 🌍'}
+                            </Text>
+                        </TouchableOpacity>
+
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ff4444' }]} onPress={() => setShowOptions(false)}>
+                            <Text style={[styles.modalButtonText, { color: '#fff' }]}>Hủy</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            <Modal visible={showComments} animationType="none" transparent={true} onRequestClose={() => setShowComments(false)}>
+                <CommentModalVideo
+                    videoId={String(video.id)}
+                    comments={videoCommentsList}
+                    currentUserId={currentUserId}
+                    isVisible={showComments}
+                    onClose={() => {
+                        setShowComments(false);
+                        handleRefreshComments(); // nếu bạn muốn reload lại khi tắt modal
+                    }}
+                    onAddComment={handleAddComment}
+                    onLikeComment={likeComment}
+                    onCommentsUpdated={() => {
+                        handleRefreshComments(); // ✅ gọi hàm refresh khi comment thay đổi
+                    }}
+                    onDeleteComment={handleDeleteComment}   // ✅ thêm dòng này
+                />
+                {/* <CommentModalVideo
+                    videoId={video.id}
+                    comments={comments}
+                    currentUserId={currentUser.id}
+                    isVisible={isCommentModalVisible}
+                    onClose={() => setCommentModalVisible(false)}
+                    onAddComment={handleAddComment}
+                    onDeleteComment={handleDeleteComment}
+                    onLikeComment={handleLikeComment}
+                /> */}
+
+            </Modal>
         </View>
     );
 };
@@ -332,5 +411,33 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.4)',
         borderRadius: 30,
         padding: 6,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContainer: {
+        backgroundColor: '#222',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    modalTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalButton: {
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: '#333',
+        marginVertical: 5,
+    },
+    modalButtonText: {
+        color: '#fff',
+        textAlign: 'center',
+        fontSize: 16,
     },
 });

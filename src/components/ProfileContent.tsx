@@ -41,7 +41,12 @@ export default function ProfileContent({
                     videos={videos.public}
                     privacy="public"
                     loading={loading}
-                    onPressVideo={(video) => navigation.navigate("VideoScreen", { video })}
+                    onPressVideo={(video, index) =>
+                        navigation.navigate("UserVideoViewer", {
+                            videos: videos.public,
+                            initialIndex: index, // ✅ truyền giống bên ảnh
+                        })
+                    }
                 />
             ) : (
                 <ProfileImageList

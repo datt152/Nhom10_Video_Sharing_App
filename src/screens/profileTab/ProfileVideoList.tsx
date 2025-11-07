@@ -7,6 +7,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
 } from 'react-native';
+// Ban chinh
 import { Video as VideoType } from '../../types/database.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -40,7 +41,7 @@ const ProfileVideoList: React.FC<Props> = ({ videos, privacy, loading }) => {
 
         if (videos.length > 0) fetchCommentCounts();
     }, [videos]);
-    
+
     if (loading) return <ActivityIndicator size="small" color="#FF4EB8" />;
 
     if (!videos.length)
