@@ -125,6 +125,8 @@ const ProfileScreen: React.FC = () => {
     console.log("👥 followerCount:", followerCount);
     console.log("➡ followingCount:", followingCount);
   }, [currentUser, followerCount, followingCount]);
+
+  
   const countTotalLikes = useCallback(() => {
     try {
       const imageLikes = (publicImages || []).reduce(

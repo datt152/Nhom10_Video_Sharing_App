@@ -67,6 +67,7 @@ export default function UserVideoViewer() {
                 ? prev.filter((id) => id !== videoId)
                 : [...prev, videoId]
         );
+
     };
 
     const handleToggleFollow = (userId: string) => {

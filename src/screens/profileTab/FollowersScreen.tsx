@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fce4f7",
     },
     friendBtn: {
-        backgroundColor: "#02d35f",
+        backgroundColor: "#f0bde5ff",
     },
     followBtnText: {
         fontSize: 14,

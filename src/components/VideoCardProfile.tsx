@@ -29,10 +29,10 @@ interface VideoCardProps {
     isActive?: boolean;
     musics?: Music[];
     isLiked?: boolean;
-    onPrivacyChange?: () => void; // ✅ thêm dòng này
+    onPrivacyChange?: () => void;
 }
 
-const DOUBLE_TAP_DELAY = 300; // ms
+const DOUBLE_TAP_DELAY = 300;
 
 const VideoCard: React.FC<VideoCardProps> = ({
     video,
@@ -65,7 +65,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
     const [localIsLiked, setLocalIsLiked] = useState(video.isLiked || false);
     const [likeCount, setLikeCount] = useState(video.likeCount || 0);
-    const [localIsPublic, setLocalIsPublic] = useState(video.isPublic); // ✅ thêm state riêng
+    const [localIsPublic, setLocalIsPublic] = useState(video.isPublic);
 
     useEffect(() => {
         const fetchCommentCounts = async () => {
@@ -77,9 +77,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
             setCommentCounts(counts);
         };
 
-        if (videos.length > 0) {
-            fetchCommentCounts();
-        }
+        if (videos.length > 0) fetchCommentCounts();
     }, [videos]);
 
     useEffect(() => {
@@ -90,15 +88,28 @@ const VideoCard: React.FC<VideoCardProps> = ({
         }
     }, [videos, video.id]);
 
-    // ✅ Xử lý phát video và nhạc
+    // ✅ Điều khiển play/pause
+    const handleTogglePlay = async () => {
+        try {
+            if (isPlaying) {
+                await videoRef.current?.pauseAsync();
+                setIsPlaying(false);
+            } else {
+                await videoRef.current?.playAsync();
+                setIsPlaying(true);
+            }
+        } catch (error) {
+            console.log("⚠️ Lỗi khi toggle video:", error);
+        }
+    };
+
+    // ✅ Tự phát khi active
     useEffect(() => {
         let isMounted = true;
-
         if (isActive) {
             videoRef.current?.playAsync();
             setIsPlaying(true);
             startRotation();
-
             if (music?.uri) {
                 (async () => {
                     try {
@@ -135,13 +146,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
             })
         ).start();
     };
-
     const stopRotation = () => spinAnim.stopAnimation();
-
-    const rotate = spinAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg'],
-    });
 
     const triggerHeartAnimation = () => {
         heartAnim.setValue(0);
@@ -161,7 +166,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 setLocalIsLiked(true);
                 triggerHeartAnimation();
             }
-
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
                 Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
@@ -176,14 +180,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
         // onCommentsUpdated?.(); // ✅ báo ra ngoài để cập nhật lại
         setVideoCommentsList(updatedComments || []);
     };
-    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
-        await deleteComment(commentId, parentId);
-    };
-
-
-
-
-
     const handleOpenComments = async (videoId: string) => {
         try {
             const fetchedComments = await getCommentsByVideo(videoId);
@@ -193,6 +189,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
             console.error("❌ Lỗi khi lấy bình luận:", error);
         }
     };
+    const handleDeleteComment = async (commentId: string, parentId: string | null = null) => {
+        await deleteComment(commentId, parentId);
+    };
+
     const handleRefreshComments = async () => {
         const updatedComments = await getCommentsByVideo(video.id);
         setVideoCommentsList(updatedComments || []);
@@ -212,11 +212,11 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
-            <Pressable style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}>
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                >
+            <Pressable
+                style={[styles.videoWrapper, { height: SCREEN_HEIGHT }]}
+                onPress={handleTogglePlay} // 👈 thêm sự kiện dừng/phát
+            >
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#fff" />
                 </TouchableOpacity>
 
@@ -229,6 +229,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     shouldPlay={isActive}
                 />
 
+                {/* ❤️ Hiệu ứng tim */}
                 <Animated.View
                     style={[
                         styles.centerHeart,
@@ -249,20 +250,33 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 <View style={styles.bottomContent}>
                     <View style={styles.leftContent}>
                         {video.title ? (
-                            <Text style={styles.caption} numberOfLines={2}>
-                                {video.title}
-                            </Text>
+                            <Text style={styles.caption} numberOfLines={2}>{video.title}</Text>
                         ) : null}
+
+                        {video.tags && video.tags.length > 0 && (
+                            <View style={styles.tagContainer}>
+                                {video.tags.map((tab: string, index: number) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.tagItem,
+                                            {
+                                                borderColor: pastelColors[index % pastelColors.length].border,
+                                                backgroundColor: pastelColors[index % pastelColors.length].background,
+                                            },
+                                        ]}
+                                    >
+                                        <Text style={styles.tagText}>#{tab}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
                     </View>
 
                     <View style={styles.rightContent}>
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeAnimation.interpolate({ inputRange: [0, 1], outputRange: [1, 1.3] }) }] }}>
-                                <Ionicons
-                                    name={localIsLiked ? 'heart' : 'heart-outline'}
-                                    size={32}
-                                    color={localIsLiked ? '#FF3B5C' : '#fff'}
-                                />
+                                <Ionicons name={localIsLiked ? 'heart' : 'heart-outline'} size={32} color={localIsLiked ? '#FF3B5C' : '#fff'} />
                             </Animated.View>
                             <Text style={styles.actionText}>{formatNumber(likeCount)}</Text>
                         </TouchableOpacity>
@@ -279,7 +293,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     </View>
                 </View>
             </Pressable>
-
             {/* ✅ Modal hiển thị tùy chọn video */}
             <Modal transparent visible={showOptions} animationType="fade" onRequestClose={() => setShowOptions(false)}>
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setShowOptions(false)}>
@@ -347,18 +360,21 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
 export default memo(VideoCard);
 
+const pastelColors = [
+    { border: '#FFB6C1', background: '#FFE4E1' },
+    { border: '#ADD8E6', background: '#E0F7FA' },
+    { border: '#98FB98', background: '#E6F9E6' },
+    { border: '#FFDAB9', background: '#FFF5EE' },
+    { border: '#E6E6FA', background: '#F8F8FF' },
+    { border: '#F5DEB3', background: '#FFF8DC' },
+];
 
 const styles = StyleSheet.create({
     container: { backgroundColor: '#000' },
     videoWrapper: { width: '100%', justifyContent: 'center', alignItems: 'center' },
     video: { width: '100%', height: '100%' },
     gradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%' },
-    centerHeart: {
-        position: 'absolute',
-        top: '40%',
-        left: '40%',
-        transform: [{ translateX: -50 }, { translateY: -50 }],
-    },
+    centerHeart: { position: 'absolute', top: '40%', left: '40%' },
     bottomContent: {
         position: 'absolute',
         bottom: 50,
@@ -371,6 +387,19 @@ const styles = StyleSheet.create({
     },
     leftContent: { flex: 1 },
     caption: { color: '#fff', fontSize: 15, lineHeight: 20 },
+    tagContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 6, gap: 6 },
+    tagItem: {
+        borderWidth: 1.2,
+        borderRadius: 16,
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+        elevation: 1,
+    },
+    tagText: { fontSize: 12, color: '#C2185B', fontWeight: '600' },
     rightContent: { alignItems: 'center', gap: 18 },
     actionButton: { alignItems: 'center', gap: 4 },
     actionText: { color: '#fff', fontSize: 13, fontWeight: '600' },

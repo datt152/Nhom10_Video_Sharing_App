@@ -83,6 +83,24 @@ export const useImage = () => {
             });
 
             console.log(`❤️ Đã like ảnh ${imageId}`);
+
+            // ✅ Thêm sự kiện tạo thông báo
+            if (CURRENT_USER_ID !== image.userId) {
+                const newNotification = {
+                    id: `n${Date.now()}`, // ID duy nhất
+                    userId: image.userId, // chủ ảnh nhận thông báo
+                    senderId: CURRENT_USER_ID, // người like
+                    type: "LIKE_IMAGE",
+                    message: `Người dùng ${CURRENT_USER_ID} đã thích ảnh của bạn.`,
+                    imageId,
+                    isRead: false,
+                    createdAt: new Date().toISOString(),
+                };
+
+                await axios.post(`${API_BASE_URL}/notifications`, newNotification);
+                console.log("🔔 Đã tạo thông báo like ảnh:", newNotification);
+            }
+
             return updatedLikedBy.length;
         } catch (error) {
             console.error("🔥 Lỗi khi like ảnh:", error);
@@ -135,7 +153,7 @@ export const useImage = () => {
         async (userId: string) => {
             try {
                 setLoading(true);
-                const res = await axios.get(`${API_BASE_URL}?userId=${userId}`);
+                const res = await axios.get(`${API_BASE_URL}/images?userId=${userId}`);
                 setError(null);
                 // ⚠️ Chỗ này nè: phải return đúng kiểu mảng
                 return Array.isArray(res.data) ? res.data : [];

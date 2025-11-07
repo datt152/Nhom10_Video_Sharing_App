@@ -72,7 +72,7 @@ export interface Video {
   isLiked?: boolean;
   videoUrl: string; // ✅ video link (URL)
   caption?: string; // ✅ mô tả video
-
+  tags?: string[]
 }
 
 export interface Comment {
@@ -93,6 +93,7 @@ export interface Comment {
 
 export interface Notification {
   id: string;
+<<<<<<< HEAD
   userId: string;
   senderId: string;
   type: 'FOLLOW' | 'LIKE' | 'COMMENT';
@@ -105,3 +106,23 @@ export interface Notification {
 }
 export const API_BASE_URL = "http://192.168.1.187:3000";
 export const CURRENT_USER_ID = 'u1';
+=======
+  toUserId: string;        // Người nhận thông báo
+  fromUserId: string;      // Người tạo ra hành động (người like/bình luận)
+  type:
+  | "follow"
+  | "like_video"
+  | "comment_video"
+  | "like_image"
+  | "comment_image";     // Các loại thông báo có thể mở rộng
+  targetId: string | null; // ID của video hoặc ảnh được tương tác
+  message: string;         // Nội dung hiển thị
+  isRead: boolean;         // Đã đọc hay chưa
+  createdAt: string;       // Thời gian tạo
+  content: string,
+  videoId: string,
+  imageId: string,
+  // Dữ liệu mở rộng (optional)
+  fromUser?: User;         // Thông tin người gửi, nếu muốn hiển thị avatar / name
+}
+>>>>>>> 0774393dea45f8611be1ac5f5ad0630f65d709a4

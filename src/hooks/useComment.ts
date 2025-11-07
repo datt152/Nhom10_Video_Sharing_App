@@ -105,87 +105,113 @@ export const useComments = (videoId?: string) => {
     }
   }, [videoId]);
 
- const addComment = useCallback(
-  async (content: string, parentId: string | null = null) => {
-    try {
-      // 1️⃣ Lấy thông tin user hiện tại
-      const currentUserRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
-      const currentUser = currentUserRes.data;
+  const addComment = useCallback(
+    async (content: string, parentId: string | null = null) => {
+      try {
+        // 1️⃣ Lấy thông tin user hiện tại
+        const currentUserRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
+        const currentUser = currentUserRes.data;
+        console.log("Content cua nguoi dung"+ {content})
+        // 2️⃣ Tạo comment mới
+        const newComment: Comment = {
+          id: `c${Date.now()}`,
+          videoId: videoId || '',
+          userId: CURRENT_USER_ID,
+          content,
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          likedBy: [],
+          replyCount: 0,
+          parentId,
+          user: currentUser,
+          isLiked: false,
+          replies: []
+        };
 
-      // 2️⃣ Tạo comment mới
-      const newComment: Comment = {
-        id: `c${Date.now()}`,
-        videoId: videoId || '',
-        userId: CURRENT_USER_ID,
-        content,
-        createdAt: new Date().toISOString(),
-        likeCount: 0,
-        likedBy: [],
-        replyCount: 0,
-        parentId,
-        user: currentUser,
-        isLiked: false,
-        replies: []
-      };
+        // 3️⃣ Optimistic Update
+        if (parentId) {
+          // ✅ Thêm reply vào parent comment
+          setComments(prev =>
+            prev.map(c => {
+              if (c.id === parentId) {
+                return {
+                  ...c,
+                  replyCount: (c.replyCount || 0) + 1,
+                  replies: Array.isArray(c.replies)
+                    ? [...c.replies, newComment]
+                    : [newComment]
+                };
+              }
+              return c;
+            })
+          );
+        } else {
+          // ✅ Thêm parent comment mới vào đầu
+          setComments(prev => [newComment, ...prev]);
+        }
 
-      // 3️⃣ Optimistic Update
-      if (parentId) {
-        // ✅ Thêm reply vào parent comment
-        setComments(prev =>
-          prev.map(c => {
-            if (c.id === parentId) {
-              return {
-                ...c,
-                replyCount: (c.replyCount || 0) + 1,
-                replies: Array.isArray(c.replies) 
-                  ? [...c.replies, newComment] 
-                  : [newComment]
-              };
-            }
-            return c;
-          })
-        );
-      } else {
-        // ✅ Thêm parent comment mới vào đầu
-        setComments(prev => [newComment, ...prev]);
-      }
+        // 4️⃣ Gửi request lên server
+        await axios.post(`${API_BASE_URL}/comments`, newComment);
 
-      // 4️⃣ Gửi request lên server
-      await axios.post(`${API_BASE_URL}/comments`, newComment);
+        // 5️⃣ Cập nhật counters song song
+        const updates = [];
 
-      // 5️⃣ Cập nhật counters song song
-      const updates = [];
+        if (parentId) {
+          updates.push(
+            axios.get(`${API_BASE_URL}/comments/${parentId}`).then(res =>
+              axios.patch(`${API_BASE_URL}/comments/${parentId}`, {
+                replyCount: (res.data.replyCount || 0) + 1,
+              })
+            )
+          );
+        }
 
-      if (parentId) {
         updates.push(
-          axios.get(`${API_BASE_URL}/comments/${parentId}`).then(res =>
-            axios.patch(`${API_BASE_URL}/comments/${parentId}`, {
-              replyCount: (res.data.replyCount || 0) + 1,
+          axios.get(`${API_BASE_URL}/videos/${videoId}`).then(res =>
+            axios.patch(`${API_BASE_URL}/videos/${videoId}`, {
+              commentCount: (res.data.commentCount || 0) + 1,
             })
           )
         );
+
+        await Promise.all(updates);
+
+        console.log('✅ Comment added successfully');
+        // 🔔 Thêm thông báo khi bình luận video (nếu không phải chủ video)
+        try {
+          const videoRes = await axios.get(`${API_BASE_URL}/videos/${videoId}`);
+          const video = videoRes.data;
+          console.log("Thong tin video cmt" + video)
+
+          // Chỉ gửi thông báo nếu người comment KHÔNG phải là chủ video
+          if (video && video.userId && video.userId !== CURRENT_USER_ID) {
+            const newNotification = {
+              id: `n${Date.now()}`,
+              userId: video.userId, // người nhận (chủ video)
+              senderId: CURRENT_USER_ID, // người gửi
+              type: "COMMENT",
+              message: `${currentUser.fullname || currentUser.username} đã bình luận: ${content}`, // ✅ thêm nội dung
+              content: content, // vẫn giữ lại để lưu chi tiết
+              videoId: videoId,
+              isRead: false,
+              createdAt: new Date().toISOString(),
+            };
+
+            await axios.post(`${API_BASE_URL}/notifications`, newNotification);
+            console.log("✅ Đã thêm thông báo bình luận video:", newNotification);
+          }
+        } catch (notifyErr) {
+          console.error("⚠️ Lỗi khi thêm thông báo video:", notifyErr);
+        }
+
+      } catch (error) {
+        console.error('❌ Error adding comment:', error);
+        // Rollback bằng cách fetch lại
+        await fetchComments();
       }
-
-      updates.push(
-        axios.get(`${API_BASE_URL}/videos/${videoId}`).then(res =>
-          axios.patch(`${API_BASE_URL}/videos/${videoId}`, {
-            commentCount: (res.data.commentCount || 0) + 1,
-          })
-        )
-      );
-
-      await Promise.all(updates);
-
-      console.log('✅ Comment added successfully');
-
-    } catch (error) {
-      console.error('❌ Error adding comment:', error);
-      // Rollback bằng cách fetch lại
-      await fetchComments();
-    }
-  },
-  [videoId, fetchComments]
-);
+    },
+    [videoId, fetchComments]
+  );
 
   const deleteComment = useCallback(
     async (commentId: string, parentId: string | null = null) => {
@@ -275,7 +301,7 @@ export const useComments = (videoId?: string) => {
   }, []);
 
 
-  // 🔢 Đếm số lượng comment thật theo ImageId
+  //🔢 Đếm số lượng comment thật theo ImageId
   const countCommentsByImage = useCallback(async (imageId: string) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/comments?imageId=${imageId}`);

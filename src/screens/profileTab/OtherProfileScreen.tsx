@@ -31,7 +31,8 @@ export default function OtherProfileScreen() {
         loadTargetUser,
     } = useUser(userId);
 
-    const { followerCount, followingCount, refreshFollowers, refreshFollowing } = useFollower();
+    const { followerCount, followingCount, refreshFollowers, refreshFollowing } = useFollower(userId);
+
     const { getImagesByUser, loading: imageLoading } = useImage();
     const { loadVideosByUser, loading: videoLoading } = useVideo();
 
@@ -51,12 +52,40 @@ export default function OtherProfileScreen() {
         setLocalIsFriend(isFriend);
     }, [isFollowing, isFriend]);
 
+    // ✅ Đưa 2 dòng này LÊN TRƯỚC khi dùng trong countTotalLikes
+    const publicVideos = userVideos.filter((v) => v.isPublic);
+    const publicImages = userImages.filter((img) => img.isPublic);
+
+    // 🧮 Tính tổng số lượt tym (like)
+    const countTotalLikes = useCallback(() => {
+        try {
+            const safeCount = (arr: any[], field: string) =>
+                (arr || []).reduce(
+                    (sum, item) => sum + (Array.isArray(item?.[field]) ? item[field].length : 0),
+                    0
+                );
+
+            const totalImageLikes = safeCount(publicImages, "likeBy");
+            const totalVideoLikes = safeCount(publicVideos, "likedBy");
+
+            console.log("🖼 Image Likes:", totalImageLikes);
+            console.log("🎞 Video Likes:", totalVideoLikes);
+
+            return totalImageLikes + totalVideoLikes;
+        } catch (err) {
+            console.error("❌ Error counting likes:", err);
+            return 0;
+        }
+    }, [publicImages, publicVideos]);
     const loadAll = useCallback(async () => {
         if (!userId) return;
         setLoadingContent(true);
         await loadTargetUser(userId);
         const vids = await loadVideosByUser(userId);
+        console.log("User dang duoc xem tai khoan" + userId)
+        console.log("danh sach video trang OtherProfileScreen.tsx " + vids)
         const imgs = await getImagesByUser(userId);
+        console.log("danh sach image trang OtherProfileScreen.tsx " + imgs)
         setUserVideos(vids || []);
         setUserImages(imgs || []);
         setLoadingContent(false);
@@ -73,8 +102,6 @@ export default function OtherProfileScreen() {
         }, [])
     );
 
-    const publicVideos = userVideos.filter((v) => v.isPublic);
-    const publicImages = userImages.filter((img) => img.isPublic);
 
     // ✅ Cập nhật ngay khi follow / unfollow / unfriend
     const handleFollowAction = async () => {
@@ -152,7 +179,7 @@ export default function OtherProfileScreen() {
                         <Text style={styles.statLabel}>Followers</Text>
                     </View>
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>{targetUser.likes}</Text>
+                        <Text style={styles.statValue}>{countTotalLikes()}</Text>
                         <Text style={styles.statLabel}>Likes</Text>
                     </View>
                 </View>
