@@ -168,19 +168,27 @@ export const useImage = () => {
     );
     // 🔹 Lấy ảnh public
     const getPublicImages = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}?isPublic=true`);
-            setError(null);
-            return res.data;
-        } catch (err) {
-            console.error("❌ Lỗi khi tải ảnh public:", err);
-            setError("Không thể tải ảnh public");
-            return [];
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  try {
+    setLoading(true);
+    const res = await axios.get(`${API_BASE_URL}/images?isPublic=true`);
+    setError(null);
+
+    // ✅ Kiểm tra dữ liệu hợp lệ
+    if (Array.isArray(res.data)) {
+      return res.data;
+    } else {
+      console.warn("⚠️ Dữ liệu trả về không phải mảng:", res.data);
+      return [];
+    }
+  } catch (err) {
+    console.error("❌ Lỗi khi tải ảnh public:", err);
+    setError("Không thể tải ảnh public");
+    return [];
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
     // 🧡 Lấy ảnh public mà user hiện tại đã like
     const getPublicImagesLikedByUser = useCallback(async () => {

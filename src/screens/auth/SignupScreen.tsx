@@ -15,8 +15,7 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [showError, setShowError] = useState(false);
 
   const handleSignup = async () => {
-    // 🧩 Kiểm tra dữ liệu đầu vào
-    if (!username || !email || !password || !confirmPassword) {
+    if (!username || !password || !confirmPassword) {
       setErrorMessage('Vui lòng nhập đầy đủ thông tin.');
       setShowError(false);
       setTimeout(() => setShowError(true), 0);
@@ -32,7 +31,7 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
     setLoading(true);
     try {
-      // Kiểm tra xem username hoặc email đã tồn tại chưa
+      // 🔍 Kiểm tra username đã tồn tại chưa
       const res = await axios.get(`${API_BASE_URL}/users?username=${username}`);
       if (res.data.length > 0) {
         setErrorMessage('Tên đăng nhập đã tồn tại.');
@@ -41,21 +40,13 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         return;
       }
 
-      const res2 = await axios.get(`${API_BASE_URL}/users?email=${email}`);
-      if (res2.data.length > 0) {
-        setErrorMessage('Email đã được sử dụng.');
-        setShowError(false);
-        setTimeout(() => setShowError(true), 0);
-        return;
-      }
-
-      // 🔒 Hash mật khẩu trước khi lưu
+      // 🔒 Hash mật khẩu
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // 🟢 Gửi dữ liệu đăng ký lên JSON Server
+      // 🧩 Tạo user mới — luôn thêm field email dù JSON Server chưa có
       const newUser = {
         username,
-        email,
+        email: email || '', // nếu không nhập vẫn tạo field rỗng
         password: hashedPassword,
         followerIds: [],
         followingIds: [],
@@ -65,14 +56,12 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       };
 
       await axios.post(`${API_BASE_URL}/users`, newUser);
-
       console.log('✅ Đăng ký thành công:', username);
 
-      // Quay về màn đăng nhập
       navigation.replace('Login');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Signup error:', err);
-      setErrorMessage('Không thể kết nối đến server.');
+      setErrorMessage('Không thể kết nối đến server hoặc lỗi định dạng.');
       setShowError(false);
       setTimeout(() => setShowError(true), 0);
     } finally {
@@ -95,11 +84,10 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       />
 
       <TextInput
-        placeholder="Email"
+        placeholder="Email (không bắt buộc)"
         style={styles.input}
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
         autoCapitalize="none"
       />
 

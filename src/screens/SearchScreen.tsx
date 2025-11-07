@@ -15,7 +15,8 @@ import Header from "../components/Header";
 import { useVideo } from "../hooks/useVideo";
 import { useImage } from "../hooks/useImage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import {CURRENT_USER_ID, Image as ImageType, Video as VideoType} from '../types/database.types'
+import { Image as ImageType, Video as VideoType} from '../types/database.types'
+import {getCurrentUserId} from '../types/config'
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 45) / 2;
 
@@ -30,7 +31,7 @@ const SearchScreen: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
 
   const { videos, loading: loadingVideos } = useVideo();
-  const { publicImages, loading: loadingImages } = useImage();
+  const { getPublicImages, loading: loadingImages } = useImage();
   const navigation: any = useNavigation();
 
   // Reset khi quay lại trang
@@ -43,52 +44,52 @@ const SearchScreen: React.FC = () => {
     }, [])
   );
 
-  const handleSearch = () => {
-    const trimmed = query.trim();
-    setSearched(true);
+  const handleSearch = useCallback(async () => {
+  const trimmed = query.trim();
+  setSearched(true);
 
-    if (!trimmed) {
-      setFilteredVideos([]);
-      setFilteredImages([]);
-      setFilteredUsers([]);
-      return;
-    }
+  if (!trimmed) {
+    setFilteredVideos([]);
+    setFilteredImages([]);
+    setFilteredUsers([]);
+    return;
+  }
 
-    setSearching(true);
+  setSearching(true);
 
-    setTimeout(() => {
-      const q = trimmed.toLowerCase();
+  try {
+    const q = trimmed.toLowerCase();
 
-      // 🎬 Tìm video
-      const matchedVideos = videos.filter(
-        (v) =>
-          v.title?.toLowerCase().includes(q) ||
-          v.user?.fullname?.toLowerCase().includes(q) ||
-          v.user?.username?.toLowerCase().includes(q) ||
-          (Array.isArray(v.tags) && v.tags.join(" ").toLowerCase().includes(q))
-      );
+    // 🎬 Tìm video
+    const matchedVideos = videos.filter(
+      (v) =>
+        v.title?.toLowerCase().includes(q) ||
+        v.user?.fullname?.toLowerCase().includes(q) ||
+        v.user?.username?.toLowerCase().includes(q) ||
+        (Array.isArray(v.tags) && v.tags.join(" ").toLowerCase().includes(q))
+    );
 
-      const matchedImages = publicImages.filter((img) => {
-  const captionMatch = img.caption?.toLowerCase().includes(q);
-  const userMatch =
-    img.user &&
-    (img.user.fullname?.toLowerCase().includes(q) ||
-      img.user.username?.toLowerCase().includes(q));
-  return captionMatch || userMatch;
-});
+    // 🖼️ Lấy danh sách ảnh public từ server
+    const publicImages = await getPublicImages();
+    const matchedImages = publicImages.filter((img) => {
+      const captionMatch = img.caption?.toLowerCase().includes(q);
+      const userMatch =
+        img.user &&
+        (img.user.fullname?.toLowerCase().includes(q) ||
+          img.user.username?.toLowerCase().includes(q));
 
+      return captionMatch || userMatch;
+    });
 
-    
-      setFilteredVideos(matchedVideos);
-      console.log(matchedImages);
-      console.log(matchedVideos);
-      
-      
-      setFilteredImages(matchedImages);
+    setFilteredVideos(matchedVideos);
+    setFilteredImages(matchedImages);
+  } catch (err) {
+    console.error("❌ Lỗi tìm kiếm:", err);
+  } finally {
+    setSearching(false);
+  }
+}, [query, videos, getPublicImages]);
 
-      setSearching(false);
-    }, 200);
-  };
 
   // Render từng phần
   const renderVideoCard = (v: VideoType, i: number) => (
@@ -118,7 +119,7 @@ const SearchScreen: React.FC = () => {
   onPress={() => navigation.navigate('UserImageViewer', {
     images: [img],
     initialIndex: 0,
-    CURRENT_USER_ID
+    getCurrentUserId
   })}>
     <Image
       source={{ uri: img.imageUrl?.trim() || `https://picsum.photos/400/250?random=${i}` }}

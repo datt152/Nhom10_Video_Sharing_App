@@ -22,7 +22,8 @@
         "https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
       ],
-      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi",
+      "followerCount": 1
     },
     {
       "id": "u2",
@@ -65,15 +66,35 @@
       "fullname": "Dat Tran",
       "avatar": "https://randomuser.me/api/portraits/men/45.jpg",
       "bio": "Developer 💻",
-      "followers": 1,
+      "followers": 2,
       "following": 5,
       "likes": 0,
-      "followerIds": [],
+      "followerIds": [
+        "1ce9"
+      ],
       "followingIds": [
         "u3"
       ],
       "followerCount": 1,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
+    },
+    {
+      "id": "1ce9",
+      "username": "Konnnatachai",
+      "email": "",
+      "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
+      "followerIds": [],
+      "followingIds": [
+        "u4",
+        "u1"
+      ],
+      "followerCount": 0,
+      "followingCount": 0,
+      "avatar": "blob:http://localhost:8081/6db9fe3f-6af3-479c-a5c7-465db25329a8",
+      "fullname": "Kon nè",
+      "bio": "Trai  IT tuy không đẹp mà hay suy",
+      "externalLinks": [],
+      "following": 0
     }
   ],
   "images": [
@@ -101,7 +122,7 @@
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
       "location": "Đà Lạt, Việt Nam",
-      "isPublic": true,
+      "isPublic": false,
       "commentCount": 16,
       "likes": 3
     },
@@ -272,7 +293,7 @@
       "thumbnail": "https://picsum.photos/id/1015/400/700",
       "musicId": "m1",
       "likeCount": 3,
-      "commentCount": 3,
+      "commentCount": 4,
       "shareCount": 67,
       "views": 25002,
       "createdAt": "2025-10-10T10:00:00Z",
@@ -366,7 +387,7 @@
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761841701/p8x1ybl0kerpnwlwci4x.jpg",
       "musicId": "m1",
-      "likeCount": 1,
+      "likeCount": 2,
       "commentCount": 12,
       "shareCount": 0,
       "views": 0,
@@ -386,7 +407,8 @@
         "uri": "https://res.cloudinary.com/daq1jyn28/video/upload/v1761818252/nhac_mp3cut.net_hlnxcl.mp3"
       },
       "likedBy": [
-        "u1"
+        "u1",
+        "1ce9"
       ]
     },
     {
@@ -1621,6 +1643,33 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1762511255197",
+      "videoId": "v4",
+      "userId": "1ce9",
+      "content": "Gì mà tính 3 comment gì ta",
+      "createdAt": "2025-11-07T10:27:35.197Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "1ce9",
+        "username": "Konnnatachai",
+        "email": "",
+        "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
+        "followerIds": [],
+        "followingIds": [],
+        "followerCount": 0,
+        "followingCount": 0,
+        "avatar": "blob:http://localhost:8081/6db9fe3f-6af3-479c-a5c7-465db25329a8",
+        "fullname": "Kon nè",
+        "bio": "Trai  IT tuy không đẹp mà hay suy",
+        "externalLinks": []
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [
@@ -1876,6 +1925,28 @@
       "imageId": "i2",
       "isRead": false,
       "createdAt": "2025-11-07T07:50:38.743Z"
+    },
+    {
+      "id": "n1762511228988",
+      "userId": "u2",
+      "senderId": "1ce9",
+      "type": "COMMENT",
+      "message": "Kon nè đã bình luận: Bé cún dễ thương vậy",
+      "content": "Bé cún dễ thương vậy",
+      "videoId": "v2",
+      "isRead": false,
+      "createdAt": "2025-11-07T10:27:08.988Z"
+    },
+    {
+      "id": "n1762511255545",
+      "userId": "u4",
+      "senderId": "1ce9",
+      "type": "COMMENT",
+      "message": "Kon nè đã bình luận: Gì mà tính 3 comment gì ta",
+      "content": "Gì mà tính 3 comment gì ta",
+      "videoId": "v4",
+      "isRead": false,
+      "createdAt": "2025-11-07T10:27:35.545Z"
     }
   ]
 }
