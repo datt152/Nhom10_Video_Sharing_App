@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Video } from '../types/database.types';
 import axios from 'axios';
 
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 
 
 
@@ -31,12 +31,12 @@ export const useVideo = () => {
       const enrichedVideos = videosData.map((video: any) => ({
         ...video,
         user: usersData.find((u: any) => u.id === video.userId),
-        isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+        isLiked: video.likedBy?.includes(getCurrentUserId()) || false,
       }));
 
       setVideos(enrichedVideos);
 
-      const currentUser = usersData.find((u: any) => u.id === CURRENT_USER_ID);
+      const currentUser = usersData.find((u: any) => u.id === getCurrentUserId());
       if (currentUser) {
         const status: Record<string, boolean> = {};
         enrichedVideos.forEach((video: any) => {
@@ -66,8 +66,8 @@ export const useVideo = () => {
 
       const isLiked = video.isLiked;
       const updatedLikedBy = isLiked
-        ? video.likedBy.filter((id: string) => id !== CURRENT_USER_ID)
-        : [...(video.likedBy || []), CURRENT_USER_ID];
+        ? video.likedBy.filter((id: string) => id !== getCurrentUserId())
+        : [...(video.likedBy || []), getCurrentUserId()];
       const updatedLikeCount = updatedLikedBy.length;
 
       setVideos((prevVideos) =>
@@ -102,7 +102,7 @@ export const useVideo = () => {
   const toggleFollow = useCallback(async (userId: string) => {
     try {
       const [currentUserRes, targetUserRes] = await Promise.all([
-        api.get(`/users/${CURRENT_USER_ID}`),
+        api.get(`/users/${getCurrentUserId()}`),
         api.get(`/users/${userId}`),
       ]);
 
@@ -117,8 +117,8 @@ export const useVideo = () => {
         : [...(currentUser.followingIds || []), userId];
 
       const updatedFollowerIds = isFollowing
-        ? targetUser.followerIds.filter((id: string) => id !== CURRENT_USER_ID)
-        : [...(targetUser.followerIds || []), CURRENT_USER_ID];
+        ? targetUser.followerIds.filter((id: string) => id !== getCurrentUserId())
+        : [...(targetUser.followerIds || []), getCurrentUserId()];
 
       const updatedFollowing = isFollowing
         ? currentUser.following - 1
@@ -134,7 +134,7 @@ export const useVideo = () => {
       }));
 
       await Promise.all([
-        api.patch(`/users/${CURRENT_USER_ID}`, {
+        api.patch(`/users/${getCurrentUserId()}`, {
           followingIds: updatedFollowingIds,
           following: updatedFollowing,
         }),
@@ -173,7 +173,7 @@ export const useVideo = () => {
     const video = videos.find((v) => v.id === videoId);
     if (!video) return;
 
-    const updatedLikedBy = [...(video.likedBy || []), CURRENT_USER_ID];
+    const updatedLikedBy = [...(video.likedBy || []), getCurrentUserId()];
     const updatedLikeCount = updatedLikedBy.length;
 
     setVideos((prev) =>
@@ -192,13 +192,13 @@ export const useVideo = () => {
     } catch (err) {
       console.error('Error liking video:', err);
     }
-    if (CURRENT_USER_ID !== video.userId) {
+    if (getCurrentUserId() !== video.userId) {
       const newNotification = {
         id: `n${Date.now()}`,
         userId: video.userId, // chủ video nhận thông báo
-        senderId: CURRENT_USER_ID,
+        senderId: getCurrentUserId(),
         type: "LIKE_VIDEO",
-        message: `Người dùng ${CURRENT_USER_ID} đã thích video của bạn.`,
+        message: `Người dùng ${getCurrentUserId()} đã thích video của bạn.`,
         videoId,
         isRead: false,
         createdAt: new Date().toISOString(),
@@ -214,7 +214,7 @@ export const useVideo = () => {
     if (!video) return;
 
     const updatedLikedBy = video.likedBy.filter(
-      (id: string) => id !== CURRENT_USER_ID
+      (id: string) => id !== getCurrentUserId()
     );
     const updatedLikeCount = updatedLikedBy.length;
 
@@ -268,7 +268,7 @@ export const useVideo = () => {
       const enrichedVideos = userVideos.map((video: any) => ({
         ...video,
         user: users.find((u: any) => u.id === video.userId),
-        isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+        isLiked: video.likedBy?.includes(getCurrentUserId()) || false,
       }));
 
       return enrichedVideos; // ✅ chỉ return, không set state
@@ -291,7 +291,7 @@ const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
     const enrichedVideo = {
       ...video,
       user: users.find((u: any) => u.id === video.userId),
-      isLiked: video.likedBy?.includes(CURRENT_USER_ID) || false,
+      isLiked: video.likedBy?.includes(getCurrentUserId()) || false,
     };
 
     return enrichedVideo;
@@ -334,9 +334,9 @@ const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
       const res = await api.get("/videos");
       const videosData = res.data;
 
-      // Lọc: video công khai và có CURRENT_USER_ID trong likedBy
+      // Lọc: video công khai và có getCurrentUserId() trong likedBy
       const likedVideos = videosData.filter(
-        (v: any) => v.isPublic && Array.isArray(v.likedBy) && v.likedBy.includes(CURRENT_USER_ID)
+        (v: any) => v.isPublic && Array.isArray(v.likedBy) && v.likedBy.includes(getCurrentUserId())
       );
 
       return likedVideos;
@@ -350,7 +350,7 @@ const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
     videos,
     loading,
     followingStatus,
-    currentUserId: CURRENT_USER_ID,
+    currentUserId: getCurrentUserId(),
     toggleLike,
     toggleFollow,
     refreshVideos: fetchVideos,

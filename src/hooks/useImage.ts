@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Image } from '../types/database.types';
 
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 
 
 export const useImage = () => {
@@ -22,7 +22,7 @@ export const useImage = () => {
 
             if (Array.isArray(data)) {
                 // 🧩 Lọc ảnh thuộc về user hiện tại
-                const userImages = data.filter(img => img.user.id === CURRENT_USER_ID);
+                const userImages = data.filter(img => img.user.id === getCurrentUserId());
 
                 // 🧩 Phân chia công khai / riêng tư
                 const publicList = userImages.filter((img) => img.isPublic === true);
@@ -72,7 +72,7 @@ export const useImage = () => {
 
             const updatedLikedBy = [
                 ...(image.likedBy || []),
-                CURRENT_USER_ID,
+                getCurrentUserId(),
             ];
 
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
@@ -84,13 +84,13 @@ export const useImage = () => {
             console.log(`❤️ Đã like ảnh ${imageId}`);
 
             // ✅ Thêm sự kiện tạo thông báo
-            if (CURRENT_USER_ID !== image.userId) {
+            if (getCurrentUserId() !== image.userId) {
                 const newNotification = {
                     id: `n${Date.now()}`, // ID duy nhất
                     userId: image.userId, // chủ ảnh nhận thông báo
-                    senderId: CURRENT_USER_ID, // người like
+                    senderId: getCurrentUserId(), // người like
                     type: "LIKE_IMAGE",
-                    message: `Người dùng ${CURRENT_USER_ID} đã thích ảnh của bạn.`,
+                    message: `Người dùng ${getCurrentUserId()} đã thích ảnh của bạn.`,
                     imageId,
                     isRead: false,
                     createdAt: new Date().toISOString(),
@@ -115,7 +115,7 @@ export const useImage = () => {
 
             // Lọc bỏ user hiện tại khỏi danh sách like
             const updatedLikedBy = (image.likedBy || []).filter(
-                (id: string) => id !== CURRENT_USER_ID
+                (id: string) => id !== getCurrentUserId()
             );
 
             // Cập nhật DB: bỏ tym + set isLiked = false
@@ -190,12 +190,12 @@ export const useImage = () => {
             const data = res.data;
 
             if (Array.isArray(data)) {
-                // Lọc: ảnh công khai và có CURRENT_USER_ID trong likedBy
+                // Lọc: ảnh công khai và có getCurrentUserId() trong likedBy
                 const likedPublicImages = data.filter(
                     (img) =>
                         img.isPublic === true &&
                         Array.isArray(img.likedBy) &&
-                        img.likedBy.includes(CURRENT_USER_ID)
+                        img.likedBy.includes(getCurrentUserId())
                 );
                 return likedPublicImages;
             } else {

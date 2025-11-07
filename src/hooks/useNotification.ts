@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Notification, User } from "../types/database.types";
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 
 
 export const useNotification = (userId?: string) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const effectiveUserId = userId || CURRENT_USER_ID;
+    const effectiveUserId = userId || getCurrentUserId();
 
     // 🔹 Lấy danh sách thông báo
     const fetchNotifications = useCallback(async () => {

@@ -19,7 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useUser } from '../hooks/useUser';
 
-import {API_BASE_URL, CURRENT_USER_ID, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
+import {API_BASE_URL, getCurrentUserId, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
 
 interface TaggedUser {
   id: string;
@@ -121,11 +121,11 @@ const EditVideoScreen: React.FC = () => {
       const cloudinaryUrl = await uploadToCloudinary(videoUri);
 
       const db = await axios.get(`${API_BASE_URL}/users`);
-      const currentUser = db.data.find((u: any) => u.id === CURRENT_USER_ID);
+      const currentUser = db.data.find((u: any) => u.id === getCurrentUserId);
 
       const newVideo = {
         id: `v${Date.now()}`,
-        userId: CURRENT_USER_ID,
+        userId: getCurrentUserId,
         title: title.trim(),
         caption: description.trim(),
         tags: hashtags,

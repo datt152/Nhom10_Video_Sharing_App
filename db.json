@@ -21,7 +21,8 @@
       "externalLinks": [
         "https://coccoc.com/search?query=figma",
         "https://coccoc.com/search?query=figma"
-      ]
+      ],
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u2",
@@ -36,7 +37,8 @@
         "u4"
       ],
       "followingIds": [],
-      "followerCount": 4
+      "followerCount": 4,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u3",
@@ -54,7 +56,8 @@
       "followingIds": [
         "u1"
       ],
-      "followerCount": 0
+      "followerCount": 1,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
       "id": "u4",
@@ -66,8 +69,11 @@
       "following": 5,
       "likes": 0,
       "followerIds": [],
-      "followingIds": [],
-      "followerCount": 1
+      "followingIds": [
+        "u3"
+      ],
+      "followerCount": 1,
+      "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     }
   ],
   "images": [

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 
 
 export const useUser = (userId?: string) => {
@@ -21,7 +21,7 @@ export const useUser = (userId?: string) => {
         const fetchData = async () => {
             try {
                 const [currentRes, targetRes] = await Promise.all([
-                    axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`),
+                    axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`),
                     userId ? axios.get(`${API_BASE_URL}/users/${userId}`) : Promise.resolve({ data: null }),
                 ]);
 
@@ -45,7 +45,7 @@ export const useUser = (userId?: string) => {
 
                 if (userId) {
                     const following = current.followingIds?.includes(userId);
-                    const followedBy = target.followingIds?.includes(CURRENT_USER_ID);
+                    const followedBy = target.followingIds?.includes(getCurrentUserId());
 
                     setIsFollowing(following);
                     setIsFollowedByOther(followedBy);
@@ -64,7 +64,7 @@ export const useUser = (userId?: string) => {
     // --- 🟢 Hàm chỉnh sửa thông tin user ---
     const updateUser = async (updatedData: Partial<User>) => {
         try {
-            const res = await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, updatedData);
+            const res = await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedData);
             setCurrentUser(res.data); // cập nhật lại state
             return true;
         } catch (err) {
@@ -76,7 +76,7 @@ export const useUser = (userId?: string) => {
     // ---  Hàm load lại thông tin user (dùng khi quay lại màn hình Profile)
     const loadUser = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
+            const res = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
             const user = res.data;
             setCurrentUser({
                 ...user,
@@ -98,7 +98,7 @@ export const useUser = (userId?: string) => {
 
             const updatedFollowingIds = [...currentFollowingIds, targetUserId];
 
-            await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, {
+            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
                 followingIds: updatedFollowingIds,
             });
 
@@ -129,7 +129,7 @@ export const useUser = (userId?: string) => {
 
             const updatedFollowingIds = currentFollowingIds.filter(id => id !== targetUserId);
 
-            await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, {
+            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
                 followingIds: updatedFollowingIds,
             });
 
@@ -186,9 +186,9 @@ export const useUser = (userId?: string) => {
             const allUsersRes = await axios.get(`${API_BASE_URL}/users`);
             const allUsers = allUsersRes.data;
 
-            // Lọc những user có CURRENT_USER_ID trong followingIds
+            // Lọc những user có getCurrentUserId() trong followingIds
             const followers = allUsers.filter((user: User) =>
-                user.followingIds?.includes(CURRENT_USER_ID) && user.id !== CURRENT_USER_ID
+                user.followingIds?.includes(getCurrentUserId() || "") && user.id !== getCurrentUserId()
             );
 
             return followers;
@@ -207,7 +207,7 @@ export const useUser = (userId?: string) => {
 
             // Lọc những user chưa follow và không phải chính mình
             const suggestions = allUsers.filter((user: User) =>
-                user.id !== CURRENT_USER_ID && !followingIds.includes(user.id)
+                user.id !== getCurrentUserId() && !followingIds.includes(user.id)
             );
 
             // Random shuffle
@@ -226,9 +226,9 @@ export const useUser = (userId?: string) => {
 
             // Xóa nhau khỏi danh sách following
             const updatedCurrentFollowing = currentFollowingIds.filter((id: String) => id !== targetUserId);
-            const updatedTargetFollowing = targetFollowingIds.filter((id: String) => id !== CURRENT_USER_ID);
+            const updatedTargetFollowing = targetFollowingIds.filter((id: String) => id !== getCurrentUserId());
 
-            await axios.patch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, {
+            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
                 followingIds: updatedCurrentFollowing,
             });
 

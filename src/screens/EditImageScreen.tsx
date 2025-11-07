@@ -16,7 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-import {API_BASE_URL, CURRENT_USER_ID, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
+import {API_BASE_URL, getCurrentUserId, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '../types/config'
 
 
 
@@ -105,7 +105,7 @@ const EditImageScreen: React.FC = () => {
         commentsEnabled,
         privacy: whoCanWatch,
         createdAt: new Date().toISOString(),
-        userId: CURRENT_USER_ID,
+        userId: getCurrentUserId,
       };
 
       await axios.post(`${API_BASE_URL}/images`, newImagePost);

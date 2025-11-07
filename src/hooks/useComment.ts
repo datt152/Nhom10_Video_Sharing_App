@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import {API_BASE_URL, CURRENT_USER_ID} from '../types/config'
+import {API_BASE_URL, getCurrentUserId} from '../types/config'
 import { useUser } from "../hooks/useUser"; // ✅ thêm dòng này
 interface Comment {
   id: string;
@@ -76,7 +76,7 @@ export const useComments = (videoId?: string) => {
             username: 'Unknown',
             avatar: 'https://via.placeholder.com/40',
           },
-          isLiked: comment.likedBy?.includes(CURRENT_USER_ID) || false,
+          isLiked: comment.likedBy?.includes(getCurrentUserId()) || false,
         };
       };
 
@@ -108,14 +108,14 @@ export const useComments = (videoId?: string) => {
     async (content: string, parentId: string | null = null) => {
       try {
         // 1️⃣ Lấy thông tin user hiện tại
-        const currentUserRes = await axios.get(`${API_BASE_URL}/users/${CURRENT_USER_ID}`);
+        const currentUserRes = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
         const currentUser = currentUserRes.data;
         console.log("Content cua nguoi dung"+ {content})
         // 2️⃣ Tạo comment mới
         const newComment: Comment = {
           id: `c${Date.now()}`,
           videoId: videoId || '',
-          userId: CURRENT_USER_ID,
+          userId: getCurrentUserId() || "",
           content,
           createdAt: new Date().toISOString(),
           likeCount: 0,
@@ -183,11 +183,11 @@ export const useComments = (videoId?: string) => {
           console.log("Thong tin video cmt" + video)
 
           // Chỉ gửi thông báo nếu người comment KHÔNG phải là chủ video
-          if (video && video.userId && video.userId !== CURRENT_USER_ID) {
+          if (video && video.userId && video.userId !== getCurrentUserId()) {
             const newNotification = {
               id: `n${Date.now()}`,
               userId: video.userId, // người nhận (chủ video)
-              senderId: CURRENT_USER_ID, // người gửi
+              senderId: getCurrentUserId(), // người gửi
               type: "COMMENT",
               message: `${currentUser.fullname || currentUser.username} đã bình luận: ${content}`, // ✅ thêm nội dung
               content: content, // vẫn giữ lại để lưu chi tiết
@@ -244,10 +244,10 @@ export const useComments = (videoId?: string) => {
       const commentRes = await axios.get(`${API_BASE_URL}/comments/${commentId}`);
       const comment = commentRes.data;
 
-      const isLiked = comment.likedBy?.includes(CURRENT_USER_ID) || false;
+      const isLiked = comment.likedBy?.includes(getCurrentUserId()) || false;
       const updatedLikedBy = isLiked
-        ? comment.likedBy.filter((id: string) => id !== CURRENT_USER_ID)
-        : [...(comment.likedBy || []), CURRENT_USER_ID];
+        ? comment.likedBy.filter((id: string) => id !== getCurrentUserId())
+        : [...(comment.likedBy || []), getCurrentUserId()];
       const updatedLikeCount = isLiked ? comment.likeCount - 1 : comment.likeCount + 1;
 
       await axios.patch(`${API_BASE_URL}/comments/${commentId}`, {
@@ -326,7 +326,7 @@ export const useComments = (videoId?: string) => {
 
       // 3️⃣ Lấy thông tin user song song
       const userPromises = userIds.map(async (userId) => {
-        if (userId === CURRENT_USER_ID && currentUser) return currentUser;
+        if (userId === getCurrentUserId() && currentUser) return currentUser;
         try {
           const userRes = await axios.get(`${API_BASE_URL}/users/${userId}`);
           return userRes.data;
