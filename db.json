@@ -359,7 +359,7 @@
       "thumbnail": "https://picsum.photos/id/1016/400/700",
       "musicId": "m2",
       "likeCount": 1,
-      "commentCount": 0,
+      "commentCount": 1,
       "shareCount": 156,
       "views": 36000,
       "createdAt": "2025-10-12T08:00:00Z",
@@ -1755,6 +1755,45 @@
       "likedBy": [],
       "replyCount": 0,
       "parentId": null
+    },
+    {
+      "id": "c1762587084194",
+      "videoId": "v2",
+      "userId": "u1",
+      "content": "ffff",
+      "createdAt": "2025-11-08T07:31:24.194Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null,
+      "user": {
+        "id": "u1",
+        "username": "linhnguyen",
+        "fullname": "Linh Nguyễn2004",
+        "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
+        "bio": "Du lịch & cuộc sống 🌿125555",
+        "followers": 12002,
+        "following": 312,
+        "likes": 22000,
+        "followerIds": [
+          "u2",
+          "u3",
+          "u4"
+        ],
+        "followingIds": [
+          "u3",
+          "u4",
+          "u2"
+        ],
+        "externalLinks": [
+          "https://coccoc.com/search?query=figma",
+          "https://coccoc.com/search?query=figma"
+        ],
+        "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi",
+        "followerCount": 0
+      },
+      "isLiked": false,
+      "replies": []
     }
   ],
   "notifications": [
@@ -1810,6 +1849,27 @@
       "imageId": "i2",
       "isRead": false,
       "createdAt": "2025-11-08T07:25:05.728Z"
+    },
+    {
+      "id": "n1762587084263",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "COMMENT",
+      "message": "Linh Nguyễn2004 đã bình luận: ffff",
+      "content": "ffff",
+      "videoId": "v2",
+      "isRead": false,
+      "createdAt": "2025-11-08T07:31:24.263Z"
+    },
+    {
+      "id": "n1762587087116",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "LIKE_VIDEO",
+      "message": "Người dùng ẩn danh đã thích video của bạn.",
+      "videoId": "v2",
+      "isRead": false,
+      "createdAt": "2025-11-08T07:31:27.116Z"
     }
   ]
 }
