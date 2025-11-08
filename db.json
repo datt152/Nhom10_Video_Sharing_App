@@ -16,7 +16,6 @@
       ],
       "followingIds": [
         "u3",
-        "u4",
         "u2"
       ],
       "externalLinks": [
@@ -37,10 +36,14 @@
       "likes": 15800,
       "followerIds": [
         "u4",
-        "u1",
         "u1"
       ],
-      "followerCount": 4,
+      "followingIds": [
+        "u3",
+        "u4",
+        "u1"
+      ],
+      "followerCount": 5,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
@@ -1870,6 +1873,14 @@
       "videoId": "v2",
       "isRead": false,
       "createdAt": "2025-11-08T07:31:27.116Z"
+    },
+    {
+      "id": "0702",
+      "userId": "u2",
+      "type": "FOLLOW",
+      "message": "Linh Nguyễn2004 đã theo dõi bạn",
+      "createdAt": "2025-11-08T07:36:07.811Z",
+      "isRead": false
     }
   ]
 }

@@ -160,7 +160,7 @@ const FollowPage: React.FC = () => {
                     let textStyle = {};
 
                     if (isFriend) {
-                        buttonLabel = "Bạn bè 💞";
+                        buttonLabel = "Bạn bè";
                         buttonStyle = styles.friendBtn;
                         textStyle = styles.friendBtnText;
                     } else if (isFollowing) {

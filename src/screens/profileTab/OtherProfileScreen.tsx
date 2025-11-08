@@ -134,7 +134,7 @@ export default function OtherProfileScreen() {
     };
 
     const renderButtonText = () => {
-        if (localIsFriend) return "Bạn bè 🤝";
+        if (localIsFriend) return "Bạn bè";
         if (localIsFollowing) return "Đang theo dõi";
         return "Theo dõi";
     };

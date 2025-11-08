@@ -39,7 +39,7 @@ export interface Image {
   userName?: string;
   location?: string;
   isPublic?: boolean;
-  likeBy?: string[];
+  likedBy?: string[];
   isLiked?: boolean;
   // Liên kết nhạc
   musicId?: string; // ID bài nhạc (nếu dùng _expand)
