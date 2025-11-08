@@ -62,7 +62,7 @@
       "followingIds": [
         "u1"
       ],
-      "followerCount": 1,
+      "followerCount": 2,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
@@ -91,7 +91,8 @@
       "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
       "followerIds": [],
       "followingIds": [
-        "u4"
+        "u4",
+        "u3"
       ],
       "followerCount": 0,
       "followingCount": 0,
@@ -1943,6 +1944,285 @@
       "imageId": "i1762588955809",
       "isRead": false,
       "createdAt": "2025-11-08T08:45:57.179Z"
+    },
+    {
+      "id": "n1762592539301",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:02:19.301Z"
+    },
+    {
+      "id": "n1762592542642",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:02:22.642Z"
+    },
+    {
+      "id": "n1762592656886",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:04:16.886Z"
+    },
+    {
+      "id": "n1762592658397",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:04:18.397Z"
+    },
+    {
+      "id": "n1762592668570",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:04:28.570Z"
+    },
+    {
+      "id": "n1762592674504",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:04:34.504Z"
+    },
+    {
+      "id": "n1762592676830",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:04:36.830Z"
+    },
+    {
+      "id": "n1762592716787",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:05:16.787Z"
+    },
+    {
+      "id": "n1762592724168",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:05:24.168Z"
+    },
+    {
+      "id": "n1762592728395",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:05:28.395Z"
+    },
+    {
+      "id": "n1762592751178",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:05:51.178Z"
+    },
+    {
+      "id": "n1762592764062",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:06:04.062Z"
+    },
+    {
+      "id": "n1762592770045",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:06:10.045Z"
+    },
+    {
+      "id": "n1762592772731",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:06:12.731Z"
+    },
+    {
+      "id": "n1762592803902",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:06:43.902Z"
+    },
+    {
+      "id": "n1762592863677",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:07:43.677Z"
+    },
+    {
+      "id": "n1762592865389",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:07:45.389Z"
+    },
+    {
+      "id": "n1762592871502",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:07:51.502Z"
+    },
+    {
+      "id": "n1762592874691",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:07:54.691Z"
+    },
+    {
+      "id": "n1762593027285",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:10:27.285Z"
+    },
+    {
+      "id": "n1762593028955",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:10:28.955Z"
+    },
+    {
+      "id": "n1762593036939",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:10:36.939Z"
+    },
+    {
+      "id": "n1762593038476",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:10:38.476Z"
+    },
+    {
+      "id": "n1762593059210",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:10:59.210Z"
+    },
+    {
+      "id": "n1762593091379",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:11:31.379Z"
+    },
+    {
+      "id": "n1762593105874",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:11:45.874Z"
+    },
+    {
+      "id": "n1762593108430",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:11:48.430Z"
+    },
+    {
+      "id": "n1762593151937",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:12:31.938Z"
+    },
+    {
+      "id": "n1762593314505",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:15:14.505Z"
+    },
+    {
+      "id": "n1762593497292",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:18:17.292Z"
+    },
+    {
+      "id": "n1762593500653",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-08T09:18:20.653Z"
     }
   ]
 }

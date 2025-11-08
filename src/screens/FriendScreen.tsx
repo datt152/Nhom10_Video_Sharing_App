@@ -121,7 +121,9 @@ const FriendScreen = () => {
       <TouchableOpacity
         style={styles.userCard}
         activeOpacity={0.7}
-          onPress={() => navigation.navigate('Profile', { userId: item.id })}
+        onPress={() =>
+          navigation.navigate("OtherProfileScreen", { userId: item.id })
+        }
       >
         <View style={styles.userCardLeft}>
           <Image
@@ -131,7 +133,7 @@ const FriendScreen = () => {
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{item.name || item.username}</Text>
             <Text style={styles.userUsername}>@{item.username}</Text>
-            
+
           </View>
         </View>
 
@@ -201,64 +203,64 @@ const FriendScreen = () => {
 
       {/* Tabs */}
       {/* Tabs - Version căn giữa hoàn hảo */}
-<View style={styles.tabsContainer}>
-  <TouchableOpacity
-    style={[styles.tab, activeTab === 'following' && styles.activeTab]}
-    onPress={() => setActiveTab('following')}
-  >
-    <View style={styles.tabContent}>
-      <Text
-        style={[
-          styles.tabText,
-          activeTab === 'following' && styles.activeTabText,
-        ]}
-      >
-        Following
-      </Text>
-    </View>
-  </TouchableOpacity>
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'following' && styles.activeTab]}
+          onPress={() => setActiveTab('following')}
+        >
+          <View style={styles.tabContent}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'following' && styles.activeTabText,
+              ]}
+            >
+              Following
+            </Text>
+          </View>
+        </TouchableOpacity>
 
-  <TouchableOpacity
-    style={[styles.tab, activeTab === 'followers' && styles.activeTab]}
-    onPress={() => setActiveTab('followers')}
-  >
-    <View style={styles.tabContent}>
-      <Text
-        style={[
-          styles.tabText,
-          activeTab === 'followers' && styles.activeTabText,
-        ]}
-      >
-        Followers
-      </Text>
-    </View>
-  </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'followers' && styles.activeTab]}
+          onPress={() => setActiveTab('followers')}
+        >
+          <View style={styles.tabContent}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'followers' && styles.activeTabText,
+              ]}
+            >
+              Followers
+            </Text>
+          </View>
+        </TouchableOpacity>
 
-  <TouchableOpacity
-    style={[
-      styles.tab,
-      activeTab === 'suggestions' && styles.activeTab,
-    ]}
-    onPress={() => setActiveTab('suggestions')}
-  >
-    <View style={styles.tabContent}>
-      <Text
-        style={[
-          styles.tabText,
-          activeTab === 'suggestions' && styles.activeTabText,
-        ]}
-      >
-        Suggestions
-      </Text>
-      <Ionicons
-        name="sparkles"
-        size={14}
-        color={activeTab === 'suggestions' ? '#FFD700' : '#999'}
-        style={{ marginLeft: 4 }}
-      />
-    </View>
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            activeTab === 'suggestions' && styles.activeTab,
+          ]}
+          onPress={() => setActiveTab('suggestions')}
+        >
+          <View style={styles.tabContent}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'suggestions' && styles.activeTabText,
+              ]}
+            >
+              Suggestions
+            </Text>
+            <Ionicons
+              name="sparkles"
+              size={14}
+              color={activeTab === 'suggestions' ? '#FFD700' : '#999'}
+              style={{ marginLeft: 4 }}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
 
       {/* List */}
       {loading ? (
@@ -287,8 +289,8 @@ const FriendScreen = () => {
                   activeTab === 'following'
                     ? 'people-outline'
                     : activeTab === 'followers'
-                    ? 'heart-outline'
-                    : 'person-add-outline'
+                      ? 'heart-outline'
+                      : 'person-add-outline'
                 }
                 size={80}
                 color="#333"
@@ -297,17 +299,17 @@ const FriendScreen = () => {
                 {searchQuery.trim()
                   ? 'No users found'
                   : activeTab === 'following'
-                  ? 'No following yet'
-                  : activeTab === 'followers'
-                  ? 'No followers yet'
-                  : 'No suggestions available'}
+                    ? 'No following yet'
+                    : activeTab === 'followers'
+                      ? 'No followers yet'
+                      : 'No suggestions available'}
               </Text>
               <Text style={styles.emptySubtext}>
                 {searchQuery.trim()
                   ? 'Try a different search term'
                   : activeTab === 'suggestions'
-                  ? 'Check back later for new suggestions'
-                  : 'Start connecting with people'}
+                    ? 'Check back later for new suggestions'
+                    : 'Start connecting with people'}
               </Text>
             </View>
           }

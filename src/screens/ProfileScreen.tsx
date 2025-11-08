@@ -179,6 +179,18 @@ const ProfileScreen: React.FC = () => {
       fetchLikedData();
     }, [])
   );
+  const handleLogout = useCallback(async () => {
+  try {
+
+    console.log('🚪 Đăng xuất thành công');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }], 
+    });
+  } catch (err) {
+    console.error('❌ Lỗi khi đăng xuất:', err);
+  }
+}, [navigation]);
 
   const renderContent = () => {
     if (menu === 'images') {
@@ -287,6 +299,13 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* 🔹 Header chứa nút Logout */}
+    <View style={styles.header}>
+      <Text style={styles.headerTitle}>Profile</Text>
+      <TouchableOpacity onPress={handleLogout}>
+        <Ionicons name="log-out-outline" size={24} color="#FF4EB8" />
+      </TouchableOpacity>
+    </View>
       {/* Thông tin người dùng */}
       <View style={styles.profileTop}>
         <View style={styles.avatarWrapper}>
@@ -435,4 +454,19 @@ const styles = StyleSheet.create({
   activePrivacy: { color: '#FF4EB8', fontWeight: '700' },
   contentBox: { alignItems: 'center', paddingVertical: 20 },
   contentText: { fontSize: 15, color: '#777', marginTop: 10 },
+  header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  paddingTop: 50, // nếu bạn dùng SafeAreaView thì có thể bỏ
+  paddingBottom: 10,
+  backgroundColor: '#fff',
+},
+headerTitle: {
+  fontSize: 18,
+  fontWeight: '700',
+  color: '#FF4EB8',
+},
+
 });

@@ -50,6 +50,8 @@ export default function OtherProfileScreen() {
     useEffect(() => {
         setLocalIsFollowing(isFollowing);
         setLocalIsFriend(isFriend);
+        console.log(userId);
+        
     }, [isFollowing, isFriend]);
 
     // ✅ Đưa 2 dòng này LÊN TRƯỚC khi dùng trong countTotalLikes

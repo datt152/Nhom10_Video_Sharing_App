@@ -156,7 +156,9 @@ export const useImage = () => {
         async (userId: string) => {
             try {
                 setLoading(true);
-                const res = await axios.get(`${API_BASE_URL}/images?userId=${userId}`);
+                const res = await axios.get(`${API_BASE_URL}/images?user.id=${userId}`);
+                console.log(res.data);
+                
                 setError(null);
                 // ⚠️ Chỗ này nè: phải return đúng kiểu mảng
                 return Array.isArray(res.data) ? res.data : [];

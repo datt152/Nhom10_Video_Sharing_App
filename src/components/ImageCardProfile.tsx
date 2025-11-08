@@ -242,12 +242,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
                                 <Ionicons
-                                    name={localIsLiked ? 'heart' : 'heart-outline'}
+                                    name={image.isLiked ? 'heart' : 'heart-outline'}
                                     size={32}
-                                    color={localIsLiked ? '#FF3B5C' : '#fff'}
+                                    color={image.isLiked ? '#FF3B5C' : '#fff'}
                                 />
                             </Animated.View>
-                            <Text style={styles.actionText}>{formatNumber(localLikeCount ?? 0)}</Text>
+                            <Text style={styles.actionText}>{formatNumber(image.likes ?? 0)}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
