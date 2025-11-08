@@ -130,7 +130,7 @@ const ProfileScreen: React.FC = () => {
   const countTotalLikes = useCallback(() => {
     try {
       const imageLikes = (publicImages || []).reduce(
-        (sum, img) => sum + (Array.isArray(img.likeBy) ? img.likeBy.length : 0),
+        (sum, img) => sum + (Array.isArray(img.likedBy) ? img.likedBy.length : 0),
         0
       );
       const videoLikes = (publicVideos || []).reduce(

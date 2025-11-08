@@ -44,8 +44,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(image.likes || image.likeBy?.length || 0);
-    const [localIsLiked, setLocalIsLiked] = useState(image.likeBy?.includes(currentUserId) || false);
+    const [localLikeCount, setLocalLikeCount] = useState(image.likes || image.likedBy?.length || 0);
+    const [localIsLiked, setLocalIsLiked] = useState(image.likedBy?.includes(currentUserId) || false);
     const [totalCommentCount, setTotalCommentCount] = useState(0);
     const [showOptions, setShowOptions] = useState(false);
     const likeAnimation = useRef(new Animated.Value(0)).current;
@@ -70,23 +70,23 @@ const ImageCard: React.FC<ImageCardProps> = ({
     useEffect(() => {
         const updated = publicImages.find((img) => img.id === image.id);
         if (updated) {
-            const likedNow = Array.isArray(updated.likeBy)
-                ? updated.likeBy.includes(currentUserId)
+            const likedNow = Array.isArray(updated.likedBy)
+                ? updated.likedBy.includes(currentUserId)
                 : !!updated.isLiked;
 
-            const likeCount = Array.isArray(updated.likeBy)
-                ? updated.likeBy.length
+            const likeCount = Array.isArray(updated.likedBy)
+                ? updated.likedBy.length
                 : Number(updated.likes) || 0;
 
             setLocalIsLiked(likedNow);
             setLocalLikeCount(likeCount);
         } else {
-            const likedNow = Array.isArray(image.likeBy)
-                ? image.likeBy.includes(currentUserId)
+            const likedNow = Array.isArray(image.likedBy)
+                ? image.likedBy.includes(currentUserId)
                 : !!image.isLiked;
 
-            const likeCount = Array.isArray(image.likeBy)
-                ? image.likeBy.length
+            const likeCount = Array.isArray(image.likedBy)
+                ? image.likedBy.length
                 : Number(image.likes) || 0;
 
             setLocalIsLiked(likedNow);
@@ -96,14 +96,14 @@ const ImageCard: React.FC<ImageCardProps> = ({
 
     // ✅ Sync khi image prop thay đổi
     useEffect(() => {
-        const likedNow = Array.isArray(image.likeBy) ? image.likeBy.includes(currentUserId) : false;
-        const likeCount = Array.isArray(image.likeBy)
-            ? image.likeBy.length
+        const likedNow = Array.isArray(image.likedBy) ? image.likedBy.includes(currentUserId) : false;
+        const likeCount = Array.isArray(image.likedBy)
+            ? image.likedBy.length
             : Number(image.likes) || 0;
 
         setLocalIsLiked(likedNow);
         setLocalLikeCount(likeCount);
-    }, [image.likeBy, image.likes, currentUserId]);
+    }, [image.likedBy, image.likes, currentUserId]);
 
     // ✅ Lấy lại số lượng like từ DB
     useEffect(() => {

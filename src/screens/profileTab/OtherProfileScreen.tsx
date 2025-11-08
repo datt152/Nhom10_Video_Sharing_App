@@ -65,7 +65,7 @@ export default function OtherProfileScreen() {
                     0
                 );
 
-            const totalImageLikes = safeCount(publicImages, "likeBy");
+            const totalImageLikes = safeCount(publicImages, "likedBy");
             const totalVideoLikes = safeCount(publicVideos, "likedBy");
 
             console.log("🖼 Image Likes:", totalImageLikes);
@@ -134,7 +134,7 @@ export default function OtherProfileScreen() {
     };
 
     const renderButtonText = () => {
-        if (localIsFriend) return "Bạn bè 🤝";
+        if (localIsFriend) return "Bạn bè";
         if (localIsFollowing) return "Đang theo dõi";
         return "Theo dõi";
     };
