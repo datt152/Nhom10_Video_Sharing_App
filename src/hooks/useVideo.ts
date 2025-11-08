@@ -2,12 +2,13 @@ import { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { Video } from '../types/database.types';
 import { API_BASE_URL, getCurrentUserId } from '../types/config';
+import { useUser } from './useUser';
 
 export const useVideo = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [followingStatus, setFollowingStatus] = useState<Record<string, boolean>>({});
-
+  const { getUserById } = useUser()
   const api = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
@@ -80,15 +81,16 @@ export const useVideo = () => {
         likedBy: updatedLikedBy,
         likeCount: updatedLikeCount,
       });
-
+      console.log("nguoi da da like video")
       // ✅ Thêm thông báo (nếu không phải chính mình)
       if (getCurrentUserId() !== video.userId) {
+        const user = await getUserById(getCurrentUserId()!);
         const newNotification = {
           id: `n${Date.now()}`,
           userId: video.userId, // chủ video nhận thông báo
           senderId: getCurrentUserId(),
           type: "LIKE_VIDEO",
-          message: `Người dùng ${getCurrentUserId()} đã thích video của bạn.`,
+          message: `Người dùng ${user?.fullName || user?.name || "ẩn danh"} đã thích video của bạn.`,
           videoId,
           isRead: false,
           createdAt: new Date().toISOString(),
@@ -145,12 +147,11 @@ export const useVideo = () => {
               ...v,
               isLiked: !isLiked,
               likeCount: updatedLikeCount,
-              likedBy: updatedLikedBy,
+              likedBy: updatedLikedBy.filter((id): id is string => !!id), // ✅ lọc null
             }
             : v
         )
       );
-
       try {
         await api.patch(`/videos/${videoId}`, {
           likedBy: updatedLikedBy,
@@ -205,27 +206,27 @@ export const useVideo = () => {
     }
   }, []);
   const getVideoByVideoId = async (videoId: string): Promise<Video | null> => {
-  try {
-    const [videoRes, usersRes] = await Promise.all([
-      api.get(`/videos/${videoId}`),
-      api.get(`/users`),
-    ]);
+    try {
+      const [videoRes, usersRes] = await Promise.all([
+        api.get(`/videos/${videoId}`),
+        api.get(`/users`),
+      ]);
 
-    const video = videoRes.data;
-    const users = usersRes.data;
+      const video = videoRes.data;
+      const users = usersRes.data;
 
-    const enrichedVideo = {
-      ...video,
-      user: users.find((u: any) => u.id === video.userId),
-      isLiked: video.likedBy?.includes(getCurrentUserId()) || false,
-    };
+      const enrichedVideo = {
+        ...video,
+        user: users.find((u: any) => u.id === video.userId),
+        isLiked: video.likedBy?.includes(getCurrentUserId()) || false,
+      };
 
-    return enrichedVideo;
-  } catch (err) {
-    console.error("❌ Lỗi khi tải video theo id:", err);
-    return null;
-  }
-};
+      return enrichedVideo;
+    } catch (err) {
+      console.error("❌ Lỗi khi tải video theo id:", err);
+      return null;
+    }
+  };
   /** ===================== 4️⃣ CÁC HÀM PHỤ ===================== **/
   const getLikeCount = (videoId: string): number => {
     const video = videos.find((v) => v.id === videoId);

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { User } from "../types/database.types";
 
-import {API_BASE_URL, getCurrentUserId} from '../types/config'
+import { API_BASE_URL, getCurrentUserId } from '../types/config'
 
 
 export const useUser = (userId?: string) => {
@@ -282,7 +282,7 @@ export const useUser = (userId?: string) => {
     // 🧩 Hàm lấy thông tin user theo ID
     const getUserById = async (userId: string) => {
         try {
-            const res = await axios.get(`/users/${userId}`);
+            const res = await axios.get(`${API_BASE_URL}/users/${userId}`);
             return res.data;
         } catch (error) {
             console.error("❌ Lỗi khi lấy user:", error);

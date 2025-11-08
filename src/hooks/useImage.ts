@@ -83,15 +83,18 @@ export const useImage = () => {
             });
 
             console.log(`❤️ Đã like ảnh ${imageId}`);
-
+            console.log("currenr" + getCurrentUserId())
+            console.log("nguoi duoc like anh" + image?.user.id)
             // ✅ Thêm sự kiện tạo thông báo
             if (getCurrentUserId() !== image.userId) {
+                const user = await getUserById(getCurrentUserId()!)
+                console.log("user", user?.fullname)
                 const newNotification = {
                     id: `n${Date.now()}`,
                     userId: image.userId, // chủ ảnh nhận thông báo
                     senderId: getCurrentUserId(), // người like
                     type: "LIKE_IMAGE",
-                    message: `Người dùng ${getCurrentUserId()} đã thích ảnh của bạn.`,
+                    message: `Người dùng ${user?.fullname} đã thích ảnh của bạn.`,
                     imageId,
                     isRead: false,
                     createdAt: new Date().toISOString(),
@@ -169,26 +172,26 @@ export const useImage = () => {
     );
     // 🔹 Lấy ảnh public
     const getPublicImages = useCallback(async () => {
-  try {
-    setLoading(true);
-    const res = await axios.get(`${API_BASE_URL}/images?isPublic=true`);
-    setError(null);
+        try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE_URL}/images?isPublic=true`);
+            setError(null);
 
-    // ✅ Kiểm tra dữ liệu hợp lệ
-    if (Array.isArray(res.data)) {
-      return res.data;
-    } else {
-      console.warn("⚠️ Dữ liệu trả về không phải mảng:", res.data);
-      return [];
-    }
-  } catch (err) {
-    console.error("❌ Lỗi khi tải ảnh public:", err);
-    setError("Không thể tải ảnh public");
-    return [];
-  } finally {
-    setLoading(false);
-  }
-}, []);
+            // ✅ Kiểm tra dữ liệu hợp lệ
+            if (Array.isArray(res.data)) {
+                return res.data;
+            } else {
+                console.warn("⚠️ Dữ liệu trả về không phải mảng:", res.data);
+                return [];
+            }
+        } catch (err) {
+            console.error("❌ Lỗi khi tải ảnh public:", err);
+            setError("Không thể tải ảnh public");
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
 
     // 🧡 Lấy ảnh public mà user hiện tại đã like

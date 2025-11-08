@@ -109,6 +109,7 @@
         "travel",
         "nature"
       ],
+      "userId": "u1",
       "likedBy": [
         "u2",
         "u3"
@@ -139,19 +140,21 @@
       "likedBy": [
         "u2",
         "u3",
-        "1ce9"
+        "1ce9",
+        "u1"
       ],
       "views": 1800,
       "createdAt": "2025-10-21T10:30:00Z",
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
-      "commentCount": 1,
-      "likes": 3,
+      "commentCount": 2,
+      "likes": 4,
       "isLiked": true,
+      "userId": "u2",
       "user": {
-        "id": "u1",
-        "username": "linhnguyen",
-        "fullname": "Linh Nguyễn",
+        "id": "u2",
+        "username": "techzone",
+        "fullname": "Tech Zone",
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       }
     },
@@ -166,9 +169,10 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1",
-        "1ce9"
+        "1ce9",
+        "u1"
       ],
+      "userId": "u1",
       "likes": 4,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
@@ -196,7 +200,8 @@
         "username": "linhnguyen",
         "fullname": "Linh Nguyễn",
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
-      }
+      },
+      "userId": "u1"
     },
     {
       "id": "i1762186851210",
@@ -221,6 +226,7 @@
       "likedBy": [
         "u1"
       ],
+      "userId": "u1",
       "likes": 1,
       "isLiked": true,
       "commentCount": 3
@@ -242,10 +248,12 @@
         "fullname": "Kon nè",
         "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
       },
+      "userId": "1ce9",
       "likedBy": [
-        "1ce9"
+        "1ce9",
+        "u1"
       ],
-      "likes": 1,
+      "likes": 2,
       "isLiked": true,
       "commentCount": 0
     }
@@ -271,8 +279,8 @@
       "likedBy": [
         "u2",
         "u3",
-        "u1",
-        "1ce9"
+        "1ce9",
+        "u1"
       ],
       "tags": [
         "Meow",
@@ -1736,6 +1744,17 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1762586700586",
+      "imageId": "i2",
+      "userId": "u1",
+      "content": "fff",
+      "createdAt": "2025-11-08T07:25:00.586Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [
@@ -1761,89 +1780,36 @@
       "createdAt": "2025-11-07T10:27:08.988Z"
     },
     {
-      "id": "n1762511255545",
-      "userId": "u4",
-      "senderId": "1ce9",
-      "type": "COMMENT",
-      "message": "Kon nè đã bình luận: Gì mà tính 3 comment gì ta",
-      "content": "Gì mà tính 3 comment gì ta",
-      "videoId": "v4",
-      "isRead": false,
-      "createdAt": "2025-11-07T10:27:35.545Z"
-    },
-    {
-      "id": "993f",
-      "userId": "u4",
-      "senderId": "u1",
-      "type": "FOLLOW",
-      "message": "Linh Nguyễn2004 đã theo dõi bạn",
-      "createdAt": "2025-11-07T08:45:46.054Z",
-      "isRead": false
-    },
-    {
-      "id": "090e",
+      "id": "n1762586643069",
       "userId": "u2",
       "senderId": "u1",
-      "type": "FOLLOW",
-      "message": "Linh Nguyễn2004 đã theo dõi bạn",
-      "createdAt": "2025-11-07T09:06:56.526Z",
-      "isRead": true
-    },
-    {
-      "id": "aaf8",
-      "userId": "u2",
-      "type": "FOLLOW",
-      "message": "Linh Nguyễn2004 đã theo dõi bạn",
-      "createdAt": "2025-11-07T11:26:30.286Z",
-      "isRead": false
-    },
-    {
-      "id": "n1762515150964",
-      "userId": "u2",
-      "senderId": "u1",
-      "type": "LIKE_VIDEO",
-      "message": "Người dùng u1 đã thích video của bạn.",
-      "videoId": "v2",
-      "isRead": false,
-      "createdAt": "2025-11-07T11:32:30.964Z"
-    },
-    {
-      "id": "n1762525585750",
-      "userId": "u1",
-      "senderId": "1ce9",
-      "type": "COMMENT",
-      "message": "Kon nè đã bình luận: Hellp",
-      "content": "Hellp",
-      "videoId": "v1",
-      "isRead": false,
-      "createdAt": "2025-11-07T14:26:25.750Z"
-    },
-    {
-      "id": "n1762525846229",
-      "senderId": "1ce9",
       "type": "LIKE_IMAGE",
-      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
+      "message": "Người dùng Linh Nguyễn2004 đã thích ảnh của bạn.",
       "imageId": "i2",
-      "isRead": true,
-      "createdAt": "2025-11-07T14:30:46.229Z"
+      "isRead": false,
+      "createdAt": "2025-11-08T07:24:03.069Z"
     },
     {
-      "id": "n1762525998372",
-      "senderId": "1ce9",
-      "type": "LIKE_IMAGE",
-      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
-      "imageId": "i3",
-      "isRead": true,
-      "createdAt": "2025-11-07T14:33:18.372Z"
+      "id": "n1762586700626",
+      "imageId": "i2",
+      "userId": "u2",
+      "senderId": "u1",
+      "type": "COMMENT",
+      "message": "Linh Nguyễn2004 đã bình luận: \"fff\"",
+      "content": "fff",
+      "videoId": null,
+      "isRead": false,
+      "createdAt": "2025-11-08T07:25:00.626Z"
     },
     {
-      "id": "n1762532089785",
-      "senderId": "1ce9",
+      "id": "n1762586705728",
+      "userId": "u2",
+      "senderId": "u1",
       "type": "LIKE_IMAGE",
-      "message": "Người dùng 1ce9 đã thích ảnh của bạn.",
-      "imageId": "i1762531170765",
-      "isRead": true,
-      "createdAt": "2025-11-07T16:14:49.785Z"
+      "message": "Người dùng Linh Nguyễn2004 đã thích ảnh của bạn.",
+      "imageId": "i2",
+      "isRead": false,
+      "createdAt": "2025-11-08T07:25:05.728Z"
     }
   ]
 }
