@@ -38,30 +38,35 @@ const HomeScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'videos' | 'images'>('all');
 
   // 🔄 Kết hợp video + image thành 1 feed
-  const combineFeed = useCallback(async () => {
+  // 🔄 Kết hợp video + image thành 1 feed
+const combineFeed = useCallback(async () => {
     const publicImages = await getPublicImages();
+    const currentUserId = getCurrentUserId();
 
     const videoItems: FeedItem[] = videos.map((video) => ({
-      id: video.id,
-      type: 'video' as const,
-      data: video,
-      timestamp: new Date(video.createdAt),
+        id: video.id,
+        type: 'video' as const,
+        data: video,
+        timestamp: new Date(video.createdAt),
     }));
 
+    // ✅ ENRICH IMAGE DATA
     const imageItems: FeedItem[] = publicImages.map((image) => ({
-      id: image.id,
-      type: 'image' as const,
-      data: image,
-      timestamp: new Date(image.createdAt),
+        id: image.id,
+        type: 'image' as const,
+        data: {
+            ...image,
+            isLiked: image.likedBy?.includes(currentUserId) || false,
+        },
+        timestamp: new Date(image.createdAt),
     }));
 
-    // Gộp và sắp xếp theo thời gian mới nhất
     const combined = [...videoItems, ...imageItems].sort(
-      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+        (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
     );
 
     setFeed(combined);
-  }, [videos, getPublicImages]);
+}, [videos, getPublicImages]);
 
   useEffect(() => {
     combineFeed();
@@ -116,7 +121,7 @@ const HomeScreen: React.FC = () => {
 
   // 👤 Navigate đến profile
   const handleUserPress = (userId: string) => {
-    navigation.navigate('Profile', { userId })
+    navigation.navigate("OtherProfileScreen", { userId: item.id })
   };
 
   if (videoLoading || imageLoading) {

@@ -153,25 +153,39 @@ export const useImage = () => {
 
     // chu phan user khac 
     const getImagesByUser = useCallback(
-        async (userId: string) => {
-            try {
-                setLoading(true);
-                const res = await axios.get(`${API_BASE_URL}/images?user.id=${userId}`);
-                console.log(res.data);
-                
-                setError(null);
-                // ⚠️ Chỗ này nè: phải return đúng kiểu mảng
-                return Array.isArray(res.data) ? res.data : [];
-            } catch (err) {
-                console.error("❌ Lỗi khi tải ảnh theo user:", err);
-                setError("Không thể tải ảnh của người dùng");
-                return [];
-            } finally {
-                setLoading(false);
-            }
-        },
-        []
-    );
+  async (userId: string) => {
+    try {
+      setLoading(true);
+
+      // 🌀 Gọi song song 2 API: lấy ảnh và lấy user list
+      const [imagesRes, usersRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/images?user.id=${userId}`),
+        axios.get(`${API_BASE_URL}/users`)
+      ]);
+
+      const images = Array.isArray(imagesRes.data) ? imagesRes.data : [];
+      const users = usersRes.data;
+
+      // 🧩 Enrich từng ảnh
+      const enrichedImages = images.map((img) => ({
+        ...img,
+        user: users.find((u: any) => u.id === img.userId),
+        isLiked: img.likedBy?.includes(getCurrentUserId()) || false,
+      }));
+
+      setError(null);
+      return enrichedImages;
+    } catch (err) {
+      console.error("❌ Lỗi khi tải ảnh theo user:", err);
+      setError("Không thể tải ảnh của người dùng");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  },
+  []
+);
+
     // 🔹 Lấy ảnh public
     const getPublicImages = useCallback(async () => {
         try {
@@ -197,32 +211,53 @@ export const useImage = () => {
 
 
     // 🧡 Lấy ảnh public mà user hiện tại đã like
-    const getPublicImagesLikedByUser = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await axios.get(`${API_BASE_URL}/images`);
-            const data = res.data;
+const getPublicImagesLikedByUser = useCallback(async () => {
+    try {
+        setLoading(true);
+        
+        // 🌀 Gọi song song 2 API
+        const [imagesRes, usersRes] = await Promise.all([
+            axios.get(`${API_BASE_URL}/images`),
+            axios.get(`${API_BASE_URL}/users`)
+        ]);
 
-            if (Array.isArray(data)) {
-                // Lọc: ảnh công khai và có getCurrentUserId() trong likedBy
-                const likedPublicImages = data.filter(
+        const data = imagesRes.data;
+        const users = usersRes.data;
+
+        if (Array.isArray(data)) {
+            const currentUserId = getCurrentUserId();
+            
+            // ✅ Lọc + enrich data đầy đủ
+            const likedPublicImages = data
+                .filter(
                     (img) =>
                         img.isPublic === true &&
                         Array.isArray(img.likedBy) &&
-                        img.likedBy.includes(getCurrentUserId())
-                );
-                return likedPublicImages;
-            } else {
-                console.error("❌ Dữ liệu trả về không hợp lệ:", data);
-                return [];
-            }
-        } catch (error) {
-            console.error("🔥 Lỗi khi lấy ảnh public mà user đã like:", error);
+                        img.likedBy.includes(currentUserId)
+                )
+                .map((img) => ({
+                    ...img,
+                    user: users.find((u: any) => u.id === img.userId),
+                    isLiked: true, // ✅ Đã like rồi
+                    likes: img.likedBy?.length || 0,
+                }));
+
+            console.log(`✅ Loaded ${likedPublicImages.length} liked images for user ${currentUserId}`);
+            setError(null);
+            return likedPublicImages;
+        } else {
+            console.error("❌ Invalid data:", data);
+            setError("Dữ liệu không hợp lệ");
             return [];
-        } finally {
-            setLoading(false);
         }
-    }, []);
+    } catch (error) {
+        console.error("🔥 Error fetching liked images:", error);
+        setError("Không thể tải ảnh đã thích");
+        return [];
+    } finally {
+        setLoading(false);
+    }
+}, []);
     return {
         publicImages,
         privateImages,

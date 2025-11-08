@@ -1,4 +1,4 @@
-// ✅ components/ImageCard.tsx (chuẩn field likedBy + cập nhật isLiked)
+// ✅ components/ImageCard.tsx (CẢI THIỆN CUỐI CÙNG)
 import React, { useEffect, useState, useRef, memo } from 'react';
 import {
     View,
@@ -28,7 +28,7 @@ interface ImageCardProps {
     isLiked?: boolean;
     isActive?: boolean;
     musics?: Music[];
-    onPrivacyChange?: () => void; // ✅ thêm dòng này
+    onPrivacyChange?: () => void;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
@@ -40,20 +40,19 @@ const ImageCard: React.FC<ImageCardProps> = ({
     isActive,
     musics = [],
     onPrivacyChange
-
 }) => {
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(image.likes || image.likedBy?.length || 0);
-    const [localIsLiked, setLocalIsLiked] = useState(image.likedBy?.includes(currentUserId) || false);
+    const [localLikeCount, setLocalLikeCount] = useState(0);
+    const [localIsLiked, setLocalIsLiked] = useState(false);
     const [totalCommentCount, setTotalCommentCount] = useState(0);
     const [showOptions, setShowOptions] = useState(false);
     const likeAnimation = useRef(new Animated.Value(0)).current;
     const spinAnim = useRef(new Animated.Value(0)).current;
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const [localIsPublic, setLocalIsPublic] = useState(image.isPublic); // ✅ thêm state riêng
+    const [localIsPublic, setLocalIsPublic] = useState(image.isPublic);
 
-    const { publicImages, getImageLikes, likeImage, unlikeImage, toggleImagePrivacy } = useImage();
+    const { likeImage, unlikeImage, toggleImagePrivacy } = useImage();
     const {
         comments,
         fetchComments,
@@ -61,70 +60,34 @@ const ImageCard: React.FC<ImageCardProps> = ({
         deleteComment,
         likeComment,
         countCommentsByImage,
-
-
     } = useImageComments(String(image.id));
     const navigation = useNavigation();
 
-    // ✅ Đồng bộ like từ publicImages
+    // ✅ EFFECT DUY NHẤT ĐỂ SYNC STATE
     useEffect(() => {
-        const updated = publicImages.find((img) => img.id === image.id);
-        if (updated) {
-            const likedNow = Array.isArray(updated.likedBy)
-                ? updated.likedBy.includes(currentUserId)
-                : !!updated.isLiked;
-
-            const likeCount = Array.isArray(updated.likedBy)
-                ? updated.likedBy.length
-                : Number(updated.likes) || 0;
-
-            setLocalIsLiked(likedNow);
-            setLocalLikeCount(likeCount);
-        } else {
-            const likedNow = Array.isArray(image.likedBy)
-                ? image.likedBy.includes(currentUserId)
-                : !!image.isLiked;
-
-            const likeCount = Array.isArray(image.likedBy)
-                ? image.likedBy.length
-                : Number(image.likes) || 0;
-
-            setLocalIsLiked(likedNow);
-            setLocalLikeCount(likeCount);
+        // Ưu tiên 1: image.isLiked (từ API enrich)
+        let isLiked = false;
+        
+        if (image.isLiked !== undefined && image.isLiked !== null) {
+            isLiked = image.isLiked;
+            console.log(`🎯 [ImageCard ${image.id}] Using image.isLiked = ${image.isLiked}`);
+        } 
+        // Ưu tiên 2: Kiểm tra trong likedBy array
+        else if (Array.isArray(image.likedBy)) {
+            isLiked = image.likedBy.includes(currentUserId);
+            console.log(`🎯 [ImageCard ${image.id}] Using likedBy.includes = ${isLiked}`);
         }
-    }, [publicImages, image.id, currentUserId]);
 
-    // ✅ Sync khi image prop thay đổi
-    useEffect(() => {
-        const likedNow = Array.isArray(image.likedBy) ? image.likedBy.includes(currentUserId) : false;
-        const likeCount = Array.isArray(image.likedBy)
+        // Set like count
+        const count = Array.isArray(image.likedBy)
             ? image.likedBy.length
             : Number(image.likes) || 0;
 
-        setLocalIsLiked(likedNow);
-        setLocalLikeCount(likeCount);
-    }, [image.likedBy, image.likes, currentUserId]);
-
-    // ✅ Lấy lại số lượng like từ DB
-    useEffect(() => {
-        let mounted = true;
-        const fetch = async () => {
-            try {
-                if (typeof getImageLikes === 'function') {
-                    const count = await getImageLikes(image.id);
-                    if (mounted && typeof count === 'number' && count !== localLikeCount) {
-                        setLocalLikeCount(count);
-                    }
-                }
-            } catch (e) {
-                console.log('[ImageCard] getImageLikes error', e);
-            }
-        };
-        fetch();
-        return () => {
-            mounted = false;
-        };
-    }, [image.id]);
+        console.log(`🔄 [ImageCard ${image.id}] Final sync: liked=${isLiked}, count=${count}`);
+        
+        setLocalIsLiked(isLiked);
+        setLocalLikeCount(count);
+    }, [image.id, image.isLiked, image.likedBy, image.likes, currentUserId]);
 
     // ✅ Đếm bình luận
     useEffect(() => {
@@ -139,7 +102,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
         loadCount();
     }, [comments, image.id]);
 
-    // ✅ Xử lý nhạc quay đĩa
+    // ✅ Xử lý nhạc
     const music = musics.find((m) => m.id === image.musicId);
     useEffect(() => {
         if (!isActive || !music?.uri) return;
@@ -164,23 +127,39 @@ const ImageCard: React.FC<ImageCardProps> = ({
 
     // ✅ Toggle like
     const handleLike = async () => {
+        const prevLiked = localIsLiked;
         try {
-            const newLiked = !localIsLiked;
+            const newLiked = !prevLiked;
+            
+            // Optimistic update
             setLocalIsLiked(newLiked);
             setLocalLikeCount((prev) => Math.max(0, prev + (newLiked ? 1 : -1)));
 
+            console.log(`${newLiked ? '❤️' : '💔'} [ImageCard ${image.id}] Toggle: ${prevLiked} → ${newLiked}`);
+
+            // Gọi API
             if (newLiked) {
                 await likeImage(image.id);
             } else {
                 await unlikeImage(image.id);
             }
 
+            // Animation
             Animated.sequence([
                 Animated.spring(likeAnimation, { toValue: 1, useNativeDriver: true }),
                 Animated.spring(likeAnimation, { toValue: 0, useNativeDriver: true }),
             ]).start();
+
+            // Callback
+            if (onToggleLike) {
+                onToggleLike(image.id);
+            }
+
         } catch (error) {
-            console.log('🔥 Lỗi khi toggle like:', error);
+            console.error('🔥 Lỗi khi toggle like:', error);
+            // Rollback
+            setLocalIsLiked(prevLiked);
+            setLocalLikeCount((prev) => Math.max(0, prev + (prevLiked ? 1 : -1)));
         }
     };
 
@@ -242,17 +221,17 @@ const ImageCard: React.FC<ImageCardProps> = ({
                         <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
                             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
                                 <Ionicons
-                                    name={image.isLiked ? 'heart' : 'heart-outline'}
+                                    name={localIsLiked ? 'heart' : 'heart-outline'}
                                     size={32}
-                                    color={image.isLiked ? '#FF3B5C' : '#fff'}
+                                    color={localIsLiked ? '#FF3B5C' : '#fff'}
                                 />
                             </Animated.View>
-                            <Text style={styles.actionText}>{formatNumber(image.likes ?? 0)}</Text>
+                            <Text style={styles.actionText}>{formatNumber(localLikeCount)}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.actionButton} onPress={handleOpenComments}>
                             <Ionicons name="chatbubble-outline" size={30} color="#fff" />
-                            <Text style={styles.actionText}>{totalCommentCount ?? 0}</Text>
+                            <Text style={styles.actionText}>{totalCommentCount}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.actionButton} onPress={() => setShowOptions(true)}>
@@ -277,11 +256,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
                     </View>
                 )}
             </TouchableOpacity>
-            {/* ✅ Modal hiển thị tùy chọn video */}
+
             <Modal transparent visible={showOptions} animationType="fade" onRequestClose={() => setShowOptions(false)}>
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setShowOptions(false)}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Tùy chọn video</Text>
+                        <Text style={styles.modalTitle}>Tùy chọn ảnh</Text>
 
                         <TouchableOpacity
                             style={styles.modalButton}
@@ -289,7 +268,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                                 try {
                                     const newStatus = await toggleImagePrivacy(image.id, localIsPublic ?? false);
                                     setLocalIsPublic(newStatus);
-                                    onPrivacyChange?.();// ✅ cập nhật liền tại chỗ
+                                    onPrivacyChange?.();
                                     setShowOptions(false);
                                 } catch (err) {
                                     console.error("❌ Lỗi khi đổi trạng thái:", err);
@@ -301,13 +280,13 @@ const ImageCard: React.FC<ImageCardProps> = ({
                             </Text>
                         </TouchableOpacity>
 
-
                         <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ff4444' }]} onPress={() => setShowOptions(false)}>
                             <Text style={[styles.modalButtonText, { color: '#fff' }]}>Hủy</Text>
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
             </Modal>
+
             <Modal
                 visible={showComments}
                 transparent
@@ -331,6 +310,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
 
 export default memo(ImageCard);
 
+// ... styles giữ nguyên ...
 const styles = StyleSheet.create({
     container: { backgroundColor: '#000' },
     imageWrapper: { width: '100%', justifyContent: 'center', alignItems: 'center' },
