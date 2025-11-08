@@ -162,7 +162,7 @@ const SearchScreen: React.FC = () => {
       <View style={styles.searchBox}>
         <Ionicons name="search" size={22} color="#FF4EB8" />
         <TextInput
-          placeholder="Search videos, users, images, or tags..."
+          placeholder="Search videos, users, images,..."
           style={styles.input}
           value={query}
           onChangeText={setQuery}
@@ -180,12 +180,7 @@ const SearchScreen: React.FC = () => {
         </View>
       ) : !searched ? (
         <ScrollView>
-          <Text style={styles.sectionTitle}>Trending Tags</Text>
-          <View style={styles.tagsRow}>
-            {["#Dance", "#Travel", "#Food", "#DIY", "#Study"].map((tag, i) => (
-              <Text key={i} style={styles.tag}>{tag}</Text>
-            ))}
-          </View>
+          
           <Text style={styles.sectionTitle}>Popular Videos</Text>
           <View style={styles.grid}>
             {videos.slice(0, 6).map((v, i) => renderVideoCard(v, i))}

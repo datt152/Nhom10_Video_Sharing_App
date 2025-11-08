@@ -222,7 +222,7 @@ const HomeScreen: React.FC = () => {
                   <Image
                     source={{
                       uri: isVideo
-                        ? data.thumbnailUrl || 'https://via.placeholder.com/400x600'
+                        ? data.thumbnailUrl
                         : data.imageUrl,
                     }}
                     style={styles.mediaImage}

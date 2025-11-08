@@ -384,7 +384,7 @@
       "url": "https://res.cloudinary.com/demo/video/upload/dog.mp4",
       "thumbnail": "https://picsum.photos/id/1018/400/700",
       "musicId": "m3",
-      "likeCount": 2,
+      "likeCount": 3,
       "commentCount": 10,
       "shareCount": 43,
       "views": 21000,
@@ -405,7 +405,8 @@
       },
       "likedBy": [
         "u4",
-        "u1"
+        "u1",
+        "1ce9"
       ],
       "tags": [
         "portrait",

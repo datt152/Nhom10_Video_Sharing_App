@@ -28,13 +28,15 @@ function UploadButton() {
   return (
     <TouchableOpacity
       style={{
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        position: 'absolute',
+        bottom: 5, // khoảng cách so với tab bar
+        alignSelf: 'center', // luôn giữa ngang
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         backgroundColor: '#FF4EB8',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
         shadowColor: '#FF4EB8',
         shadowOpacity: 0.4,
         shadowRadius: 10,

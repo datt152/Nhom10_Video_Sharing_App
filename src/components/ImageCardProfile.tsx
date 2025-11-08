@@ -386,27 +386,23 @@ const styles = StyleSheet.create({
     tagContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginTop: 6,
+        marginTop: 8,
         gap: 6,
     },
 
     tagItem: {
-        borderWidth: 1.2,
-        borderColor: '#FF69B4', // hồng nổi
-        backgroundColor: '#FFE4EC', // hồng nhạt pastel
-        borderRadius: 16,
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 2,
-        elevation: 1,
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     },
 
     tagText: {
-        fontSize: 12,
-        color: '#C2185B', // chữ hồng đậm nhẹ
-        fontWeight: '600',
+      color: "#fff", 
+    fontSize: 13, 
+    fontWeight: "600", 
+    textShadowColor: "rgba(0,0,0,1)", 
+    textShadowOffset: { width: 0, height: 1 }, 
+    textShadowRadius: 5 
     },
 });
