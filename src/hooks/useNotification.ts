@@ -15,11 +15,12 @@ export const useNotification = () => {
 
     // 🧠 Lấy danh sách thông báo
     const fetchNotifications = useCallback(async () => {
-        if (!getCurrentUserId) return;
+        const currentUserId = await getCurrentUserId();
+        if (!currentUserId) return;
         setLoading(true);
         try {
             const res = await axios.get(
-                `${API_BASE_URL}/notifications?userId=${getCurrentUserId}`
+                `${API_BASE_URL}/notifications?userId=${currentUserId}`
             );
             const sorted = res.data.sort(
                 (a: Notification, b: Notification) =>

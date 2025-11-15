@@ -7,78 +7,132 @@ import {
     Image,
     StyleSheet,
     TextInput,
+    RefreshControl,
+    ActivityIndicator,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFollower } from "../../hooks/useFollowers";
+import { useUser } from "../../hooks/useUser";
 import { User } from "../../types/database.types";
 
 type FollowPageRouteProp = RouteProp<
-    { params: { tab?: "followers" | "following" | "friends"; userId?: string } },
+    { params: { tab?: "followers" | "following" | "suggestions"; userId?: string } },
     "params"
 >;
 
 const FollowPage: React.FC = () => {
     const navigation: any = useNavigation();
     const route = useRoute<FollowPageRouteProp>();
-    const userId = route.params?.userId || "u1";
+    
+    const { currentUser: loggedInUser } = useUser();
+    const userId = route.params?.userId || loggedInUser?.id || "u1";
 
     const {
         followers,
         following,
-        loading,
+        loading: followerLoading,
         followUser,
         unfollowUser,
         refreshFollowers,
         refreshFollowing,
     } = useFollower(userId);
 
+    const {
+        currentUser,
+        toggleFollow,
+        fetchFollowingList,
+        fetchFollowersList,
+        fetchSuggestions,
+    } = useUser();
+
     const [activeTab, setActiveTab] = useState<
-        "followers" | "following" | "friends"
+        "followers" | "following" | "suggestions"
     >("followers");
     const [search, setSearch] = useState("");
-    const [friends, setFriends] = useState<User[]>([]);
+    const [suggestions, setSuggestions] = useState<User[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         console.log("👥 Followers:", followers.map((u) => u.fullname || u.username));
         console.log("➡️ Following:", following.map((u) => u.fullname || u.username));
     }, [followers, following]);
 
-    useEffect(() => {
-        if (followers.length && following.length) {
-            setFriends(followers.filter((f) => following.some((x) => x.id === f.id)));
+    // Load suggestions
+    const loadSuggestions = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchSuggestions();
+            setSuggestions(data);
+        } catch (error) {
+            console.error('Error loading suggestions:', error);
+        } finally {
+            setLoading(false);
         }
-    }, [followers, following]);
+    };
+
+    useEffect(() => {
+        if (activeTab === 'suggestions') {
+            loadSuggestions();
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if (
             route.params?.tab === "following" ||
             route.params?.tab === "followers" ||
-            route.params?.tab === "friends"
+            route.params?.tab === "suggestions"
         ) {
             setActiveTab(route.params.tab);
         }
     }, [route.params]);
 
+    // Refresh data
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await Promise.all([refreshFollowers(), refreshFollowing()]);
+        if (activeTab === 'suggestions') {
+            await loadSuggestions();
+        }
+        setRefreshing(false);
+    };
+
     const getList = () => {
         switch (activeTab) {
             case "following":
                 return following;
-            case "friends":
-                return friends;
+            case "suggestions":
+                return suggestions;
             default:
                 return followers;
         }
     };
 
-    const list = getList().filter((user) =>
-        user.fullname.toLowerCase().includes(search.toLowerCase())
+    const list = getList().filter((user: User) =>
+        user.fullname?.toLowerCase().includes(search.toLowerCase()) ||
+        user.username?.toLowerCase().includes(search.toLowerCase())
     );
 
-    if (loading) {
+    // Handle follow/unfollow với logic từ FriendScreen
+    const handleFollowToggle = async (targetUserId: string) => {
+        // Use toggleFollow from useUser to update currentUser state
+        await toggleFollow(targetUserId);
+
+        // Also refresh followers/following lists
+        await refreshFollowers();
+        await refreshFollowing();
+        
+        // Reload suggestions if on suggestions tab
+        if (activeTab === 'suggestions') {
+            await loadSuggestions();
+        }
+    };
+
+    if (followerLoading && !refreshing) {
         return (
             <View style={styles.container}>
-                <Text style={{ textAlign: "center", marginTop: 40 }}>Đang tải...</Text>
+                <ActivityIndicator size="large" color="#FF3CAC" style={{ marginTop: 40 }} />
             </View>
         );
     }
@@ -95,14 +149,14 @@ const FollowPage: React.FC = () => {
                         ? "Người theo dõi"
                         : activeTab === "following"
                             ? "Đang theo dõi"
-                            : "Bạn bè"}
+                            : "Gợi ý"}
                 </Text>
                 <View style={{ width: 24 }} />
             </View>
 
             {/* Tabs */}
             <View style={styles.tabContainer}>
-                {["following", "followers", "friends"].map((tab) => (
+                {["following", "followers", "suggestions"].map((tab) => (
                     <TouchableOpacity
                         key={tab}
                         style={{
@@ -110,20 +164,21 @@ const FollowPage: React.FC = () => {
                             backgroundColor: activeTab === tab ? "#FF3CAC" : "#f8f8f8",
                         }}
                         onPress={() =>
-                            setActiveTab(tab as "following" | "followers" | "friends")
+                            setActiveTab(tab as "following" | "followers" | "suggestions")
                         }
                     >
                         <Text
                             style={{
                                 color: activeTab === tab ? "#fff" : "#555",
                                 fontWeight: activeTab === tab ? "600" : "500",
+                                fontSize: 13,
                             }}
                         >
                             {tab === "following"
                                 ? "Following"
                                 : tab === "followers"
                                     ? "Followers"
-                                    : "Friends"}
+                                    : "Gợi ý"}
                         </Text>
                     </TouchableOpacity>
                 ))}
@@ -150,20 +205,24 @@ const FollowPage: React.FC = () => {
             <FlatList
                 data={list}
                 keyExtractor={(item) => item.id.toString()}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#FF3CAC"]}
+                        tintColor="#FF3CAC"
+                    />
+                }
                 renderItem={({ item }: { item: User }) => {
-                    const isFriend = friends.some((x) => x.id === item.id);
-                    const isFollowing = following.some((x) => x.id === item.id);
+                    const followingIds = currentUser?.followingIds || [];
+                    const isFollowing = followingIds.includes(item.id);
 
-                    // --- Logic nút follow/unfollow kiểu TikTok ---
+                    // --- Logic nút follow/unfollow ---
                     let buttonLabel = "";
                     let buttonStyle = {};
                     let textStyle = {};
 
-                    if (isFriend) {
-                        buttonLabel = "Bạn bè";
-                        buttonStyle = styles.friendBtn;
-                        textStyle = styles.friendBtnText;
-                    } else if (isFollowing) {
+                    if (isFollowing) {
                         buttonLabel = "Đang Follow";
                         buttonStyle = styles.followedBtn;
                         textStyle = styles.followedBtnText;
@@ -182,28 +241,16 @@ const FollowPage: React.FC = () => {
                         >
                             <View style={styles.userInfo}>
                                 <Image source={{ uri: item.avatar }} style={styles.avatar} />
-                                <Text style={styles.userName}>{item.fullname}</Text>
+                                <View>
+                                    <Text style={styles.userName}>{item.fullname || item.username}</Text>
+                                    <Text style={styles.userUsername}>@{item.username}</Text>
+                                </View>
                             </View>
 
                             {/* Nút follow/unfollow */}
                             <TouchableOpacity
                                 style={[styles.followBtn, buttonStyle]}
-                                onPress={async () => {
-                                    if (isFollowing) {
-                                        await unfollowUser(item.id);
-                                    } else {
-                                        await followUser(item.id);
-                                    }
-
-                                    // 🪄 Cập nhật lại friends realtime
-                                    await refreshFollowers();
-                                    await refreshFollowing();
-                                    setFriends(
-                                        followers.filter((f) =>
-                                            following.some((x) => x.id === f.id)
-                                        )
-                                    );
-                                }}
+                                onPress={() => handleFollowToggle(item.id)}
                             >
                                 <Text style={[styles.followBtnText, textStyle]}>
                                     {buttonLabel}
@@ -218,7 +265,7 @@ const FollowPage: React.FC = () => {
                             ? "Chưa có người theo dõi 👀"
                             : activeTab === "following"
                                 ? "Bạn chưa theo dõi ai 🤔"
-                                : "Chưa có bạn nào 💬"}
+                                : "Chưa có gợi ý 💡"}
                     </Text>
                 }
             />
@@ -302,6 +349,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "500",
         color: "#222",
+    },
+    userUsername: {
+        fontSize: 13,
+        color: "#888",
+        marginTop: 2,
     },
     followBtn: {
         borderRadius: 20,

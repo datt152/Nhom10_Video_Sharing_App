@@ -287,8 +287,8 @@ const ProfileScreen: React.FC = () => {
         </>
       );
     }
-
-  }
+  };
+  
   if (isLoading || !currentUser) {
     return (
       <View style={styles.center}>
@@ -299,88 +299,132 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 🔹 Header chứa nút Logout */}
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>Profile</Text>
-      <TouchableOpacity onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={24} color="#FF4EB8" />
-      </TouchableOpacity>
-    </View>
-      {/* Thông tin người dùng */}
-      <View style={styles.profileTop}>
-        <View style={styles.avatarWrapper}>
-          <Image source={{ uri: currentUser.avatar }} style={styles.avatar} />
-          <TouchableOpacity style={styles.addIcon}>
-            <Ionicons name="add" size={16} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.name}>{currentUser.fullname}</Text>
-        <Text style={styles.username}>@{currentUser.username}</Text>
-        <Text style={styles.bio}>{currentUser.bio}</Text>
-
-        {/* Liên kết */}
-        {Array.isArray(currentUser.externalLinks) && currentUser.externalLinks.length > 0 && (
-          <View style={styles.linkContainer}>
-            {currentUser.externalLinks.map((link, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => Linking.openURL(link)}
-                style={styles.linkItem}
-              >
-                <Ionicons name="link-outline" size={18} color="#FF4EB8" style={styles.linkIcon} />
-                <Text style={styles.linkText} numberOfLines={1}>
-                  {link}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        <View style={styles.statsRow}>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'following', userId: currentUser.id })}
-          >
-            <Text style={styles.statValue}>{followingCount}</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => navigation.navigate('Followers', { tab: 'followers', userId: currentUser.id })}
-          >
-            <Text style={styles.statValue}>{followerCount}</Text>
-            <Text style={styles.statLabel}>Follower</Text>
-          </TouchableOpacity>
-
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{countTotalLikes()}</Text>
-            <Text style={styles.statLabel}>Likes</Text>
+      {/* 🔹 Header */}
+      <View style={styles.headerGradient}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Hồ sơ</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.headerButton}
+              onPress={() => navigation.navigate('EditProfile' as never)}
+            >
+              <Ionicons name="settings-outline" size={20} color="#666" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.headerButton}
+              onPress={handleLogout}
+            >
+              <Ionicons name="log-out-outline" size={20} color="#666" />
+            </TouchableOpacity>
           </View>
         </View>
+
+        {/* Avatar và info trên header */}
+        <View style={styles.profileHeader}>
+          <View style={styles.avatarWrapper}>
+            <Image source={{ uri: currentUser.avatar }} style={styles.avatar} />
+            <View style={styles.avatarBorder} />
+          </View>
+          
+          <Text style={styles.name}>{currentUser.fullname}</Text>
+          <Text style={styles.username}>@{currentUser.username}</Text>
+        </View>
+      </View>
+
+      {/* Stats Cards */}
+      <View style={styles.statsContainer}>
+        <TouchableOpacity
+          style={styles.statCard}
+          onPress={() => navigation.navigate('Followers', { tab: 'following', userId: currentUser.id })}
+        >
+          <View style={[styles.statIconWrapper, { backgroundColor: '#f5f5f5' }]}>
+            <Ionicons name="people-outline" size={22} color="#666" />
+          </View>
+          <Text style={styles.statValue}>{followingCount}</Text>
+          <Text style={styles.statLabel}>Đang theo dõi</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.editBtn}
-          onPress={() => navigation.navigate('EditProfile' as never)}
+          style={styles.statCard}
+          onPress={() => navigation.navigate('Followers', { tab: 'followers', userId: currentUser.id })}
         >
-          <Ionicons name="pencil-outline" size={16} color="#FF4EB8" />
-          <Text style={styles.editText}>Sửa hồ sơ</Text>
+          <View style={[styles.statIconWrapper, { backgroundColor: '#f5f5f5' }]}>
+            <Ionicons name="heart-outline" size={22} color="#666" />
+          </View>
+          <Text style={styles.statValue}>{followerCount}</Text>
+          <Text style={styles.statLabel}>Người theo dõi</Text>
         </TouchableOpacity>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconWrapper, { backgroundColor: '#f5f5f5' }]}>
+            <Ionicons name="thumbs-up-outline" size={22} color="#666" />
+          </View>
+          <Text style={styles.statValue}>{countTotalLikes()}</Text>
+          <Text style={styles.statLabel}>Lượt thích</Text>
+        </View>
       </View>
 
-      {/* Menu chính */}
-      <View style={styles.menu}>
-        {['videos', 'images', 'liked'].map((type) => (
-          <TouchableOpacity key={type} onPress={() => setMenu(type as any)}>
-            <Text style={[styles.menuText, menu === type && styles.activeMenu]}>
-              {type === 'videos' ? 'Video' : type === 'images' ? 'Image' : 'Like'}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {/* Bio Section */}
+      {currentUser.bio && (
+        <View style={styles.bioSection}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="document-text-outline" size={20} color="#666" />
+            <Text style={styles.sectionTitle}>Tiểu sử</Text>
+          </View>
+          <Text style={styles.bio}>{currentUser.bio}</Text>
+        </View>
+      )}
+
+      {/* Liên kết */}
+      {Array.isArray(currentUser.externalLinks) && currentUser.externalLinks.length > 0 && (
+        <View style={styles.linksSection}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="link-outline" size={20} color="#666" />
+            <Text style={styles.sectionTitle}>Liên kết</Text>
+          </View>
+          {currentUser.externalLinks.map((link, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => Linking.openURL(link)}
+              style={styles.linkItem}
+            >
+              <Ionicons name="globe-outline" size={18} color="#4A90E2" />
+              <Text style={styles.linkText} numberOfLines={1}>
+                {link}
+              </Text>
+              <Ionicons name="chevron-forward" size={18} color="#ccc" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* Content Tabs */}
+      <View style={styles.tabsContainer}>
+        <View style={styles.tabsWrapper}>
+          {[
+            { key: 'videos', icon: 'videocam', label: 'Video' },
+            { key: 'images', icon: 'images', label: 'Ảnh' },
+            { key: 'liked', icon: 'heart', label: 'Yêu thích' }
+          ].map((tab) => (
+            <TouchableOpacity 
+              key={tab.key} 
+              style={[styles.tab, menu === tab.key && styles.activeTab]}
+              onPress={() => setMenu(tab.key as any)}
+            >
+              <Ionicons 
+                name={tab.icon as any} 
+                size={20} 
+                color={menu === tab.key ? '#FF4EB8' : '#999'} 
+              />
+              <Text style={[styles.tabText, menu === tab.key && styles.activeTabText]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
-      {/* Nội dung */}
+      {/* Content */}
       {renderContent()}
     </ScrollView>
   );
@@ -389,84 +433,243 @@ const ProfileScreen: React.FC = () => {
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  profileTop: {
-    alignItems: 'center',
-    paddingVertical: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  container: { 
+    flex: 1, 
+    backgroundColor: '#FAFAFA' 
   },
-  avatarWrapper: { position: 'relative' },
-  avatar: { width: 110, height: 110, borderRadius: 100, borderWidth: 2, borderColor: '#FF4EB8' },
-  addIcon: {
+  center: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA'
+  },
+  
+  // Header đơn giản
+  headerGradient: {
+    backgroundColor: '#fff',
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // Profile Header
+  profileHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 3,
+    borderColor: '#FF4EB8',
+  },
+  avatarBorder: {
     position: 'absolute',
-    bottom: 0,
-    right: 8,
-    backgroundColor: '#FF4EB8',
-    borderRadius: 50,
-    padding: 4,
+    width: 98,
+    height: 98,
+    borderRadius: 49,
+    borderWidth: 1,
+    borderColor: '#FFE5F2',
+    top: -4,
+    left: -4,
   },
-  name: { fontSize: 18, fontWeight: '700', marginTop: 10, color: '#333' },
-  username: { fontSize: 14, color: '#888' },
-  bio: { fontSize: 13, color: '#666', marginTop: 5, textAlign: 'center', paddingHorizontal: 20 },
-  linkContainer: {
-    width: '85%',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    paddingVertical: 6,
-    marginTop: 10,
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 4,
   },
-  linkItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginVertical: 4 },
-  linkIcon: { marginRight: 8 },
-  linkText: { color: '#FF4EB8', fontSize: 13, textDecorationLine: 'underline' },
-  statsRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 10, gap: 30 },
-  statItem: { alignItems: 'center' },
-  statValue: { fontSize: 16, fontWeight: '700', color: '#333' },
-  statLabel: { fontSize: 13, color: '#777' },
-  editBtn: {
+  username: {
+    fontSize: 14,
+    color: '#999',
+    fontWeight: '500',
+  },
+  
+  // Stats Cards - tone màu nhẹ hơn
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 10,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  statIconWrapper: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 2,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: '#999',
+    textAlign: 'center',
+  },
+  
+  // Bio Section
+  bioSection: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffe6f3',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginTop: 12,
+    marginBottom: 10,
+    gap: 6,
   },
-  editText: { fontSize: 13, color: '#FF4EB8', fontWeight: '600', marginLeft: 5 },
-  menu: {
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  bio: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  
+  // Links Section
+  linksSection: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  linkItem: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
     paddingVertical: 10,
-    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5f5f5',
+    gap: 10,
   },
-  menuText: { fontSize: 15, color: '#777' },
-  activeMenu: { color: '#FF4EB8', fontWeight: '700' },
+  linkText: {
+    flex: 1,
+    color: '#4A90E2',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  
+  // Tabs - đơn giản hơn
+  tabsContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    overflow: 'hidden',
+  },
+  tabsWrapper: {
+    flexDirection: 'row',
+    padding: 6,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 5,
+  },
+  activeTab: {
+    backgroundColor: '#f5f5f5',
+  },
+  tabText: {
+    fontSize: 13,
+    color: '#999',
+    fontWeight: '500',
+  },
+  activeTabText: {
+    color: '#FF4EB8',
+    fontWeight: '600',
+  },
+  
+  // Privacy Menu
   privacyMenu: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 12,
-    gap: 25,
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 10,
+    padding: 6,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
-  privacyText: { fontSize: 14, color: '#aaa' },
-  activePrivacy: { color: '#FF4EB8', fontWeight: '700' },
-  contentBox: { alignItems: 'center', paddingVertical: 20 },
-  contentText: { fontSize: 15, color: '#777', marginTop: 10 },
-  header: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingHorizontal: 16,
-  paddingTop: 50, // nếu bạn dùng SafeAreaView thì có thể bỏ
-  paddingBottom: 10,
-  backgroundColor: '#fff',
-},
-headerTitle: {
-  fontSize: 18,
-  fontWeight: '700',
-  color: '#FF4EB8',
-},
+  privacyText: {
+    fontSize: 13,
+    color: '#999',
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  activePrivacy: {
+    color: '#FF4EB8',
+    fontWeight: '600',
+    backgroundColor: '#f5f5f5',
+  },
+  
+  // Content
+  contentBox: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
 
 });

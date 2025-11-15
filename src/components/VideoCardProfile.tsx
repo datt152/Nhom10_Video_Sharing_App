@@ -59,6 +59,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
     const { likeVideo, unlikeVideo, videos, toggleVideoPrivacy } = useVideo();
     const { addComment, deleteComment, likeComment, countCommentsByVideo, getCommentsByVideo } = useComments(String(video.id));
+    const { currentUser } = useUser();
     const navigation = useNavigation();
     const music = musics.find((m) => m.id === video.musicId);
 
@@ -330,6 +331,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     videoId={String(video.id)}
                     comments={videoCommentsList}
                     currentUserId={currentUserId}
+                    currentUserAvatar={currentUser?.avatar}
                     isVisible={showComments}
                     onClose={() => {
                         setShowComments(false);
@@ -389,17 +391,19 @@ const styles = StyleSheet.create({
     caption: { color: '#fff', fontSize: 15, lineHeight: 20 },
     tagContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 6, gap: 6 },
     tagItem: {
-        borderWidth: 1.2,
-        borderRadius: 16,
-        paddingVertical: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: 4,
         paddingHorizontal: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 2,
-        elevation: 1,
+        paddingVertical: 5,
     },
-    tagText: { fontSize: 12, color: '#C2185B', fontWeight: '600' },
+    tagText: { 
+        color: '#fff', 
+        fontSize: 13, 
+        fontWeight: '600', 
+        textShadowColor: 'rgba(0,0,0,1)', 
+        textShadowOffset: { width: 0, height: 1 }, 
+        textShadowRadius: 5 
+    },
     rightContent: { alignItems: 'center', gap: 18 },
     actionButton: { alignItems: 'center', gap: 4 },
     actionText: { color: '#fff', fontSize: 13, fontWeight: '600' },

@@ -12,6 +12,8 @@ import {
   Switch,
   Modal,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
@@ -120,12 +122,18 @@ const EditVideoScreen: React.FC = () => {
     try {
       const cloudinaryUrl = await uploadToCloudinary(videoUri);
 
+      const currentUserId = await getCurrentUserId();
+      if (!currentUserId) {
+        Alert.alert('Lỗi', 'Bạn cần đăng nhập để đăng video');
+        setUploading(false);
+        return;
+      }
       const db = await axios.get(`${API_BASE_URL}/users`);
-      const currentUser = db.data.find((u: any) => u.id === getCurrentUserId);
+      const currentUser = db.data.find((u: any) => u.id === currentUserId);
 
       const newVideo = {
         id: `v${Date.now()}`,
-        userId: getCurrentUserId,
+        userId: currentUserId,
         title: title.trim(),
         caption: description.trim(),
         tags: hashtags,
@@ -196,7 +204,11 @@ const EditVideoScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 70}
+    >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -404,7 +416,7 @@ const EditVideoScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

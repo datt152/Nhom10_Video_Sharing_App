@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
-import FriendScreen from '../screens/FriendScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
@@ -80,8 +79,8 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Fiend"
-        component={FriendScreen}
+        name="Follow"
+        component={FollowersScreen}
         options={{
           tabBarIcon: ({ color }) => <Ionicons name="compass" size={26} color={color} />,
         }}

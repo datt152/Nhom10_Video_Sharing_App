@@ -18,12 +18,19 @@ export const useImage = () => {
         console.log("🚀 Gọi API lấy danh sách ảnh...");
         setLoading(true);
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) {
+                setPublicImages([]);
+                setPrivateImages([]);
+                setLoading(false);
+                return;
+            }
             const res = await axios.get(`${API_BASE_URL}/images`);
             const data = res.data;
 
             if (Array.isArray(data)) {
                 // 🧩 Lọc ảnh thuộc về user hiện tại
-                const userImages = data.filter(img => img.user.id === getCurrentUserId());
+                const userImages = data.filter(img => img.user.id === currentUserId);
 
                 // 🧩 Phân chia công khai / riêng tư
                 const publicList = userImages.filter((img) => img.isPublic === true);
@@ -68,13 +75,22 @@ export const useImage = () => {
     // ❤️ LIKE IMAGE
     const likeImage = async (imageId: string) => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return null;
             const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
             const image = res.data;
 
             const updatedLikedBy = [
                 ...(image.likedBy || []),
-                getCurrentUserId(),
+                currentUserId,
             ];
+
+            // ✅ Update local state immediately
+            setPublicImages(prev => prev.map(img => 
+                img.id === imageId 
+                    ? { ...img, likedBy: updatedLikedBy, likes: updatedLikedBy.length, isLiked: true }
+                    : img
+            ));
 
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
                 likedBy: updatedLikedBy,
@@ -83,16 +99,16 @@ export const useImage = () => {
             });
 
             console.log(`❤️ Đã like ảnh ${imageId}`);
-            console.log("currenr" + getCurrentUserId())
+            console.log("currenr" + currentUserId)
             console.log("nguoi duoc like anh" + image?.user.id)
             // ✅ Thêm sự kiện tạo thông báo
-            if (getCurrentUserId() !== image.userId) {
-                const user = await getUserById(getCurrentUserId()!)
+            if (currentUserId !== image.userId) {
+                const user = await getUserById(currentUserId!)
                 console.log("user", user?.fullname)
                 const newNotification = {
                     id: `n${Date.now()}`,
                     userId: image.userId, // chủ ảnh nhận thông báo
-                    senderId: getCurrentUserId(), // người like
+                    senderId: currentUserId, // người like
                     type: "LIKE_IMAGE",
                     message: `Người dùng ${user?.fullname} đã thích ảnh của bạn.`,
                     imageId,
@@ -114,13 +130,22 @@ export const useImage = () => {
     // 💔 UNLIKE IMAGE
     const unlikeImage = async (imageId: string) => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return null;
             const res = await axios.get(`${API_BASE_URL}/images/${imageId}`);
             const image = res.data;
 
             // Lọc bỏ user hiện tại khỏi danh sách like
             const updatedLikedBy = (image.likedBy || []).filter(
-                (id: string) => id !== getCurrentUserId()
+                (id: string) => id !== currentUserId
             );
+
+            // ✅ Update local state immediately
+            setPublicImages(prev => prev.map(img => 
+                img.id === imageId 
+                    ? { ...img, likedBy: updatedLikedBy, likes: updatedLikedBy.length, isLiked: false }
+                    : img
+            ));
 
             // Cập nhật DB: bỏ tym + set isLiked = false
             await axios.patch(`${API_BASE_URL}/images/${imageId}`, {
@@ -156,6 +181,8 @@ export const useImage = () => {
   async (userId: string) => {
     try {
       setLoading(true);
+      const currentUserId = await getCurrentUserId();
+      if (!currentUserId) return [];
 
       // 🌀 Gọi song song 2 API: lấy ảnh và lấy user list
       const [imagesRes, usersRes] = await Promise.all([
@@ -170,7 +197,7 @@ export const useImage = () => {
       const enrichedImages = images.map((img) => ({
         ...img,
         user: users.find((u: any) => u.id === img.userId),
-        isLiked: img.likedBy?.includes(getCurrentUserId()) || false,
+        isLiked: img.likedBy?.includes(currentUserId) || false,
       }));
 
       setError(null);
@@ -214,6 +241,8 @@ export const useImage = () => {
 const getPublicImagesLikedByUser = useCallback(async () => {
     try {
         setLoading(true);
+        const currentUserId = await getCurrentUserId();
+        if (!currentUserId) return [];
         
         // 🌀 Gọi song song 2 API
         const [imagesRes, usersRes] = await Promise.all([
@@ -225,7 +254,6 @@ const getPublicImagesLikedByUser = useCallback(async () => {
         const users = usersRes.data;
 
         if (Array.isArray(data)) {
-            const currentUserId = getCurrentUserId();
             
             // ✅ Lọc + enrich data đầy đủ
             const likedPublicImages = data

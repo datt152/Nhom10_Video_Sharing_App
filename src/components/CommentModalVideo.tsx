@@ -45,6 +45,7 @@ interface CommentModalVideoProps {
     videoId: string;
     comments: Comment[];
     currentUserId: string;
+    currentUserAvatar?: string;
     isVisible: boolean;
     onClose: () => void;
     onAddComment: (content: string, parentId?: string | null) => void;
@@ -57,6 +58,7 @@ export default function CommentModalVideo({
     videoId,
     comments,
     currentUserId,
+    currentUserAvatar: propAvatar,
     isVisible,
     onClose,
     onAddComment,
@@ -220,8 +222,7 @@ export default function CommentModalVideo({
         );
     };
 
-    const currentUserComment = comments.find((c) => c.userId === currentUserId);
-    const currentUserAvatar = currentUserComment?.user?.avatar || 'https://randomuser.me/api/portraits/men/45.jpg';
+    const currentUserAvatar = propAvatar || 'https://randomuser.me/api/portraits/men/45.jpg';
 
     return (
         <SafeAreaView style={styles.fullScreen}>

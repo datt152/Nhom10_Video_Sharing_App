@@ -124,7 +124,7 @@ const SearchScreen: React.FC = () => {
     <Image
       source={{ uri: img.imageUrl?.trim() || `https://picsum.photos/400/250?random=${i}` }}
       style={styles.thumb}
-      resizeMode="cover"
+      resizeMode="contain"
     />
     <View style={styles.cardBottom}>
       <Image

@@ -46,6 +46,7 @@ interface CommentModalProps {
   imageId: string;
   comments: Comment[];
   currentUserId: string;
+  currentUserAvatar?: string;
   isVisible: boolean;
   onClose: () => void;
   onAddComment: (content: string, parentId?: string | null) => void;
@@ -57,6 +58,7 @@ export default function CommentModalImage({
   imageId,
   comments,
   currentUserId,
+  currentUserAvatar: propAvatar,
   isVisible,
   onClose,
   onAddComment,
@@ -225,8 +227,7 @@ export default function CommentModalImage({
     );
   };
 
-  const currentUserComment = comments.find(c => c.userId === currentUserId);
-  const currentUserAvatar = currentUserComment?.user?.avatar || 'https://randomuser.me/api/portraits/men/45.jpg';
+  const currentUserAvatar = propAvatar || 'https://randomuser.me/api/portraits/men/45.jpg';
 
   return (
     <SafeAreaView style={styles.fullScreen}>

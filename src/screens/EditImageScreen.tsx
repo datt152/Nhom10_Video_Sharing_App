@@ -11,6 +11,8 @@ import {
   Switch,
   Modal,
   Animated,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -121,12 +123,15 @@ const EditImageScreen: React.FC = () => {
 
   const uploadToCloudinary = async (imageUri: string): Promise<string | null> => {
     try {
-      const response = await fetch(imageUri);
-      const imageBlob = await response.blob();
       const fileName = imageUri.split('/').pop() || `image_${Date.now()}.jpg`;
+      const fileType = fileName.split('.').pop() || 'jpg';
 
       const formData = new FormData();
-      formData.append('file', imageBlob || fileName);
+      formData.append('file', {
+        uri: imageUri,
+        type: `image/${fileType}`,
+        name: fileName,
+      } as any);
       formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
       formData.append('cloud_name', CLOUDINARY_CLOUD_NAME);
 
@@ -280,7 +285,11 @@ const EditImageScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 70}
+    >
       <ErrorBox 
         message={errorMessage} 
         onClose={() => setErrorMessage('')} 
@@ -428,7 +437,7 @@ const EditImageScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -28,6 +28,12 @@ export const useImageComments = (imageId?: string) => {
         if (!imageId) return;
         setLoading(true);
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) {
+                setComments([]);
+                setLoading(false);
+                return;
+            }
             const res = await axios.get(`${API_BASE_URL}/comments`);
             const allComments = res.data.filter((c: any) => c.imageId === imageId);
 
@@ -54,7 +60,7 @@ export const useImageComments = (imageId?: string) => {
                         username: 'Unknown',
                         avatar: 'https://via.placeholder.com/40',
                     },
-                isLiked: c.likedBy?.includes(getCurrentUserId()) || false,
+                isLiked: c.likedBy?.includes(currentUserId) || false,
             });
 
             const parents = allComments.filter((c: any) => !c.parentId).map(enrich);
@@ -75,10 +81,12 @@ export const useImageComments = (imageId?: string) => {
 
     const addComment = useCallback(
         async (content: string, parentId: string | null = null) => {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return;
             const newComment = {
                 id: `c${Date.now()}`,
                 imageId,
-                userId: getCurrentUserId(),
+                userId: currentUserId,
                 content,
                 createdAt: new Date().toISOString(),
                 likeCount: 0,
@@ -106,9 +114,9 @@ export const useImageComments = (imageId?: string) => {
                 // 📨 Thêm thông báo cho chủ ảnh (nếu khác người bình luận)
                 const imageOwnerId = imgRes.data.userId;
                 console.log("imageOwnerId" + imageOwnerId)
-                if (imageOwnerId && imageOwnerId !== getCurrentUserId()) {
+                if (imageOwnerId && imageOwnerId !== currentUserId) {
                     try {
-                        const userRes = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
+                        const userRes = await axios.get(`${API_BASE_URL}/users/${currentUserId}`);
                         console.log("Thong tin user " + userRes.data)
                         const currentUser = userRes.data;
 
@@ -116,7 +124,7 @@ export const useImageComments = (imageId?: string) => {
                             id: `n${Date.now()}`,
                             imageId: imageId,
                             userId: imageOwnerId,          // 👈 người NHẬN thông báo
-                            senderId: getCurrentUserId(),     // 👈 người GỬI (bình luận)
+                            senderId: currentUserId,     // 👈 người GỬI (bình luận)
                             type: 'COMMENT',               // 👈 dùng đúng ENUM type
                             message: `${currentUser.fullname || currentUser.username} đã bình luận: "${content}"`, // ✅ thêm nội dung
                             content, // vẫn giữ lại để lưu chi tiết
@@ -169,13 +177,15 @@ export const useImageComments = (imageId?: string) => {
 
     const likeComment = useCallback(async (commentId: string) => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return;
             const res = await axios.get(`${API_BASE_URL}/comments/${commentId}`);
             const comment = res.data;
 
-            const isLiked = comment.likedBy?.includes(getCurrentUserId()) || false;
+            const isLiked = comment.likedBy?.includes(currentUserId) || false;
             const updatedLikedBy = isLiked
-                ? comment.likedBy.filter((id: string) => id !== getCurrentUserId())
-                : [...(comment.likedBy || []), getCurrentUserId()];
+                ? comment.likedBy.filter((id: string) => id !== currentUserId)
+                : [...(comment.likedBy || []), currentUserId];
             const updatedLikeCount = isLiked ? comment.likeCount - 1 : comment.likeCount + 1;
 
             await axios.patch(`${API_BASE_URL}/comments/${commentId}`, {

@@ -6,7 +6,16 @@ import { API_BASE_URL, getCurrentUserId } from '../types/config'
 
 
 export const useFollower = (userId?: string) => {
-    const TARGET_USER_ID = userId || getCurrentUserId(); // user đang được xem (ở hồ sơ)
+    const [targetUserId, setTargetUserId] = useState<string | null>(null);
+    const TARGET_USER_ID = targetUserId || userId;
+
+    useEffect(() => {
+        const init = async () => {
+            const currentUserId = await getCurrentUserId();
+            setTargetUserId(userId || currentUserId);
+        };
+        init();
+    }, [userId]);
 
     const [followers, setFollowers] = useState<User[]>([]);
     const [following, setFollowing] = useState<User[]>([]);
@@ -14,6 +23,7 @@ export const useFollower = (userId?: string) => {
 
     // 🧭 Lấy danh sách người đang follow TARGET_USER
     const fetchFollowers = useCallback(async () => {
+        if (!TARGET_USER_ID) return [];
         setLoading(true);
         try {
             const { data: targetUser } = await axios.get<User>(
@@ -39,6 +49,7 @@ export const useFollower = (userId?: string) => {
 
     // 🧭 Lấy danh sách người TARGET_USER đang follow
     const fetchFollowing = useCallback(async () => {
+        if (!TARGET_USER_ID) return [];
         setLoading(true);
         try {
             const { data: targetUser } = await axios.get<User>(
@@ -72,8 +83,10 @@ export const useFollower = (userId?: string) => {
     const followUser = useCallback(
         async (targetUserId: string) => {
             try {
+                const currentUserId = await getCurrentUserId();
+                if (!currentUserId) return;
                 const { data: currentUser } = await axios.get<User>(
-                    `${API_BASE_URL}/users/${getCurrentUserId()}`
+                    `${API_BASE_URL}/users/${currentUserId}`
                 );
                 const { data: targetUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${targetUserId}`
@@ -87,15 +100,15 @@ export const useFollower = (userId?: string) => {
                 };
                 const updatedTargetUser = {
                     ...targetUser,
-                    followerIds: [...targetUser.followerIds, getCurrentUserId()],
+                    followerIds: [...targetUser.followerIds, currentUserId],
                 };
 
-                await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedCurrentUser);
+                await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
                 // 🔔 Gửi thông báo cho người được follow (targetUser)
                 await axios.post(`${API_BASE_URL}/notifications`, {
                     userId: targetUserId,
-                    senderId: getCurrentUserId,
+                    senderId: currentUserId,
                     type: "FOLLOW",
                     message: `${currentUser.fullname} đã theo dõi bạn`,
                     createdAt: new Date().toISOString(),
@@ -109,15 +122,17 @@ export const useFollower = (userId?: string) => {
                 console.error("❌ Lỗi khi follow user:", error);
             }
         },
-        [getCurrentUserId(), fetchFollowing, fetchFollowers]
+        [fetchFollowing, fetchFollowers]
     );
 
     // ✅ Unfollow người khác
     const unfollowUser = useCallback(
         async (targetUserId: string) => {
             try {
+                const currentUserId = await getCurrentUserId();
+                if (!currentUserId) return;
                 const { data: currentUser } = await axios.get<User>(
-                    `${API_BASE_URL}/users/${getCurrentUserId()}`
+                    `${API_BASE_URL}/users/${currentUserId}`
                 );
                 const { data: targetUser } = await axios.get<User>(
                     `${API_BASE_URL}/users/${targetUserId}`
@@ -131,10 +146,10 @@ export const useFollower = (userId?: string) => {
                 };
                 const updatedTargetUser = {
                     ...targetUser,
-                    followerIds: targetUser.followerIds.filter((id) => id !== getCurrentUserId()),
+                    followerIds: targetUser.followerIds.filter((id) => id !== currentUserId),
                 };
 
-                await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedCurrentUser);
+                await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, updatedCurrentUser);
                 await axios.patch(`${API_BASE_URL}/users/${targetUserId}`, updatedTargetUser);
 
                 await fetchFollowers();
@@ -143,7 +158,7 @@ export const useFollower = (userId?: string) => {
                 console.error("❌ Lỗi khi bỏ follow user:", error);
             }
         },
-        [getCurrentUserId(), fetchFollowing, fetchFollowers]
+        [fetchFollowing, fetchFollowers]
     );
 
     return {

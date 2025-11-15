@@ -10,12 +10,13 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import { Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import { useVideo } from '../hooks/useVideo';
 import { useImage } from '../hooks/useImage';
-import { Video, Image as ImageType } from '../types/database.types';
+import { Video as VideoType, Image as ImageType } from '../types/database.types';
 import {getCurrentUserId} from '../types/config'
 const { width } = Dimensions.get('window');
 const COLUMN_COUNT = 3;
@@ -24,14 +25,14 @@ const IMAGE_SIZE = (width - 40) / COLUMN_COUNT - 8;
 type FeedItem = {
   id: string;
   type: 'video' | 'image';
-  data: Video | ImageType;
+  data: VideoType | ImageType;
   timestamp: Date;
 };
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const { videos, loading: videoLoading, toggleLike: toggleVideoLike, refreshVideos } = useVideo();
-  const { getPublicImages, loading: imageLoading, likeImage, unlikeImage } = useImage();
+  const { publicImages, loading: imageLoading, likeImage, unlikeImage, refresh: refreshImages } = useImage();
 
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -40,8 +41,11 @@ const HomeScreen: React.FC = () => {
   // 🔄 Kết hợp video + image thành 1 feed
   // 🔄 Kết hợp video + image thành 1 feed
 const combineFeed = useCallback(async () => {
-    const publicImages = await getPublicImages();
-    const currentUserId = getCurrentUserId();
+    const currentUserId = await getCurrentUserId();
+    if (!currentUserId) {
+        setFeed([]);
+        return;
+    }
 
     const videoItems: FeedItem[] = videos.map((video) => ({
         id: video.id,
@@ -66,7 +70,7 @@ const combineFeed = useCallback(async () => {
     );
 
     setFeed(combined);
-}, [videos, getPublicImages]);
+}, [videos, publicImages]);
 
   useEffect(() => {
     combineFeed();
@@ -75,8 +79,7 @@ const combineFeed = useCallback(async () => {
   // 🔄 Pull to refresh
   const onRefresh = async () => {
     setRefreshing(true);
-    await refreshVideos();
-    await combineFeed();
+    await Promise.all([refreshVideos(), refreshImages()]);
     setRefreshing(false);
   };
 
@@ -91,7 +94,7 @@ const combineFeed = useCallback(async () => {
   // ❤️ Toggle like
   const handleLike = async (item: FeedItem) => {
     if (item.type === 'video') {
-      const video = item.data as Video;
+      const video = item.data as VideoType;
       await toggleVideoLike(video.id);
     } else {
       const image = item.data as ImageType;
@@ -101,7 +104,7 @@ const combineFeed = useCallback(async () => {
         await likeImage(image.id);
       }
     }
-    await combineFeed();
+    // No need to call combineFeed() - state updates automatically!
   };
 
   // 🎬 Navigate đến detail
@@ -121,7 +124,7 @@ const combineFeed = useCallback(async () => {
 
   // 👤 Navigate đến profile
   const handleUserPress = (userId: string) => {
-    navigation.navigate("OtherProfileScreen", { userId: item.id })
+    navigation.navigate("OtherProfileScreen" as never, { userId } as never);
   };
 
   if (videoLoading || imageLoading) {
@@ -223,32 +226,41 @@ const combineFeed = useCallback(async () => {
                 <TouchableOpacity
                   style={styles.mediaContainer}
                   onPress={() => handleItemPress(item)}
+                  activeOpacity={0.95}
                 >
-                  <Image
-                    source={{
-                      uri: isVideo
-                        ? data.thumbnailUrl
-                        : data.imageUrl,
-                    }}
-                    style={styles.mediaImage}
-                  />
-                  {isVideo && (
-                    <View style={styles.playIconContainer}>
-                      <Ionicons name="play-circle" size={56} color="rgba(255,255,255,0.9)" />
-                    </View>
+                  {isVideo ? (
+                    <>
+                      <Video
+                        source={{ uri: data.videoUrl }}
+                        style={styles.mediaVideo}
+                        resizeMode={"contain" as any}
+                        shouldPlay={false}
+                        isLooping={false}
+                        useNativeControls={false}
+                      />
+                      <View style={styles.playIconContainer}>
+                        <Ionicons name="play-circle" size={64} color="rgba(255,255,255,0.95)" />
+                      </View>
+                    </>
+                  ) : (
+                    <Image
+                      source={{ uri: data.imageUrl }}
+                      style={styles.mediaImage}
+                    />
                   )}
                 </TouchableOpacity>
 
                 {/* 🏷️ Tags */}
                 {data.tags && data.tags.length > 0 && (
                   <View style={styles.tagsContainer}>
-                    {data.tags.slice(0, 3).map((tag: string, index: number) => (
+                    {data.tags.slice(0, 5).map((tag: string, index: number) => (
                       <View key={index} style={styles.tagChip}>
                         <Text style={styles.tagText}>#{tag}</Text>
                       </View>
                     ))}
                   </View>
                 )}
+
 
                 
               </View>
@@ -351,38 +363,50 @@ const styles = StyleSheet.create({
   mediaContainer: {
     position: 'relative',
     width: '100%',
-    height: 400,
+    height: 300,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#000',
+    marginBottom: 12,
   },
   mediaImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+  },
+  mediaVideo: {
+    width: '100%',
+    height: '100%',
   },
   playIconContainer: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -28 }, { translateY: -28 }],
+    transform: [{ translateX: -32 }, { translateY: -32 }],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 10,
+    marginTop: 0,
+    marginBottom: 12,
     gap: 6,
   },
   tagChip: {
-    backgroundColor: '#E8F5FF',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+    backgroundColor: '#F0F8FF',
+    borderWidth: 1,
+    borderColor: '#D4E8FF',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   tagText: {
+    color: '#4A90E2',
     fontSize: 12,
-    color: '#FF4EB8',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   actions: {
     flexDirection: 'row',

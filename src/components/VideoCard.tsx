@@ -556,17 +556,17 @@ const styles = StyleSheet.create({
   },
   
   tagItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 4,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   
   tagText: { 
-    color: "#fff", 
+    color: '#fff', 
     fontSize: 13, 
-    fontWeight: "600", 
-    textShadowColor: "rgba(0,0,0,1)", 
+    fontWeight: '600', 
+    textShadowColor: 'rgba(0,0,0,1)', 
     textShadowOffset: { width: 0, height: 1 }, 
     textShadowRadius: 5 
   },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import ErrorBox from '../../components/ErrorBox';
@@ -52,7 +52,7 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         followingIds: [],
         followerCount: 0,
         followingCount: 0,
-        avatar: '',
+        avatar: 'https://velle.vn/wp-content/uploads/2025/04/avatar-mac-dinh-10.jpg?v=1751861243',
       };
 
       await axios.post(`${API_BASE_URL}/users`, newUser);
@@ -70,10 +70,15 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>VidShare</Text>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.logo}>VidShare</Text>
 
-      {showError && <ErrorBox message={errorMessage} onClose={() => setShowError(false)} />}
+        {showError && <ErrorBox message={errorMessage} onClose={() => setShowError(false)} />}
 
       <TextInput
         placeholder="Tên đăng nhập"
@@ -115,19 +120,24 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Đăng ký</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.replace('Login')}>
-        <Text style={styles.link}>Đã có tài khoản? Đăng nhập</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.login}>Đã có tài khoản? Đăng nhập</Text>
       </TouchableOpacity>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 30,
     backgroundColor: '#fff',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
   logo: {
     fontSize: 36,
@@ -158,7 +168,12 @@ const styles = StyleSheet.create({
   link: {
     textAlign: 'center',
     color: '#555',
-    marginTop: 15,
+    marginTop: 10,
+  },
+  login: {
+    textAlign: 'center',
+    color: '#555',
+    marginTop: 10,
   },
 });
 

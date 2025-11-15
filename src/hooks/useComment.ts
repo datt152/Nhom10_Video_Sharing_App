@@ -25,6 +25,12 @@ export const useComments = (videoId?: string) => {
   const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
+      const currentUserId = await getCurrentUserId();
+      if (!currentUserId) {
+        setComments([]);
+        setLoading(false);
+        return;
+      }
       console.log('🔄 Fetching comments for video:', videoId);
 
       // 1️⃣ Fetch tất cả comments
@@ -42,7 +48,7 @@ export const useComments = (videoId?: string) => {
         axios.get(`${API_BASE_URL}/users/${userId}`)
           .then(res => res.data)
           .catch(err => {
-            console.error(`❌ Failed to fetch user ${userId}:`, err);
+            console.warn(`⚠️ User ${userId} not found (orphaned comment), will use fallback`);
             return null;
           })
       );
@@ -76,7 +82,7 @@ export const useComments = (videoId?: string) => {
             username: 'Unknown',
             avatar: 'https://via.placeholder.com/40',
           },
-          isLiked: comment.likedBy?.includes(getCurrentUserId()) || false,
+          isLiked: comment.likedBy?.includes(currentUserId) || false,
         };
       };
 
@@ -107,15 +113,17 @@ export const useComments = (videoId?: string) => {
   const addComment = useCallback(
     async (content: string, parentId: string | null = null) => {
       try {
+        const currentUserId = await getCurrentUserId();
+        if (!currentUserId) return;
         // 1️⃣ Lấy thông tin user hiện tại
-        const currentUserRes = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
+        const currentUserRes = await axios.get(`${API_BASE_URL}/users/${currentUserId}`);
         const currentUser = currentUserRes.data;
         console.log("Content cua nguoi dung"+ {content})
         // 2️⃣ Tạo comment mới
         const newComment: Comment = {
           id: `c${Date.now()}`,
           videoId: videoId || '',
-          userId: getCurrentUserId() || "",
+          userId: currentUserId || "",
           content,
           createdAt: new Date().toISOString(),
           likeCount: 0,
@@ -183,11 +191,11 @@ export const useComments = (videoId?: string) => {
           console.log("Thong tin video cmt" + video)
 
           // Chỉ gửi thông báo nếu người comment KHÔNG phải là chủ video
-          if (video && video.userId && video.userId !== getCurrentUserId()) {
+          if (video && video.userId && video.userId !== currentUserId) {
             const newNotification = {
               id: `n${Date.now()}`,
               userId: video.userId, // người nhận (chủ video)
-              senderId: getCurrentUserId(), // người gửi
+              senderId: currentUserId, // người gửi
               type: "COMMENT",
               message: `${currentUser.fullname || currentUser.username} đã bình luận: ${content}`, // ✅ thêm nội dung
               content: content, // vẫn giữ lại để lưu chi tiết
@@ -241,13 +249,15 @@ export const useComments = (videoId?: string) => {
 
   const likeComment = useCallback(async (commentId: string) => {
     try {
+      const currentUserId = await getCurrentUserId();
+      if (!currentUserId) return;
       const commentRes = await axios.get(`${API_BASE_URL}/comments/${commentId}`);
       const comment = commentRes.data;
 
-      const isLiked = comment.likedBy?.includes(getCurrentUserId()) || false;
+      const isLiked = comment.likedBy?.includes(currentUserId) || false;
       const updatedLikedBy = isLiked
-        ? comment.likedBy.filter((id: string) => id !== getCurrentUserId())
-        : [...(comment.likedBy || []), getCurrentUserId()];
+        ? comment.likedBy.filter((id: string) => id !== currentUserId)
+        : [...(comment.likedBy || []), currentUserId];
       const updatedLikeCount = isLiked ? comment.likeCount - 1 : comment.likeCount + 1;
 
       await axios.patch(`${API_BASE_URL}/comments/${commentId}`, {
@@ -312,6 +322,8 @@ export const useComments = (videoId?: string) => {
   }, []);
   const getCommentsByVideo = useCallback(async (videoId: string) => {
     try {
+      const currentUserId = await getCurrentUserId();
+      if (!currentUserId) return [];
       console.log("🔄 Fetching comments for video:", videoId);
 
       // 1️⃣ Lấy tất cả comment có videoId (có thể trả về dư)
@@ -326,7 +338,7 @@ export const useComments = (videoId?: string) => {
 
       // 3️⃣ Lấy thông tin user song song
       const userPromises = userIds.map(async (userId) => {
-        if (userId === getCurrentUserId() && currentUser) return currentUser;
+        if (userId === currentUserId && currentUser) return currentUser;
         try {
           const userRes = await axios.get(`${API_BASE_URL}/users/${userId}`);
           return userRes.data;

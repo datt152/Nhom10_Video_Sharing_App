@@ -6,13 +6,14 @@
       "fullname": "Linh Nguyễn2004",
       "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
       "bio": "Du lịch & cuộc sống 🌿125555",
-      "followers": 12002,
+      "followers": 12003,
       "following": 312,
       "likes": 22000,
       "followerIds": [
         "u2",
         "u3",
-        "u4"
+        "u4",
+        "2dfd"
       ],
       "followingIds": [
         "u3",
@@ -23,7 +24,7 @@
         "https://coccoc.com/search?query=figma"
       ],
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi",
-      "followerCount": 0
+      "followerCount": 2
     },
     {
       "id": "u2",
@@ -36,14 +37,15 @@
       "likes": 15800,
       "followerIds": [
         "u4",
-        "u1"
+        "u1",
+        "1ce9"
       ],
       "followingIds": [
         "u3",
         "u4",
         "u1"
       ],
-      "followerCount": 5,
+      "followerCount": 4,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
@@ -62,7 +64,7 @@
       "followingIds": [
         "u1"
       ],
-      "followerCount": 2,
+      "followerCount": 4,
       "password": "$2b$10$p817JoY1q.P.mmQVDs/dVeRWJVk.SOCKIgHV/pBq6g2TZCJhr4eGi"
     },
     {
@@ -91,16 +93,46 @@
       "password": "$2b$10$cGrUnfd01549NRjH4QiyJ.Z7NodfzSQ4XgfDYfGcE13xke9uZbojS",
       "followerIds": [],
       "followingIds": [
-        "u4",
-        "u3"
+        "u3",
+        "u1"
       ],
       "followerCount": 0,
       "followingCount": 0,
       "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg",
       "fullname": "Kon nè",
-      "bio": "Trai  IT tuy không đẹp mà hay suy",
+      "bio": "Trai  IT tuy không đẹp mà hay ngu\n",
       "externalLinks": [],
       "following": 1
+    },
+    {
+      "id": "2855",
+      "username": "ngocdung",
+      "email": "",
+      "password": "$2b$10$5z13beLeNRl15eCsKWyG5.yiuiOb1iVe2CAlED/Ec.k9oiqbzX6Pm",
+      "followerIds": [
+        "1ce9"
+      ],
+      "followingIds": [
+        "u4",
+        "u1"
+      ],
+      "followerCount": 0,
+      "followingCount": 0,
+      "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1763222812/tvubgvtbpxwrzpnrhkx8.jpg",
+      "fullname": "",
+      "bio": "",
+      "externalLinks": []
+    },
+    {
+      "id": "29d8",
+      "username": "ngocdung123",
+      "email": "",
+      "password": "$2b$10$Kmox6MDhfzg0e4piQuP0qecPdlSZ4Jwwi78rsFh7/v5lLJL/ritsy",
+      "followerIds": [],
+      "followingIds": [],
+      "followerCount": 0,
+      "followingCount": 0,
+      "avatar": "https://velle.vn/wp-content/uploads/2025/04/avatar-mac-dinh-10.jpg?v=1751861243"
     }
   ],
   "images": [
@@ -144,7 +176,6 @@
       "likedBy": [
         "u2",
         "u3",
-        "1ce9",
         "u1"
       ],
       "views": 1800,
@@ -152,8 +183,8 @@
       "location": "TP. Hồ Chí Minh",
       "isPublic": true,
       "commentCount": 2,
-      "likes": 4,
-      "isLiked": true,
+      "likes": 3,
+      "isLiked": false,
       "userId": "u2",
       "user": {
         "id": "u2",
@@ -173,11 +204,12 @@
       "likedBy": [
         "u2",
         "u3",
-        "1ce9",
-        "u1"
+        "u1",
+        "29d8",
+        "1ce9"
       ],
       "userId": "u1",
-      "likes": 4,
+      "likes": 5,
       "views": 1500,
       "createdAt": "2025-10-22T07:00:00Z",
       "user": {
@@ -189,7 +221,7 @@
       "location": "Hội An",
       "isPublic": true,
       "isLiked": true,
-      "commentCount": 12
+      "commentCount": 14
     },
     {
       "id": "i1762175658889",
@@ -205,7 +237,13 @@
         "fullname": "Linh Nguyễn",
         "avatar": "https://randomuser.me/api/portraits/women/32.jpg"
       },
-      "userId": "u1"
+      "userId": "u1",
+      "likedBy": [
+        "1ce9",
+        "1ce9"
+      ],
+      "likes": 2,
+      "isLiked": true
     },
     {
       "id": "i1762186851210",
@@ -231,9 +269,9 @@
         "u1"
       ],
       "userId": "u1",
-      "likes": 1,
-      "isLiked": false,
-      "commentCount": 3
+      "likes": 2,
+      "isLiked": true,
+      "commentCount": 4
     },
     {
       "id": "i1762531170765",
@@ -253,9 +291,11 @@
         "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
       },
       "userId": "1ce9",
-      "likedBy": [],
-      "likes": 0,
-      "isLiked": false,
+      "likedBy": [
+        "1ce9"
+      ],
+      "likes": 1,
+      "isLiked": true,
       "commentCount": 0
     },
     {
@@ -278,9 +318,61 @@
         "fullname": "Kon nè",
         "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
       },
-      "likedBy": [],
-      "likes": 0,
-      "isLiked": false,
+      "likedBy": [
+        "1ce9"
+      ],
+      "likes": 1,
+      "isLiked": true,
+      "commentCount": 1
+    },
+    {
+      "id": "i1763235838082",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1763235837/bkau3vwbuq4kvic90jss.jpg",
+      "title": "Kiểm tra",
+      "caption": "Bài kiểm tra thường kì lần n",
+      "tags": [
+        "LSCN"
+      ],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "isPublic": true,
+      "privacy": "Public",
+      "createdAt": "2025-11-15T19:43:58.082Z",
+      "user": {
+        "id": "1ce9",
+        "username": "Konnnatachai",
+        "fullname": "Kon nè",
+        "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
+      },
+      "likedBy": [
+        "1ce9"
+      ],
+      "likes": 1,
+      "isLiked": true,
+      "commentCount": 1
+    },
+    {
+      "id": "i1763238860275",
+      "imageUrl": "https://res.cloudinary.com/daq1jyn28/image/upload/v1763238860/latbcrsox021qj5yfimh.jpg",
+      "title": "Toeic",
+      "caption": "Đề thi",
+      "tags": [],
+      "taggedUsers": [],
+      "commentsEnabled": true,
+      "isPublic": true,
+      "privacy": "Public",
+      "createdAt": "2025-11-15T20:34:20.275Z",
+      "user": {
+        "id": "1ce9",
+        "username": "Konnnatachai",
+        "fullname": "Kon nè",
+        "avatar": "https://res.cloudinary.com/daq1jyn28/image/upload/v1762528934/inngjdupl7i4xiewj4qt.jpg"
+      },
+      "likedBy": [
+        "1ce9"
+      ],
+      "likes": 1,
+      "isLiked": true,
       "commentCount": 0
     }
   ],
@@ -526,7 +618,7 @@
       "privacy": "Công khai",
       "url": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.mp4",
       "thumbnail": "https://res.cloudinary.com/daq1jyn28/video/upload/v1762506247/vut0x4cp6o43pgrlj5br.jpg",
-      "likeCount": 2,
+      "likeCount": 3,
       "commentCount": 0,
       "shareCount": 0,
       "views": 0,
@@ -540,6 +632,7 @@
       },
       "likedBy": [
         "u1",
+        "2dfd",
         "1ce9"
       ]
     }
@@ -1821,6 +1914,65 @@
       },
       "isLiked": false,
       "replies": []
+    },
+    {
+      "id": "c1763222839535",
+      "imageId": "i1762676551994",
+      "userId": "2855",
+      "content": "What",
+      "createdAt": "2025-11-15T16:07:19.535Z",
+      "likeCount": 1,
+      "likedBy": [
+        "2855"
+      ],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1763235556863",
+      "imageId": "i1762588955809",
+      "userId": "1ce9",
+      "content": "Nhức đầu quá",
+      "createdAt": "2025-11-15T19:39:16.863Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1763238037614",
+      "imageId": "i3",
+      "userId": "1ce9",
+      "content": "Đẹp quá",
+      "createdAt": "2025-11-15T20:20:37.614Z",
+      "likeCount": 1,
+      "likedBy": [
+        "1ce9"
+      ],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1763238144571",
+      "imageId": "i3",
+      "userId": "1ce9",
+      "content": "Đẹp",
+      "createdAt": "2025-11-15T20:22:24.571Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
+    },
+    {
+      "id": "c1763238820326",
+      "imageId": "i1763235838082",
+      "userId": "1ce9",
+      "content": "Khó quá",
+      "createdAt": "2025-11-15T20:33:40.326Z",
+      "likeCount": 0,
+      "likedBy": [],
+      "replyCount": 0,
+      "parentId": null
     }
   ],
   "notifications": [
@@ -2389,7 +2541,7 @@
       "type": "LIKE_IMAGE",
       "message": "Người dùng Kon nè đã thích ảnh của bạn.",
       "imageId": "i1762588955809",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-08T16:50:56.161Z"
     },
     {
@@ -2398,7 +2550,7 @@
       "type": "LIKE_IMAGE",
       "message": "Người dùng Kon nè đã thích ảnh của bạn.",
       "imageId": "i1762588955809",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-08T16:53:10.042Z"
     },
     {
@@ -2407,7 +2559,7 @@
       "type": "LIKE_IMAGE",
       "message": "Người dùng Kon nè đã thích ảnh của bạn.",
       "imageId": "i1762588955809",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-08T16:55:04.855Z"
     },
     {
@@ -2416,7 +2568,7 @@
       "type": "LIKE_IMAGE",
       "message": "Người dùng Kon nè đã thích ảnh của bạn.",
       "imageId": "i1762588955809",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-11-08T16:55:29.662Z"
     },
     {
@@ -2428,6 +2580,202 @@
       "imageId": "i1762186851210",
       "isRead": false,
       "createdAt": "2025-11-08T16:55:48.276Z"
+    },
+    {
+      "id": "n1763221881634",
+      "senderId": {
+        "_h": 0,
+        "_i": 0,
+        "_j": null,
+        "_k": null
+      },
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng undefined đã thích ảnh của bạn.",
+      "imageId": "i1762676551994",
+      "isRead": true,
+      "createdAt": "2025-11-15T15:51:21.635Z"
+    },
+    {
+      "id": "n1763222833018",
+      "senderId": "2855",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng  đã thích ảnh của bạn.",
+      "imageId": "i1762676551994",
+      "isRead": false,
+      "createdAt": "2025-11-15T16:07:13.018Z"
+    },
+    {
+      "id": "n1763223151222",
+      "userId": "u1",
+      "senderId": "29d8",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng undefined đã thích ảnh của bạn.",
+      "imageId": "i3",
+      "isRead": false,
+      "createdAt": "2025-11-15T16:12:31.222Z"
+    },
+    {
+      "id": "n1763223261103",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i3",
+      "isRead": false,
+      "createdAt": "2025-11-15T16:14:21.103Z"
+    },
+    {
+      "id": "n1763223275797",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i3",
+      "isRead": false,
+      "createdAt": "2025-11-15T16:14:35.797Z"
+    },
+    {
+      "id": "n1763235541854",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T19:39:01.854Z"
+    },
+    {
+      "id": "n1763235889504",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1763235838082",
+      "isRead": true,
+      "createdAt": "2025-11-15T19:44:49.504Z"
+    },
+    {
+      "id": "n1763238037650",
+      "imageId": "i3",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "COMMENT",
+      "message": "Kon nè đã bình luận: \"Đẹp quá\"",
+      "content": "Đẹp quá",
+      "videoId": null,
+      "isRead": false,
+      "createdAt": "2025-11-15T20:20:37.650Z"
+    },
+    {
+      "id": "n1763238144636",
+      "imageId": "i3",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "COMMENT",
+      "message": "Kon nè đã bình luận: \"Đẹp\"",
+      "content": "Đẹp",
+      "videoId": null,
+      "isRead": false,
+      "createdAt": "2025-11-15T20:22:24.637Z"
+    },
+    {
+      "id": "n1763238156775",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762175658889",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:22:36.775Z"
+    },
+    {
+      "id": "n1763238171799",
+      "userId": "u1",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762175658889",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:22:51.799Z"
+    },
+    {
+      "id": "n1763238387032",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1763235838082",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:26:27.032Z"
+    },
+    {
+      "id": "n1763238396410",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:26:36.410Z"
+    },
+    {
+      "id": "n1763238402394",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:26:42.394Z"
+    },
+    {
+      "id": "n1763238422562",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:27:02.562Z"
+    },
+    {
+      "id": "n1763238422885",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:27:02.885Z"
+    },
+    {
+      "id": "n1763238431624",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1762588955809",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:27:11.624Z"
+    },
+    {
+      "id": "fe69",
+      "userId": "2855",
+      "senderId": "1ce9",
+      "type": "FOLLOW",
+      "message": "Kon nè đã theo dõi bạn",
+      "createdAt": "2025-11-15T20:28:07.954Z",
+      "isRead": false
+    },
+    {
+      "id": "05b9",
+      "userId": "u2",
+      "senderId": "1ce9",
+      "type": "FOLLOW",
+      "message": "Kon nè đã theo dõi bạn",
+      "createdAt": "2025-11-15T20:30:41.874Z",
+      "isRead": false
+    },
+    {
+      "id": "n1763238873561",
+      "senderId": "1ce9",
+      "type": "LIKE_IMAGE",
+      "message": "Người dùng Kon nè đã thích ảnh của bạn.",
+      "imageId": "i1763238860275",
+      "isRead": false,
+      "createdAt": "2025-11-15T20:34:33.561Z"
     }
   ]
 }

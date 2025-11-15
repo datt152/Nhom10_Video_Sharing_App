@@ -20,8 +20,16 @@ export const useUser = (userId?: string) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const currentUserId = await getCurrentUserId();
+                
+                // ✅ Nếu chưa login thì không fetch
+                if (!currentUserId) {
+                    setLoading(false);
+                    return;
+                }
+                
                 const [currentRes, targetRes] = await Promise.all([
-                    axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`),
+                    axios.get(`${API_BASE_URL}/users/${currentUserId}`),
                     userId ? axios.get(`${API_BASE_URL}/users/${userId}`) : Promise.resolve({ data: null }),
                 ]);
 
@@ -45,7 +53,7 @@ export const useUser = (userId?: string) => {
 
                 if (userId) {
                     const following = current.followingIds?.includes(userId);
-                    const followedBy = target.followingIds?.includes(getCurrentUserId());
+                    const followedBy = target.followingIds?.includes(currentUserId);
 
                     setIsFollowing(following);
                     setIsFollowedByOther(followedBy);
@@ -64,7 +72,9 @@ export const useUser = (userId?: string) => {
     // --- 🟢 Hàm chỉnh sửa thông tin user ---
     const updateUser = async (updatedData: Partial<User>) => {
         try {
-            const res = await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, updatedData);
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return false;
+            const res = await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, updatedData);
             setCurrentUser(res.data); // cập nhật lại state
             return true;
         } catch (err) {
@@ -76,7 +86,9 @@ export const useUser = (userId?: string) => {
     // ---  Hàm load lại thông tin user (dùng khi quay lại màn hình Profile)
     const loadUser = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/users/${getCurrentUserId()}`);
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return;
+            const res = await axios.get(`${API_BASE_URL}/users/${currentUserId}`);
             const user = res.data;
             setCurrentUser({
                 ...user,
@@ -98,7 +110,9 @@ export const useUser = (userId?: string) => {
 
             const updatedFollowingIds = [...currentFollowingIds, targetUserId];
 
-            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return false;
+            await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, {
                 followingIds: updatedFollowingIds,
             });
 
@@ -129,7 +143,9 @@ export const useUser = (userId?: string) => {
 
             const updatedFollowingIds = currentFollowingIds.filter(id => id !== targetUserId);
 
-            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return false;
+            await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, {
                 followingIds: updatedFollowingIds,
             });
 
@@ -183,12 +199,14 @@ export const useUser = (userId?: string) => {
     // --- ✅ Fetch Followers List ---
     const fetchFollowersList = async () => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return [];
             const allUsersRes = await axios.get(`${API_BASE_URL}/users`);
             const allUsers = allUsersRes.data;
 
             // Lọc những user có getCurrentUserId() trong followingIds
             const followers = allUsers.filter((user: User) =>
-                user.followingIds?.includes(getCurrentUserId() || "") && user.id !== getCurrentUserId()
+                user.followingIds?.includes(currentUserId || "") && user.id !== currentUserId
             );
 
             return followers;
@@ -201,13 +219,15 @@ export const useUser = (userId?: string) => {
     // --- ✅ Fetch Suggestions (người chưa follow) ---
     const fetchSuggestions = async () => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return [];
             const allUsersRes = await axios.get(`${API_BASE_URL}/users`);
             const allUsers = allUsersRes.data;
             const followingIds = currentUser?.followingIds || [];
 
             // Lọc những user chưa follow và không phải chính mình
             const suggestions = allUsers.filter((user: User) =>
-                user.id !== getCurrentUserId() && !followingIds.includes(user.id)
+                user.id !== currentUserId && !followingIds.includes(user.id)
             );
 
             // Random shuffle
@@ -220,15 +240,17 @@ export const useUser = (userId?: string) => {
     };
     const unfriendUser = async (targetUserId: string) => {
         try {
+            const currentUserId = await getCurrentUserId();
+            if (!currentUserId) return false;
             const currentFollowingIds = currentUser?.followingIds || [];
             const targetRes = await axios.get(`${API_BASE_URL}/users/${targetUserId}`);
             const targetFollowingIds = targetRes.data.followingIds || [];
 
             // Xóa nhau khỏi danh sách following
             const updatedCurrentFollowing = currentFollowingIds.filter((id: String) => id !== targetUserId);
-            const updatedTargetFollowing = targetFollowingIds.filter((id: String) => id !== getCurrentUserId());
+            const updatedTargetFollowing = targetFollowingIds.filter((id: String) => id !== currentUserId);
 
-            await axios.patch(`${API_BASE_URL}/users/${getCurrentUserId()}`, {
+            await axios.patch(`${API_BASE_URL}/users/${currentUserId}`, {
                 followingIds: updatedCurrentFollowing,
             });
 
@@ -282,6 +304,7 @@ export const useUser = (userId?: string) => {
     // 🧩 Hàm lấy thông tin user theo ID
     const getUserById = async (userId: string) => {
         try {
+            if (!userId) return null;
             const res = await axios.get(`${API_BASE_URL}/users/${userId}`);
             return res.data;
         } catch (error) {

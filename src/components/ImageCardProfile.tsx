@@ -18,6 +18,7 @@ import CommentModalImage from './CommentModalImage';
 import { useImage } from '../hooks/useImage';
 import { useNavigation } from '@react-navigation/native';
 import { useImageComments } from '../hooks/useCommentImage';
+import { useUser } from '../hooks/useUser';
 
 interface ImageCardProps {
     image: ImageType;
@@ -41,6 +42,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
     musics = [],
     onPrivacyChange
 }) => {
+    const { currentUser } = useUser();
     const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const [showComments, setShowComments] = useState(false);
     const [localLikeCount, setLocalLikeCount] = useState(0);
@@ -185,9 +187,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
         return n.toString();
     };
 
+    const IMAGE_HEIGHT = SCREEN_HEIGHT * 0.9; // 70% màn hình để không che tags
+    
     return (
         <View style={[styles.container, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT }]}>
-            <TouchableOpacity activeOpacity={0.9} style={[styles.imageWrapper, { height: SCREEN_HEIGHT }]}>
+            <TouchableOpacity activeOpacity={0.9} style={[styles.imageWrapper, { height: IMAGE_HEIGHT }]}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#fff" />
                 </TouchableOpacity>
@@ -297,6 +301,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                     imageId={String(image.id)}
                     comments={comments}
                     currentUserId={currentUserId}
+                    currentUserAvatar={currentUser?.avatar}
                     isVisible={showComments}
                     onClose={() => setShowComments(false)}
                     onAddComment={handleAddComment}
@@ -314,7 +319,7 @@ export default memo(ImageCard);
 const styles = StyleSheet.create({
     container: { backgroundColor: '#000' },
     imageWrapper: { width: '100%', justifyContent: 'center', alignItems: 'center' },
-    image: { width: '100%', height: '100%', resizeMode: 'cover' },
+    image: { width: '100%', height: '100%', resizeMode: 'contain' },
     gradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%' },
     bottomContent: {
         position: 'absolute',
